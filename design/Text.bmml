@@ -77,5 +77,10 @@
         <text/>
       </controlProperties>
     </control>
+    <control controlID="31" controlTypeID="com.balsamiq.mockups::ComboBox" x="1006" y="419" w="-1" h="-1" measuredW="73" measuredH="23" zOrder="15" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Actions</text>
+      </controlProperties>
+    </control>
   </controls>
 </mockup>
