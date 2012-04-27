@@ -1,5 +1,11 @@
 #NuraniLibrary Data Experiments
 
+##0. UI Ideas
+The SWORD project(s) have been coming up with UI to handle this data for several decades, it is worth checking them out.  The [MacSWORD project](http://www.macsword.com/tour/) has a fairly good UI.
+
+![image](http://www.eloquent-bible-study.eu/macsword2/screenshots/MS2_ParallelWithCommentariesAndHebrew.png)
+
+
 ##1. Data Formats
 
 **Problem:** *Find the most useful data formats for NuraniLibrary to support.*
@@ -188,4 +194,7 @@ The OSIS format [looks like this](https://github.com/openscriptures/morphhb/blob
 	        </entry>
 	    </entries>
 	</strongsdictionary>
-			      
+
+##2. Data Handling / Conversion
+
+Found [these Perl scripts](http://code.google.com/p/osis-converters/) which might help for converting from USFM to OSIS.
