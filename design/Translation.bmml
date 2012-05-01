@@ -123,5 +123,6 @@
         <icon>PencilIcon%7Cxsmall</icon>
       </controlProperties>
     </control>
+    <control controlID="26" controlTypeID="com.balsamiq.mockups::VerticalScrollBar" x="1051" y="509" w="-1" h="140" measuredW="16" measuredH="100" zOrder="25" locked="false" isInGroup="-1"/>
   </controls>
 </mockup>
