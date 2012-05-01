@@ -12,7 +12,7 @@ class NuraniDocument {
   protected $contents;
 
 
-  function __construct($path, $file) {
+  public function __construct($path, $file) {
     $this->path = $path;
     $this->filepath = $path . '/' . $file;
 
@@ -22,8 +22,11 @@ class NuraniDocument {
   }
 
 
-  function load() {
+  public function load() {
     $this->contents = file_get_contents($this->filepath);
   }
+
+
+  abstract function search($book, $chapter, $verse);
 
 }
