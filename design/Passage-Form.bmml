@@ -1,0 +1,105 @@
+<mockup version="1.0" skin="sketch" measuredW="1117" measuredH="798" mockupW="1024" mockupH="768">
+  <controls>
+    <control controlID="0" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="93" y="30" w="1024" h="768" measuredW="450" measuredH="400" zOrder="0" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Nurani%20Library%0Ahttp%3A//library.nurani.org</text>
+      </controlProperties>
+    </control>
+    <control controlID="7" controlTypeID="com.balsamiq.mockups::TitleWindow" x="141" y="180" w="483" h="424" measuredW="450" measuredH="400" zOrder="1" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text/>
+        <value>27</value>
+        <verticalScrollbar>true</verticalScrollbar>
+      </controlProperties>
+    </control>
+    <control controlID="8" controlTypeID="com.balsamiq.mockups::TextInput" x="460" y="180" w="164" h="-1" measuredW="162" measuredH="27" zOrder="2" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Jump%20to...%20%28eg%3A%20John%203%3A16%29</text>
+      </controlProperties>
+    </control>
+    <control controlID="9" controlTypeID="com.balsamiq.mockups::Paragraph" x="141" y="201" w="469" h="383" measuredW="200" measuredH="140" zOrder="3" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Chapter%201%0A%20%0ANow%20these%20are%20the%20names%20of%20the%20children%20of%20Israel%2C%20which%20came%20into%20Egypt%3B%20every%20man%20and%20his%20household%20came%20with%20Jacob.%0AReuben%2C%20Simeon%2C%20Levi%2C%20and%20Judah%2C%0AIssachar%2C%20Zebulun%2C%20and%20Benjamin%2C%0ADan%2C%20and%20Naphtali%2C%20Gad%2C%20and%20Asher.%0AAnd%20all%20the%20souls%20that%20came%20out%20of%20the%20loins%20of%20Jacob%20were%20seventy%20souls%3A%20for%20Joseph%20was%20in%20Egypt%20already.%0AAnd%20Joseph%20died%2C%20and%20all%20his%20brethren%2C%20and%20all%20that%20generation.%0AAnd%20the%20children%20of%20Israel%20were%20fruitful%2C%20and%20increased%20abundantly%2C%20and%20multiplied%2C%20and%20waxed%20exceeding%20mighty%3B%20and%20the%20land%20was%20filled%20with%20them.%0ANow%20there%20arose%20up%20a%20new%20king%20over%20Egypt%2C%20which%20knew%20not%20Joseph.%0AAnd%20he%20said%20unto%20his%20people%2C%20Behold%2C%20the%20people%20of%20the%20children%20of%20Israel%20are%20more%20and%20mightier%20than%20we%3A%0ACome%20on%2C%20let%20us%20deal%20wisely%20with%20them%3B%20lest%20they%20multiply%2C%20and%20it%20come%20to%20pass%2C%20that%2C%20when%20there%20falleth%20out%20any%20war%2C%20they%20join%20also%20unto%20our%20enemies%2C%20and%20fight%20against%20us%2C%20and%20so%20get%20them%20up%20out%20of%20the%20land.%0ATherefore%20they%20did%20set%20over%20them%20taskmasters%20to%20afflict%20them%20with%20their%20burdens.%20And%20they%20built%20for%20Pharaoh%20treasure%20cities%2C%20Pithom%20and%20Raamses.%0ABut%20the%20more%20they%20afflicted%20them%2C%20the%20more%20they%20multiplied%20and%20grew.%20And%20they%20were%20grieved%20because%20of%20the%20children%20of%20Israel.%0AAnd%20the%20Egyptians%20made%20the%20children%20of%20Israel%20to%20serve%20with%20rigour%3A%0AAnd%20they%20made%20their%20lives%20bitter%20with%20hard%20bondage%2C%20in%20morter%2C%20and%20in%20brick%2C%20and%20in%20all%20manner%20of%20service%20in%20the%20field%3A%20all%20their%20service%2C%20wherein%20they%20made%20them%20serve%2C%20was%20with%20rigour.%0AAnd%20the%20king%20of%20Egypt%20spake%20to%20the%20Hebrew%20midwives%2C%20of%20which%20the%20name%20of%20the%20one%20was%20Shiphrah%2C%20and%20the%20name%20of%20the%20other%20Puah%3A%0AAnd%20he%20said%2C%20When%20ye%20do%20the%20office%20of%20a%20midwife%20to%20the%20Hebrew%20women%2C%20and%20see%20them%20upon%20the%20stools%3B%20if%20it%20be%20a%20son%2C%20then%20ye%20shall%20kill%20him%3A%20but%20if%20it%20be%20a%20daughter%2C%20then%20she%20shall%20live.%0ABut%20the%20midwives%20feared%20God%2C%20and%20did%20not%20as%20the%20king%20of%20Egypt%20commanded%20them%2C%20but%20saved%20the%20men%20children%20alive.%0AAnd%20the%20king%20of%20Egypt%20called%20for%20the%20midwives%2C%20and%20said%20unto%20them%2C%20Why%20have%20ye%20done%20this%20thing%2C%20and%20have%20saved%20the%20men%20children%20alive%3F%0AAnd%20the%20midwives%20said%20unto%20Pharaoh%2C%20Because%20the%20Hebrew%20women%20are%20not%20as%20the%20Egyptian%20women%3B%20for%20they%20are%20lively%2C%20and%20are%20delivered%20ere%20the%20midwives%20come%20in%20unto%20them.%0ATherefore%20God%20dealt%20well%20with%20the%20midwives%3A%20and%20the%20people%20multiplied%2C%20and%20waxed%20very%20mighty.%0AAnd%20it%20came%20to%20pass%2C%20because%20the%20midwives%20feared%20God%2C%20that%20he%20made%20them%20houses.%0AAnd%20Pharaoh%20charged%20all%20his%20people%2C%20saying%2C%20Every%20son%20that%20is%20born%20ye%20shall%20cast%20into%20the%20river%2C%20and%20every%20daughter%20ye%20shall%20save%20alive.</text>
+      </controlProperties>
+    </control>
+    <control controlID="10" controlTypeID="com.balsamiq.mockups::ComboBox" x="141" y="181" w="137" h="-1" measuredW="124" measuredH="127" zOrder="4" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>The%20Bible%20-%20KJV%0AThe%20Bible%20-%20NIV%0AThe%20Bible%20-%20NET%0AQuran%20-%20Simple%0AQuran%20-%20Extended%0ATorah%20-%20WLC%0A...</text>
+      </controlProperties>
+    </control>
+    <control controlID="11" controlTypeID="com.balsamiq.mockups::ComboBox" x="371" y="180" w="89" h="-1" measuredW="89" measuredH="62" zOrder="5" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Chapter%201%0AChapter%202%0AChapter%203</text>
+      </controlProperties>
+    </control>
+    <control controlID="13" controlTypeID="com.balsamiq.mockups::ComboBox" x="278" y="180" w="93" h="-1" measuredW="79" measuredH="240" zOrder="6" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Genesis%0AExodus%0ALeviticus%0ANumbers%0ADeuteronomy%0AJoshua%0AJudges%0ARuth%0A1%20Samuel%0A2%20Samuel%0A1%20Kings%0A2%20Kings%0A...%0A...</text>
+      </controlProperties>
+    </control>
+    <control controlID="15" controlTypeID="com.balsamiq.mockups::SubTitle" x="141" y="135" w="-1" h="-1" measuredW="191" measuredH="33" zOrder="7" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Select%20a%20passage</text>
+      </controlProperties>
+    </control>
+    <control controlID="18" controlTypeID="com.balsamiq.mockups::Label" x="141" y="625" w="-1" h="-1" measuredW="35" measuredH="21" zOrder="8" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Tags</text>
+      </controlProperties>
+    </control>
+    <control controlID="19" controlTypeID="com.balsamiq.mockups::TextInput" x="200" y="625" w="321" h="-1" measuredW="78" measuredH="27" zOrder="9" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>A%20new%20tag..</text>
+      </controlProperties>
+    </control>
+    <control controlID="20" controlTypeID="com.balsamiq.mockups::Button" x="200" y="655" w="-1" h="-1" measuredW="78" measuredH="27" zOrder="10" locked="false" isInGroup="-1">
+      <controlProperties>
+        <color>10470904</color>
+        <text>Egypt%20%28X%29</text>
+      </controlProperties>
+    </control>
+    <control controlID="21" controlTypeID="com.balsamiq.mockups::Button" x="278" y="655" w="-1" h="-1" measuredW="77" measuredH="27" zOrder="11" locked="false" isInGroup="-1">
+      <controlProperties>
+        <color>10470904</color>
+        <text>Israel%20%28X%29</text>
+      </controlProperties>
+    </control>
+    <control controlID="22" controlTypeID="com.balsamiq.mockups::Button" x="355" y="655" w="-1" h="-1" measuredW="85" measuredH="27" zOrder="12" locked="false" isInGroup="-1">
+      <controlProperties>
+        <color>10470904</color>
+        <text>Labour%20%28X%29</text>
+      </controlProperties>
+    </control>
+    <control controlID="23" controlTypeID="com.balsamiq.mockups::Button" x="823" y="640" w="61" h="42" measuredW="61" measuredH="27" zOrder="13" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>16</size>
+        <text>Save</text>
+      </controlProperties>
+    </control>
+    <control controlID="24" controlTypeID="com.balsamiq.mockups::Button" x="899" y="640" w="83" h="42" measuredW="83" measuredH="27" zOrder="14" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>16</size>
+        <text>Preview</text>
+      </controlProperties>
+    </control>
+    <control controlID="25" controlTypeID="com.balsamiq.mockups::Button" x="997" y="640" w="72" h="42" measuredW="72" measuredH="27" zOrder="15" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>16</size>
+        <text>Cancel</text>
+      </controlProperties>
+    </control>
+    <control controlID="26" controlTypeID="com.balsamiq.mockups::Canvas" x="710" y="210" w="359" h="188" measuredW="100" measuredH="70" zOrder="16" locked="false" isInGroup="-1"/>
+    <control controlID="29" controlTypeID="com.balsamiq.mockups::Label" x="710" y="180" w="-1" h="-1" measuredW="285" measuredH="26" zOrder="17" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>18</size>
+        <text>Current%20selection%3A%20Genesis%201%3A18-20</text>
+      </controlProperties>
+    </control>
+    <control controlID="30" controlTypeID="com.balsamiq.mockups::Paragraph" x="725" y="227" w="329" h="163" measuredW="200" measuredH="140" zOrder="18" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>16</size>
+        <text>%2818%29%20And%20to%20rule%20over%20the%20day%20and%20over%20the%20night%2C%20and%20to%20divide%20the%20light%20from%20the%20darkness%3A%20and%20God%20saw%20that%20it%20was%20good.%20%2819%29%20And%20the%20evening%20and%20the%20morning%20were%20the%20fourth%20day.%20%2820%29%20And%20God%20said%2C%20Let%20the%20waters%20bring%20forth%20abundantly%20the%20moving%20creature%20that%20hath%20life%2C%20and%20fowl%20that%20may%20fly%20above%20the%20earth%20in%20the%20open%20firmament%20of%20heaven.</text>
+      </controlProperties>
+    </control>
+  </controls>
+</mockup>
