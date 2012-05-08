@@ -28,10 +28,6 @@ class NuraniLibrary {
     $chapter = is_numeric($chapter) ? $chapter : 1;
     $verse   = is_numeric($verse) ? $verse : 1;
 
-    if (!$this->model->corpusExists($corpus)) {
-      return FALSE;
-    }
-
     return $this->model->search($corpus, $book, $chapter, $verse);
   }
 

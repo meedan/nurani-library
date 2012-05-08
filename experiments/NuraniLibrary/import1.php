@@ -7,7 +7,7 @@ $import = array();
 // Westminster Leningrad Codex (WLC).
 $import['WLC'] = array(
   'documentType' => 'OSIS',
-  'path' => 'data/wlc',
+  'path' => dirname(__FILE__) . '/data/wlc',
   'textDirection' => 'rtl',
   'stripMarkup' => TRUE,
   'stripChars' => '/',
