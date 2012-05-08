@@ -129,5 +129,36 @@ function nurani_library_schema() {
     'primary key' => array('id'),
   );
 
+  $schema['nurani_library_chapters'] = array(
+    'description' => 'Nurani library chapters.',
+    'fields' => array(
+      'id' => array(
+        'description' => 'The primary identifier for a chapter.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE
+      ),
+      'name' => array(
+        'description' => 'The machine name of the chapter.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+      ),
+      'full_name' => array(
+        'description' => 'The full name of the chapter.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+    ),
+    'indexes' => array(
+      // TODO: Create indexes once usage patterns are known
+    ),
+    'unique keys' => array(
+      'name' => array('name')
+    ),
+    'primary key' => array('id'),
+  );
+
   return $schema;
 }
