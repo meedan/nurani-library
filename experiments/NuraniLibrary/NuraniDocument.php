@@ -5,16 +5,25 @@
  * 
  * Abstract parent class for a document container.
  */
-class NuraniDocument {
+abstract class NuraniDocument {
+
+  public $books;
 
   protected $path;
   protected $filepath;
   protected $contents;
+  protected $conf;
 
 
-  public function __construct($path, $file) {
-    $this->path = $path;
+  public function __construct($path, $file, $conf) {
+    $this->path     = $path;
     $this->filepath = $path . '/' . $file;
+    $this->conf     = $conf;
+
+    // Explode the stripChars into an array
+    if ($this->conf['stripChars'] && strlen($this->conf['stripChars']) > 1) {
+      $this->conf['stripChars'] = str_split($this->conf['stripChars']);
+    }
 
     if (!is_file($this->filepath)) {
       throw new Exception("NuraniDocument: Could not load {$this->filepath}");

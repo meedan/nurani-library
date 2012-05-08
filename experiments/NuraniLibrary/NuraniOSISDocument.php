@@ -10,18 +10,28 @@ require_once 'NuraniDocument.php';
 class NuraniOSISDocument extends NuraniDocument {
 
   public $xml;
-  public $books;
+  public $bibleBooks;
 
 
-  public function __construct($path, $file) {
-    parent::__construct($path, $file);
+  public function __construct($path, $file, $conf) {
+    parent::__construct($path, $file, $conf);
     $this->populateBooks();
+    $this->load();
   }
 
 
   public function load() {
     parent::load();
-    $this->xml = new SimpleXMLElement($this->contents);
+    $this->xml = new SimpleXMLElement(str_replace('xmlns=', 'ns=', $this->contents));
+
+    // Build the chapter and verse list
+    foreach ($this->xml->xpath('/osis/osisText/div[@type="book"]/chapter/verse') as $verseXML) {
+      $osisID = $this->parseOsisID((string) $verseXML['osisID']);
+
+      $verse = $this->createVerse($verseXML);
+
+      $this->books[$osisID->book][$osisID->chapter][$osisID->verse] = $verse;
+    }
   }
 
 
@@ -38,7 +48,7 @@ class NuraniOSISDocument extends NuraniDocument {
    */
   public function search($book, $chapter, $verse = NULL) {
     $chapterID = $this->osisID($book, $chapter);
-    $this->xml->xpath('/osis/osisText/div/chapter[' . $chapterID . ']/verse')
+    $this->xml->xpath('/osis/osisText/div/chapter[' . $chapterID . ']/verse');
   }
 
 
@@ -65,8 +75,51 @@ class NuraniOSISDocument extends NuraniDocument {
     return $osisID;
   }
 
+
+  public function parseOsisID($osisID) {
+    list($book, $chapter, $verse) = explode('.', $osisID);
+
+    return (object) array(
+      'book'    => $book,
+      'chapter' => isset($chapter) && is_numeric($chapter) ? $chapter : 1,
+      'verse'   => isset($verse) && is_numeric($verse) ? $verse : 1,
+    );
+  }
+
+
+  public function createVerse($verseXML) {
+    $verse = (object) array(
+      'text' => '',
+      // Room for future expansion, interpretation
+    );
+
+    if (isset($verseXML->w) || isset($verseXML->seg)) {
+      $words = array();
+      foreach ($verseXML->xpath('w|seg') as $part) {
+        $words[] = (string) $part;
+      }
+      if ($this->conf['textDirection'] == 'rtl') {
+        $words = array_reverse($words);
+      }
+      $verse->text = implode(' ', $words);
+    }
+    else {
+      $verse->text = (string) $verseXML;
+    }
+
+    if ($this->conf['stripMarkup']) {
+      $verse->text = strip_tags($verse->text);
+    }
+    if ($this->conf['stripChars']) {
+      $verse->text = str_replace($this->conf['stripChars'], '', $verse->text);
+    }
+
+    return $verse;
+  }
+
+
   protected function populateBooks() {
-    $this->books = array(
+    $this->bibleBooks = array(
       'Gen'   => 'Genesis',         'Exod'  => 'Exodus',          'Lev'   => 'Leviticus',       
       'Num'   => 'Numbers',         'Deut'  => 'Deuteronomy',     'Josh'  => 'Joshua',          
       'Judg'  => 'Judges',          'Ruth'  => 'Ruth',            '1Sam'  => '1 Samuel',        
