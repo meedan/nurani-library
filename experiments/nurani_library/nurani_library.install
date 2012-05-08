@@ -89,6 +89,12 @@ function nurani_library_schema() {
         'length' => 255,
         'not null' => TRUE,
       ),
+      'language' => array(
+        'description' => 'The language of this corpus.',
+        'type' => 'varchar',
+        'length' => 12,
+        'not null' => TRUE,
+      ),
     ),
     'indexes' => array(
       // TODO: Create indexes once usage patterns are known
@@ -113,6 +119,7 @@ function nurani_library_schema() {
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
+        'default' => 0,
       ),
       'name' => array(
         'description' => 'The machine name of the book.',
@@ -150,6 +157,7 @@ function nurani_library_schema() {
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
+        'default' => 0,
       ),
       'name' => array(
         'description' => 'The machine name of the chapter.',
