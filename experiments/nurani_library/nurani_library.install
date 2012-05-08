@@ -106,7 +106,7 @@ function nurani_library_schema() {
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
-      'order' => array(
+      'weight' => array(
         'description' => 'The order of the book within the corpus.',
         'type' => 'int',
         'unsigned' => TRUE,
@@ -150,7 +150,7 @@ function nurani_library_schema() {
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
-      'order' => array(
+      'weight' => array(
         'description' => 'The order of the chapters within the book.',
         'type' => 'int',
         'unsigned' => TRUE,
