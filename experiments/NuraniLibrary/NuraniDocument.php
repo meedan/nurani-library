@@ -8,11 +8,11 @@
 abstract class NuraniDocument {
 
   public $books;
+  public $conf;
 
   protected $path;
   protected $filepath;
   protected $contents;
-  protected $conf;
 
 
   public function __construct($path, $file, $conf) {

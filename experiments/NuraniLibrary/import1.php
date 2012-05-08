@@ -6,11 +6,13 @@ $import = array();
 
 // Westminster Leningrad Codex (WLC).
 $import['WLC'] = array(
-  'documentType' => 'OSIS',
-  'path' => dirname(__FILE__) . '/data/wlc',
+  'path'          => dirname(__FILE__) . '/data/wlc',
+  'documentType'  => 'OSIS',
+  'workType'      => 'bible',
+  'language'      => 'he',
   'textDirection' => 'rtl',
-  'stripMarkup' => TRUE,
-  'stripChars' => '/',
+  'stripMarkup'   => TRUE,
+  'stripChars'    => '/',
   'chapters' => array(
     'Gen'   => 'Gen.xml',   'Exod'  => 'Exod.xml',  'Lev'   => 'Lev.xml',
     'Num'   => 'Num.xml',   'Deut'  => 'Deut.xml',  'Josh'  => 'Josh.xml',

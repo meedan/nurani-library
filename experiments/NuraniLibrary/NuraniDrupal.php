@@ -23,19 +23,29 @@ class NuraniDrupal extends NuraniModel {
       return FALSE;
     }
 
-    $corpus_id = $this->getCorpusID($corpus, array());
+    $corpus_id = $this->getCorpusID($corpus,
+                                    array('language' => $document->conf['language']));
     if ($corpus_id === FALSE) {
       return FALSE; // TODO: Log error for broken corpus ID.
     }
 
     foreach ($document->books as $bookKey => $book) {
-      $book_id = $this->getBookID($bookKey, array());
+      // TODO: Handle non-bible texts for book weight ordering
+      $weight    = array_search($bookKey, $document->bibleBooksKeys);
+      $full_name = $document->bibleBooks[$bookKey];
+      $book_id   = $this->getBookID($bookKey,
+                                    array('corpus_id' => $corpus_id,
+                                          'weight'    => ($weight + 1),
+                                          'full_name' => $full_name));
+
       if ($book_id === FALSE) {
         continue; // TODO: Log error for broken book ID.
       }
 
       foreach ($book as $chapterKey => $chapter) {
-        $chapter_id = $this->getChapterID($chapterKey, array());
+        $chapter_id = $this->getChapterID($chapterKey,
+                                          array('corpus_id' => $corpus_id,
+                                                'weight'    => $chapterKey));
         if ($chapter_id === FALSE) {
           continue; // TODO: Log error for broken chapter ID.
         }
