@@ -64,7 +64,7 @@ function nurani_library_schema() {
         'not null' => TRUE
       ),
       'name' => array(
-        'description' => 'The machine name of the corpus.',
+        'description' => 'The short name of the corpus, may not be unique.',
         'type' => 'varchar',
         'length' => 32,
         'not null' => TRUE,
@@ -86,7 +86,7 @@ function nurani_library_schema() {
       // TODO: Create indexes once usage patterns are known
     ),
     'unique keys' => array(
-      'name' => array('name')
+      'name_language' => array('name', 'language')
     ),
     'primary key' => array('id'),
   );
@@ -100,7 +100,13 @@ function nurani_library_schema() {
         'unsigned' => TRUE,
         'not null' => TRUE
       ),
-      'number' => array(
+      'corpus_id' => array(
+        'description' => 'The {nurani_library_corpora}.id for this book.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'order' => array(
         'description' => 'The order of the book within the corpus.',
         'type' => 'int',
         'unsigned' => TRUE,
@@ -108,7 +114,7 @@ function nurani_library_schema() {
         'default' => 0,
       ),
       'name' => array(
-        'description' => 'The machine name of the book.',
+        'description' => 'The short name of the book, may not be unique.',
         'type' => 'varchar',
         'length' => 32,
         'not null' => TRUE,
@@ -124,7 +130,7 @@ function nurani_library_schema() {
       // TODO: Create indexes once usage patterns are known
     ),
     'unique keys' => array(
-      'name' => array('name')
+      'corpus_name' => array('corpus_id', 'name')
     ),
     'primary key' => array('id'),
   );
@@ -138,15 +144,21 @@ function nurani_library_schema() {
         'unsigned' => TRUE,
         'not null' => TRUE
       ),
-      'number' => array(
-        'description' => 'The chapter number.',
+      'corpus_id' => array(
+        'description' => 'The {nurani_library_corpora}.id for this book.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'order' => array(
+        'description' => 'The order of the chapters within the book.',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
         'default' => 0,
       ),
       'name' => array(
-        'description' => 'The machine name of the chapter.',
+        'description' => 'The short name of the chapter, may not be unique.',
         'type' => 'varchar',
         'length' => 32,
         'not null' => TRUE,
@@ -162,7 +174,7 @@ function nurani_library_schema() {
       // TODO: Create indexes once usage patterns are known
     ),
     'unique keys' => array(
-      'name' => array('name')
+      'corpus_name' => array('corpus_id', 'name')
     ),
     'primary key' => array('id'),
   );
