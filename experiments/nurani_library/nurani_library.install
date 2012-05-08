@@ -1,20 +1,6 @@
 <?php
 
 /**
- * Implements hook_install().
- */
-function nurani_library_install() {
-  drupal_install_schema('nurani_library');
-}
-
-/**
- * Implements hook_uninstall().
- */
-function nurani_library_uninstall() {
-  drupal_uninstall_schema('nurani_library');
-}
-
-/**
  * Implements hook_schema().
  */
 function nurani_library_schema() {
