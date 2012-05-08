@@ -196,9 +196,10 @@ function nurani_library_views_default_views() {
   $handler->display->display_options['filters']['text']['id'] = 'text';
   $handler->display->display_options['filters']['text']['table'] = 'nurani_library';
   $handler->display->display_options['filters']['text']['field'] = 'text';
+  $handler->display->display_options['filters']['text']['operator'] = 'contains';
   $handler->display->display_options['filters']['text']['exposed'] = TRUE;
   $handler->display->display_options['filters']['text']['expose']['operator_id'] = 'text_op';
-  $handler->display->display_options['filters']['text']['expose']['label'] = 'Verse text';
+  $handler->display->display_options['filters']['text']['expose']['label'] = 'Verse text contains';
   $handler->display->display_options['filters']['text']['expose']['operator'] = 'text_op';
   $handler->display->display_options['filters']['text']['expose']['identifier'] = 'text';
 
