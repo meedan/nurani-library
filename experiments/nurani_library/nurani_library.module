@@ -1,2 +1,11 @@
 <?php
 
+/**
+ * Implementation of hook_views_api().
+ */
+function nurani_library_views_api() {
+  return array(
+    'api' => 3.0,
+  );
+}
+
