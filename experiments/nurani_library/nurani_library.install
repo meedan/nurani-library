@@ -1,0 +1,133 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function nurani_library_install() {
+  drupal_install_schema('nurani_library');
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function nurani_library_uninstall() {
+  drupal_uninstall_schema('nurani_library');
+}
+
+/**
+ * Implements hook_schema().
+ */
+function nurani_library_schema() {
+  $schema = array();
+
+  $schema['nurani_library'] = array(
+    'description' => 'Nurani library of scriptural texts.',
+    'fields' => array(
+      'id' => array(
+        'description' => 'The primary identifier for a record.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE
+      ),
+      'corpus_id' => array(
+        'description' => 'The {nurani_library_corpora}.id of this record.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'book_id' => array(
+        'description' => 'The {nurani_library_books}.id of this record.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'chapter' => array(
+        'description' => 'The chapter number.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'verse' => array(
+        'description' => 'The verse number.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'value' => array(
+        'type' => 'text',
+        'not null' => TRUE,
+      ),
+    ),
+    'indexes' => array(
+      // TODO: Create indexes once usage patterns are known
+    ),
+    'unique keys' => array(
+      'corpus_book_chapter_verse' => array('corpus_id', 'book_id', 'chapter', 'verse')
+    ),
+    'primary key' => array('id'),
+  );
+
+  $schema['nurani_library_corpora'] = array(
+    'description' => 'Nurani library corpora.',
+    'fields' => array(
+      'id' => array(
+        'description' => 'The primary identifier for a corpus.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE
+      ),
+      'name' => array(
+        'description' => 'The machine name of the corpus.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+      ),
+      'full_name' => array(
+        'description' => 'The full name of the corpus.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+    ),
+    'indexes' => array(
+      // TODO: Create indexes once usage patterns are known
+    ),
+    'unique keys' => array(
+      'name' => array('name')
+    ),
+    'primary key' => array('id'),
+  );
+
+  $schema['nurani_library_books'] = array(
+    'description' => 'Nurani library books.',
+    'fields' => array(
+      'id' => array(
+        'description' => 'The primary identifier for a book.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE
+      ),
+      'name' => array(
+        'description' => 'The machine name of the book.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+      ),
+      'full_name' => array(
+        'description' => 'The full name of the book.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+    ),
+    'indexes' => array(
+      // TODO: Create indexes once usage patterns are known
+    ),
+    'unique keys' => array(
+      'name' => array('name')
+    ),
+    'primary key' => array('id'),
+  );
+
+  return $schema;
+}
