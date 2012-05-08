@@ -23,24 +23,24 @@ class NuraniDrupal extends NuraniModel {
       return FALSE;
     }
 
-    $corpus_id = $this->getCorpusID($corpus, TRUE);
+    $corpus_id = $this->getCorpusID($corpus, array());
     if ($corpus_id === FALSE) {
       return FALSE; // TODO: Log error for broken corpus ID.
     }
 
     foreach ($document->books as $bookKey => $book) {
-      $book_id = $this->getBookID($bookKey, TRUE);
+      $book_id = $this->getBookID($bookKey, array());
       if ($book_id === FALSE) {
         continue; // TODO: Log error for broken book ID.
       }
 
-      foreach ($document->chapters as $chapterKey => $chapter) {
-        $chapter_id = $this->getChapterID($chapterKey, TRUE);
+      foreach ($book as $chapterKey => $chapter) {
+        $chapter_id = $this->getChapterID($chapterKey, array());
         if ($chapter_id === FALSE) {
           continue; // TODO: Log error for broken chapter ID.
         }
 
-        foreach ($chapter->verses as $verseKey => $verse) {
+        foreach ($chapter as $verseKey => $verse) {
           // TODO: Batch these queries together for efficiency
           db_delete('nurani_library')
             ->condition('corpus_id',  $corpus_id)
@@ -55,7 +55,7 @@ class NuraniDrupal extends NuraniModel {
                 'book_id'    => $book_id,
                 'chapter_id' => $chapter_id,
                 'verse'      => $verseKey,
-                'value'      => $verse->text,
+                'text'       => $verse->text,
               ))
             ->execute();
         }
@@ -63,48 +63,45 @@ class NuraniDrupal extends NuraniModel {
     }
   }
 
-  function getCorpusID($corpusName, $createIfMissing = FALSE) {
-    $corpus_id = db_query("SELECT id FROM {nurani_library_corpora} WHERE name = '%s'", $corpusName)->fetchField();
 
-    if (!$corpus_id && $createIfMissing) {
-      $corpus_id = db_insert('nurani_library_corpora')
-                     ->fields(array(
-                         'name' => $corpusName
-                       ))
-                     ->execute();
+  function getCorpusID($name, $createIfMissing = FALSE) {
+    if ($createIfMissing !== FALSE) {
+      $fields = array_merge(array('name' => $name), $createIfMissing);
     }
-
-    return $corpus_id;
+    return $this->getOrCreateObject('nurani_library_corpora', $fields);
   }
 
 
-  function getBookID($bookName, $createIfMissing = FALSE) {
-    $book_id = db_query("SELECT id FROM {nurani_library_books} WHERE name = '%s'", $bookName)->fetchField();
-
-    if (!$corpus_id && $createIfMissing) {
-      $book_id = db_insert('nurani_library_books')
-                   ->fields(array(
-                       'name' => $bookName
-                     ))
-                   ->execute();
+  function getBookID($name, $createIfMissing = FALSE) {
+    if ($createIfMissing !== FALSE) {
+      $fields = array_merge(array('name' => $name), $createIfMissing);
     }
-
-    return $book_id;
+    return $this->getOrCreateObject('nurani_library_books', $fields);
   }
 
 
-  function getChapterID($chapterName, $createIfMissing = FALSE) {
-    $chapter_id = db_query("SELECT id FROM {nurani_library_chapters} WHERE name = '%s'", $chapterName)->fetchField();
+  function getChapterID($name, $createIfMissing = FALSE) {
+    if ($createIfMissing !== FALSE) {
+      $fields = array_merge(array('name' => $name), $createIfMissing);
+    }
+    return $this->getOrCreateObject('nurani_library_chapters', $fields);
+  }
 
-    if (!$corpus_id && $createIfMissing) {
-      $chapter_id = db_insert('nurani_library_chapters')
-                      ->fields(array(
-                          'name' => $chapterName
-                        ))
-                      ->execute();
+
+  function getOrCreateObject($table, $fields) {
+    $id = db_query("SELECT id FROM {" . $table . "} WHERE name = :name", array(':name' => $fields['name']))->fetchField();
+
+    if (!$id && $fields !== FALSE) {
+      if (!isset($fields['full_name'])) {
+        $fields['full_name'] = $fields['name'];
+      }
+
+      $id = db_insert($table)
+              ->fields($fields)
+              ->execute();
     }
 
-    return $chapter_id;
+    return $id;
   }
 
 

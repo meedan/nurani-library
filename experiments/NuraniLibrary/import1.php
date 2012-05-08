@@ -31,4 +31,3 @@ $import['WLC'] = array(
 
 $library = new NuraniLibrary();
 $library->import($import);
-var_export($library);
