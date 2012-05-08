@@ -129,8 +129,8 @@ function nurani_library_views_data() {
   );
 
   $data['nurani_library_corpora']['name'] = array(
-    'title' => t('Corpus machine name'),
-    'help' => t('The machine name of the corpus.'),
+    'title' => t('Corpus short name'),
+    'help' => t('The short name of the corpus.'),
     'field' => array(
       'handler' => 'views_handler_field',
     ),
@@ -181,9 +181,9 @@ function nurani_library_views_data() {
     ),
   );
 
-  $data['nurani_library_books']['number'] = array(
-    'title' => t('Book number'),
-    'help' => t('The order of the book within its corpus.'),
+  $data['nurani_library_books']['weight'] = array(
+    'title' => t('Book order'),
+    'help' => t('The order of the book within the corpus.'),
     'field' => array(
       'handler' => 'views_handler_field_numeric',
       'click sortable' => TRUE,
@@ -201,8 +201,8 @@ function nurani_library_views_data() {
   );
 
   $data['nurani_library_books']['name'] = array(
-    'title' => t('Book machine name'),
-    'help' => t('The machine name of the book.'),
+    'title' => t('Book short name'),
+    'help' => t('The short name of the book.'),
     'field' => array(
       'handler' => 'views_handler_field',
     ),
@@ -235,9 +235,9 @@ function nurani_library_views_data() {
     ),
   );
 
-  $data['nurani_library_chapters']['number'] = array(
-    'title' => t('Chapter number'),
-    'help' => t('The chapter number within its book.'),
+  $data['nurani_library_chapters']['weight'] = array(
+    'title' => t('Chapter order'),
+    'help' => t('The order of the chapter within the book.'),
     'field' => array(
       'handler' => 'views_handler_field_numeric',
       'click sortable' => TRUE,
@@ -255,8 +255,8 @@ function nurani_library_views_data() {
   );
 
   $data['nurani_library_chapters']['name'] = array(
-    'title' => t('Chapter machine name'),
-    'help' => t('The machine name of the chapter.'),
+    'title' => t('Chapter short name'),
+    'help' => t('The short name of the chapter.'),
     'field' => array(
       'handler' => 'views_handler_field',
     ),
