@@ -24,25 +24,25 @@ function nurani_library_schema() {
     'description' => 'Nurani library of scriptural texts.',
     'fields' => array(
       'id' => array(
-        'description' => 'The primary identifier for a record.',
+        'description' => 'The primary identifier for a verse.',
         'type' => 'serial',
         'unsigned' => TRUE,
         'not null' => TRUE
       ),
       'corpus_id' => array(
-        'description' => 'The {nurani_library_corpora}.id of this record.',
+        'description' => 'The {nurani_library_corpora}.id of this verse.',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
       'book_id' => array(
-        'description' => 'The {nurani_library_books}.id of this record.',
+        'description' => 'The {nurani_library_books}.id of this verse.',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
-      'chapter' => array(
-        'description' => 'The chapter number.',
+      'chapter_id' => array(
+        'description' => 'The {nurani_library_chapters}.id of this verse.',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
@@ -53,7 +53,8 @@ function nurani_library_schema() {
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
-      'value' => array(
+      'text' => array(
+        'description' => 'The verse text.',
         'type' => 'text',
         'not null' => TRUE,
       ),
@@ -62,7 +63,7 @@ function nurani_library_schema() {
       // TODO: Create indexes once usage patterns are known
     ),
     'unique keys' => array(
-      'corpus_book_chapter_verse' => array('corpus_id', 'book_id', 'chapter', 'verse')
+      'corpus_book_chapter_verse' => array('corpus_id', 'book_id', 'chapter_id', 'verse')
     ),
     'primary key' => array('id'),
   );
@@ -107,6 +108,12 @@ function nurani_library_schema() {
         'unsigned' => TRUE,
         'not null' => TRUE
       ),
+      'number' => array(
+        'description' => 'The order of the book within the corpus.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
       'name' => array(
         'description' => 'The machine name of the book.',
         'type' => 'varchar',
@@ -137,6 +144,12 @@ function nurani_library_schema() {
         'type' => 'serial',
         'unsigned' => TRUE,
         'not null' => TRUE
+      ),
+      'number' => array(
+        'description' => 'The chapter number.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
       ),
       'name' => array(
         'description' => 'The machine name of the chapter.',
