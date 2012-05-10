@@ -7,18 +7,19 @@
  */
 abstract class NuraniDocument {
 
-  public $books;
+  public $contents;
   public $conf;
 
   protected $path;
   protected $filepath;
-  protected $contents;
+  protected $rawContents;
 
 
   public function __construct($path, $file, $conf) {
     $this->path     = $path;
     $this->filepath = $path . '/' . $file;
     $this->conf     = $conf;
+    $this->contents = array();
 
     // Explode the stripChars into an array
     if ($this->conf['stripChars'] && strlen($this->conf['stripChars']) > 1) {
@@ -32,10 +33,8 @@ abstract class NuraniDocument {
 
 
   public function load() {
-    $this->contents = file_get_contents($this->filepath);
+    $this->rawContents = file_get_contents($this->filepath);
   }
 
-
-  abstract function search($book, $chapter, $verse);
 
 }

@@ -13,7 +13,7 @@ $import['WLC'] = array(
   'textDirection' => 'rtl',
   'stripMarkup'   => TRUE,
   'stripChars'    => '/',
-  'chapters' => array(
+  'books' => array(
     'Gen'   => 'Gen.xml',   'Exod'  => 'Exod.xml',  'Lev'   => 'Lev.xml',
     'Num'   => 'Num.xml',   'Deut'  => 'Deut.xml',  'Josh'  => 'Josh.xml',
     'Judg'  => 'Judg.xml',  'Ruth'  => 'Ruth.xml',  '1Sam'  => '1Sam.xml',
@@ -31,5 +31,5 @@ $import['WLC'] = array(
 );
 
 
-$library = new NuraniLibrary();
+$library = new NuraniLibrary(array('backend' => 'Drupal'));
 $library->import($import);

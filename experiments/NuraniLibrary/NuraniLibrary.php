@@ -11,24 +11,17 @@ class NuraniLibrary {
 
 
   function __construct($config = array()) {
-    // Adds $library into the namespace
-    require 'NuraniConfig.php';
+    $model = 'Nurani' . $config['backend'] . 'Model';
 
-    if (is_array($config)) {
-      extract($config);
-    }
-
-    // FIXME: Potential class name injection here.
     require_once $model . '.php';
+
+    $database = $config['database'] ? $config['database'] : NULL;
     $this->model = new $model($database);
   }
 
 
-  function search($corpus, $book, $chapter = NULL, $verse = NULL) {
-    $chapter = is_numeric($chapter) ? $chapter : 1;
-    $verse   = is_numeric($verse) ? $verse : 1;
-
-    return $this->model->search($corpus, $book, $chapter, $verse);
+  function search($corpus, $book, $chapter = NULL, $verse = NULL, $language = NULL, $offset = 0, $limit = 250) {
+    return $this->model->search($corpus, $book, $chapter, $verse, $language, $offset, $limit);
   }
 
 
@@ -37,7 +30,7 @@ class NuraniLibrary {
       $class = 'Nurani' . $info['documentType'] . 'Document';
       require_once $class . '.php';
 
-      foreach ($info['chapters'] as $file) {
+      foreach ($info['books'] as $file) {
         $document = new $class($info['path'], $file, $info);
 
         $this->model->import($corpus, $document);

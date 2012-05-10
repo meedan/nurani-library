@@ -46,7 +46,7 @@ function nurani_library_schema() {
       ),
     ),
     'indexes' => array(
-      // TODO: Create indexes once usage patterns are known
+      'verse' => array('verse'),
     ),
     'unique keys' => array(
       'corpus_book_chapter_verse' => array('corpus_id', 'book_id', 'chapter_id', 'verse')
@@ -83,7 +83,8 @@ function nurani_library_schema() {
       ),
     ),
     'indexes' => array(
-      // TODO: Create indexes once usage patterns are known
+      'name' => array('name'),
+      'full_name' => array('full_name'),
     ),
     'unique keys' => array(
       'name_language' => array('name', 'language')
@@ -127,7 +128,8 @@ function nurani_library_schema() {
       ),
     ),
     'indexes' => array(
-      // TODO: Create indexes once usage patterns are known
+      'name' => array('name'),
+      'full_name' => array('full_name'),
     ),
     'unique keys' => array(
       'corpus_name' => array('corpus_id', 'name')
@@ -171,7 +173,8 @@ function nurani_library_schema() {
       ),
     ),
     'indexes' => array(
-      // TODO: Create indexes once usage patterns are known
+      'name' => array('name'),
+      'full_name' => array('full_name'),
     ),
     'unique keys' => array(
       'corpus_name' => array('corpus_id', 'name')

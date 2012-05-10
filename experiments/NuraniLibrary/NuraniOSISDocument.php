@@ -23,7 +23,7 @@ class NuraniOSISDocument extends NuraniDocument {
 
   public function load() {
     parent::load();
-    $this->xml = new SimpleXMLElement(str_replace('xmlns=', 'ns=', $this->contents));
+    $this->xml = new SimpleXMLElement(str_replace('xmlns=', 'ns=', $this->rawContents));
 
     // Build the chapter and verse list
     foreach ($this->xml->xpath('/osis/osisText/div[@type="book"]/chapter/verse') as $verseXML) {
@@ -31,41 +31,24 @@ class NuraniOSISDocument extends NuraniDocument {
 
       $verse = $this->createVerse($verseXML);
 
-      $this->books[$osisID->book][$osisID->chapter][$osisID->verse] = $verse;
+      $this->contents[$osisID->book][$osisID->chapter][$osisID->verse] = $verse;
     }
-  }
-
-
-  /**
-   * Searches the currently loaded text.
-   * 
-   * @param $book
-   *  Required, a book / volume partition of the text
-   *  (eg: "Genesis", or in OSIS "Gen")
-   * @param $chapter
-   *  Required, the chapter in the book.
-   * @param $verse
-   *  Optional, the 
-   */
-  public function search($book, $chapter, $verse = NULL) {
-    $chapterID = $this->osisID($book, $chapter);
-    $this->xml->xpath('/osis/osisText/div/chapter[' . $chapterID . ']/verse');
   }
 
 
   public function osisID($book, $chapter = NULL, $verse = NULL) {
-    if (array_key_exists($book, $this->books)) {
+    if (array_key_exists($book, $this->contents)) {
       $osisBook = $book;
     }
     else {
-      $osisBook = array_search($book, $this->books);
+      $osisBook = array_search($book, $this->contents);
     }
 
     if (!$osisBook) {
       return FALSE;
     }
 
-    // Simple way to truncate leading zeros, etc.
+    // Simple way to make a valid number
     $chapter = (int) $chapter;
     $verse   = (int) $verse;
 
@@ -116,6 +99,24 @@ class NuraniOSISDocument extends NuraniDocument {
     }
 
     return $verse;
+  }
+
+
+  public function bookOrder($book) {
+    if (!array_key_exists($book, $this->bibleBooksKeys)) {
+      return 0;
+    }
+    return array_search($book, $this->bibleBooksKeys) + 1;
+  }
+
+
+  public function bookFullName($book) {
+    return array_key_exists($book, $this->bibleBooks) ? $this->bibleBooks[$book] : $book;
+  }
+
+
+  public function chapterFullName($chapter) {
+    return $chapter;
   }
 
 

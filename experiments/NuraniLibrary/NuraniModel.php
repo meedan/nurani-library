@@ -1,15 +1,20 @@
 <?php
 
-require_once 'NuraniDocument.php';
-
 /**
  * NuraniModel
  */
-class NuraniModel {
+abstract class NuraniModel {
 
 
-  function __construct() {
+  public function __construct() {
+
   }
+
+
+  abstract public function search($corpus, $book, $chapter = NULL, $verse = NULL,
+                                  $language = NULL, $offset = 0, $limit = 250);
+
+  abstract public function import($corpus, $document);
 
 
 }
