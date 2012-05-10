@@ -36,6 +36,9 @@ class NuraniOSISDocument extends NuraniDocument {
   }
 
 
+  /**
+   * Generates an OSIS ID, useful when searching through OSIS XML via XPath.
+   */
   public function osisID($book, $chapter = NULL, $verse = NULL) {
     if (array_key_exists($book, $this->contents)) {
       $osisBook = $book;
@@ -60,17 +63,25 @@ class NuraniOSISDocument extends NuraniDocument {
   }
 
 
+  /**
+   * Splits an OSIS ID into components.
+   */
   public function parseOsisID($osisID) {
     list($book, $chapter, $verse) = explode('.', $osisID);
 
     return (object) array(
       'book'    => $book,
-      'chapter' => isset($chapter) && is_numeric($chapter) ? $chapter : 1,
-      'verse'   => isset($verse) && is_numeric($verse) ? $verse : 1,
+      'chapter' => isset($chapter) && is_numeric($chapter) ? $chapter : NULL,
+      'verse'   => isset($verse) && is_numeric($verse) ? $verse : NULL,
     );
   }
 
 
+  /**
+   * Turns an OSIS <verse></verse> SimpleXML object into a PHP object.
+   * 
+   * NOTE: Currently only the verse text is extracted.
+   */
   public function createVerse($verseXML) {
     $verse = (object) array(
       'text' => '',

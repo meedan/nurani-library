@@ -92,23 +92,31 @@ class NuraniDrupalModel extends NuraniModel {
         }
 
         foreach ($chapter as $verseKey => $verse) {
-          // TODO: Batch these queries together for efficiency
-          db_delete('nurani_library')
-            ->condition('corpus_id',  $corpus_id)
-            ->condition('book_id',    $book_id)
-            ->condition('chapter_id', $chapter_id)
-            ->condition('verse',      $verseKey)
-            ->execute();
+          $record = db_query("SELECT *
+                                FROM {nurani_library}
+                               WHERE corpus_id  = :corpus_id
+                                 AND book_id    = :book_id
+                                 AND chapter_id = :chapter_id
+                                 AND verse      = :verse",
+                             array(
+                               ":corpus_id"  => $corpus_id,
+                               ":book_id"    => $book_id,
+                               ":chapter_id" => $chapter_id,
+                               ":verse"      => $verseKey
+                             ))
+                             ->fetchObject();
 
-          db_insert('nurani_library')
-            ->fields(array(
-                'corpus_id'  => $corpus_id,
-                'book_id'    => $book_id,
-                'chapter_id' => $chapter_id,
-                'verse'      => $verseKey,
-                'text'       => $verse->text,
-              ))
-            ->execute();
+          if (!$record) {
+            $record = (object) array();
+          }
+
+          $record->corpus_id  = $corpus_id;
+          $record->book_id    = $book_id;
+          $record->chapter_id = $chapter_id;
+          $record->verse      = $verseKey;
+          $record->text       = $verse->text;
+
+          drupal_write_record('nurani_library', $record, isset($record->id) ? array('id') : array());
         }
       }
     }
