@@ -38,14 +38,10 @@ function nurani_library_views_default_views() {
   $handler->display->display_options['fields']['book_id']['id'] = 'book_id';
   $handler->display->display_options['fields']['book_id']['table'] = 'nurani_library';
   $handler->display->display_options['fields']['book_id']['field'] = 'book_id';
-  /* Field: Nurani library: Book machine name */
+  /* Field: Nurani library: Book short name */
   $handler->display->display_options['fields']['name']['id'] = 'name';
   $handler->display->display_options['fields']['name']['table'] = 'nurani_library_books';
   $handler->display->display_options['fields']['name']['field'] = 'name';
-  /* Field: Nurani library: Book number */
-  $handler->display->display_options['fields']['number']['id'] = 'number';
-  $handler->display->display_options['fields']['number']['table'] = 'nurani_library_books';
-  $handler->display->display_options['fields']['number']['field'] = 'number';
   /* Field: Nurani library: Chapter full name */
   $handler->display->display_options['fields']['full_name_1']['id'] = 'full_name_1';
   $handler->display->display_options['fields']['full_name_1']['table'] = 'nurani_library_chapters';
@@ -54,14 +50,10 @@ function nurani_library_views_default_views() {
   $handler->display->display_options['fields']['chapter_id']['id'] = 'chapter_id';
   $handler->display->display_options['fields']['chapter_id']['table'] = 'nurani_library';
   $handler->display->display_options['fields']['chapter_id']['field'] = 'chapter_id';
-  /* Field: Nurani library: Chapter machine name */
+  /* Field: Nurani library: Chapter short name */
   $handler->display->display_options['fields']['name_1']['id'] = 'name_1';
   $handler->display->display_options['fields']['name_1']['table'] = 'nurani_library_chapters';
   $handler->display->display_options['fields']['name_1']['field'] = 'name';
-  /* Field: Nurani library: Chapter number */
-  $handler->display->display_options['fields']['number_1']['id'] = 'number_1';
-  $handler->display->display_options['fields']['number_1']['table'] = 'nurani_library_chapters';
-  $handler->display->display_options['fields']['number_1']['field'] = 'number';
   /* Field: Nurani library: Corpus full name */
   $handler->display->display_options['fields']['full_name_2']['id'] = 'full_name_2';
   $handler->display->display_options['fields']['full_name_2']['table'] = 'nurani_library_corpora';
@@ -74,7 +66,7 @@ function nurani_library_views_default_views() {
   $handler->display->display_options['fields']['language']['id'] = 'language';
   $handler->display->display_options['fields']['language']['table'] = 'nurani_library_corpora';
   $handler->display->display_options['fields']['language']['field'] = 'language';
-  /* Field: Nurani library: Corpus machine name */
+  /* Field: Nurani library: Corpus short name */
   $handler->display->display_options['fields']['name_2']['id'] = 'name_2';
   $handler->display->display_options['fields']['name_2']['table'] = 'nurani_library_corpora';
   $handler->display->display_options['fields']['name_2']['field'] = 'name';
@@ -90,11 +82,19 @@ function nurani_library_views_default_views() {
   $handler->display->display_options['fields']['text']['id'] = 'text';
   $handler->display->display_options['fields']['text']['table'] = 'nurani_library';
   $handler->display->display_options['fields']['text']['field'] = 'text';
-  /* Sort criterion: Nurani library: Book number */
+  /* Field: Nurani library: Book order */
+  $handler->display->display_options['fields']['weight']['id'] = 'weight';
+  $handler->display->display_options['fields']['weight']['table'] = 'nurani_library_books';
+  $handler->display->display_options['fields']['weight']['field'] = 'weight';
+  /* Field: Nurani library: Chapter order */
+  $handler->display->display_options['fields']['weight_1']['id'] = 'weight_1';
+  $handler->display->display_options['fields']['weight_1']['table'] = 'nurani_library_chapters';
+  $handler->display->display_options['fields']['weight_1']['field'] = 'weight';
+  /* Sort criterion: Broken/missing handler */
   $handler->display->display_options['sorts']['number']['id'] = 'number';
   $handler->display->display_options['sorts']['number']['table'] = 'nurani_library_books';
   $handler->display->display_options['sorts']['number']['field'] = 'number';
-  /* Sort criterion: Nurani library: Chapter number */
+  /* Sort criterion: Broken/missing handler */
   $handler->display->display_options['sorts']['number_1']['id'] = 'number_1';
   $handler->display->display_options['sorts']['number_1']['table'] = 'nurani_library_chapters';
   $handler->display->display_options['sorts']['number_1']['field'] = 'number';
@@ -111,7 +111,7 @@ function nurani_library_views_default_views() {
   $handler->display->display_options['filters']['full_name']['expose']['label'] = 'Book full name';
   $handler->display->display_options['filters']['full_name']['expose']['operator'] = 'full_name_op';
   $handler->display->display_options['filters']['full_name']['expose']['identifier'] = 'full_name';
-  /* Filter criterion: Nurani library: Book machine name */
+  /* Filter criterion: Nurani library: Book short name */
   $handler->display->display_options['filters']['name']['id'] = 'name';
   $handler->display->display_options['filters']['name']['table'] = 'nurani_library_books';
   $handler->display->display_options['filters']['name']['field'] = 'name';
@@ -120,15 +120,6 @@ function nurani_library_views_default_views() {
   $handler->display->display_options['filters']['name']['expose']['label'] = 'Book machine name';
   $handler->display->display_options['filters']['name']['expose']['operator'] = 'name_op';
   $handler->display->display_options['filters']['name']['expose']['identifier'] = 'name';
-  /* Filter criterion: Nurani library: Book number */
-  $handler->display->display_options['filters']['number']['id'] = 'number';
-  $handler->display->display_options['filters']['number']['table'] = 'nurani_library_books';
-  $handler->display->display_options['filters']['number']['field'] = 'number';
-  $handler->display->display_options['filters']['number']['exposed'] = TRUE;
-  $handler->display->display_options['filters']['number']['expose']['operator_id'] = 'number_op';
-  $handler->display->display_options['filters']['number']['expose']['label'] = 'Book number';
-  $handler->display->display_options['filters']['number']['expose']['operator'] = 'number_op';
-  $handler->display->display_options['filters']['number']['expose']['identifier'] = 'number';
   /* Filter criterion: Nurani library: Chapter full name */
   $handler->display->display_options['filters']['full_name_1']['id'] = 'full_name_1';
   $handler->display->display_options['filters']['full_name_1']['table'] = 'nurani_library_chapters';
@@ -138,7 +129,7 @@ function nurani_library_views_default_views() {
   $handler->display->display_options['filters']['full_name_1']['expose']['label'] = 'Chapter full name';
   $handler->display->display_options['filters']['full_name_1']['expose']['operator'] = 'full_name_1_op';
   $handler->display->display_options['filters']['full_name_1']['expose']['identifier'] = 'full_name_1';
-  /* Filter criterion: Nurani library: Chapter machine name */
+  /* Filter criterion: Nurani library: Chapter short name */
   $handler->display->display_options['filters']['name_1']['id'] = 'name_1';
   $handler->display->display_options['filters']['name_1']['table'] = 'nurani_library_chapters';
   $handler->display->display_options['filters']['name_1']['field'] = 'name';
@@ -147,15 +138,6 @@ function nurani_library_views_default_views() {
   $handler->display->display_options['filters']['name_1']['expose']['label'] = 'Chapter machine name';
   $handler->display->display_options['filters']['name_1']['expose']['operator'] = 'name_1_op';
   $handler->display->display_options['filters']['name_1']['expose']['identifier'] = 'name_1';
-  /* Filter criterion: Nurani library: Chapter number */
-  $handler->display->display_options['filters']['number_1']['id'] = 'number_1';
-  $handler->display->display_options['filters']['number_1']['table'] = 'nurani_library_chapters';
-  $handler->display->display_options['filters']['number_1']['field'] = 'number';
-  $handler->display->display_options['filters']['number_1']['exposed'] = TRUE;
-  $handler->display->display_options['filters']['number_1']['expose']['operator_id'] = 'number_1_op';
-  $handler->display->display_options['filters']['number_1']['expose']['label'] = 'Chapter number';
-  $handler->display->display_options['filters']['number_1']['expose']['operator'] = 'number_1_op';
-  $handler->display->display_options['filters']['number_1']['expose']['identifier'] = 'number_1';
   /* Filter criterion: Nurani library: Corpus full name */
   $handler->display->display_options['filters']['full_name_2']['id'] = 'full_name_2';
   $handler->display->display_options['filters']['full_name_2']['table'] = 'nurani_library_corpora';
@@ -174,7 +156,7 @@ function nurani_library_views_default_views() {
   $handler->display->display_options['filters']['language']['expose']['label'] = 'Corpus language';
   $handler->display->display_options['filters']['language']['expose']['operator'] = 'language_op';
   $handler->display->display_options['filters']['language']['expose']['identifier'] = 'language';
-  /* Filter criterion: Nurani library: Corpus machine name */
+  /* Filter criterion: Nurani library: Corpus short name */
   $handler->display->display_options['filters']['name_2']['id'] = 'name_2';
   $handler->display->display_options['filters']['name_2']['table'] = 'nurani_library_corpora';
   $handler->display->display_options['filters']['name_2']['field'] = 'name';
@@ -202,6 +184,24 @@ function nurani_library_views_default_views() {
   $handler->display->display_options['filters']['text']['expose']['label'] = 'Verse text contains';
   $handler->display->display_options['filters']['text']['expose']['operator'] = 'text_op';
   $handler->display->display_options['filters']['text']['expose']['identifier'] = 'text';
+  /* Filter criterion: Nurani library: Book order */
+  $handler->display->display_options['filters']['weight']['id'] = 'weight';
+  $handler->display->display_options['filters']['weight']['table'] = 'nurani_library_books';
+  $handler->display->display_options['filters']['weight']['field'] = 'weight';
+  $handler->display->display_options['filters']['weight']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['weight']['expose']['operator_id'] = 'weight_op';
+  $handler->display->display_options['filters']['weight']['expose']['label'] = 'Book order';
+  $handler->display->display_options['filters']['weight']['expose']['operator'] = 'weight_op';
+  $handler->display->display_options['filters']['weight']['expose']['identifier'] = 'weight';
+  /* Filter criterion: Nurani library: Chapter order */
+  $handler->display->display_options['filters']['weight_1']['id'] = 'weight_1';
+  $handler->display->display_options['filters']['weight_1']['table'] = 'nurani_library_chapters';
+  $handler->display->display_options['filters']['weight_1']['field'] = 'weight';
+  $handler->display->display_options['filters']['weight_1']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['weight_1']['expose']['operator_id'] = 'weight_1_op';
+  $handler->display->display_options['filters']['weight_1']['expose']['label'] = 'Chapter order';
+  $handler->display->display_options['filters']['weight_1']['expose']['operator'] = 'weight_1_op';
+  $handler->display->display_options['filters']['weight_1']['expose']['identifier'] = 'weight_1';
 
   /* Display: Page */
   $handler = $view->new_display('page', 'Page', 'page');
