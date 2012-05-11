@@ -26,7 +26,7 @@ class NuraniOSISDocument extends NuraniDocument {
     $this->xml = new SimpleXMLElement(str_replace('xmlns=', 'ns=', $this->rawContents));
 
     // Build the chapter and verse list
-    foreach ($this->xml->xpath('/osis/osisText/div[@type="book"]/chapter/verse') as $verseXML) {
+    foreach ($this->xml->xpath('//verse[@osisID]') as $verseXML) {
       $osisID = $this->parseOsisID((string) $verseXML['osisID']);
 
       $verse = $this->createVerse($verseXML);

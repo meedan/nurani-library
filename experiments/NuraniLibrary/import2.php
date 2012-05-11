@@ -8,13 +8,12 @@ $import = array();
 $import['Quran'] = array(
   'path'          => dirname(__FILE__) . '/data/quran',
   'documentType'  => 'TanzilXML',
-  'workType'      => 'quran',
   'language'      => 'ar',
   'textDirection' => 'rtl',
   'stripMarkup'   => TRUE,
   'stripChars'    => '',
-  'books' => array(
-    'quran' => 'quran-simple-enhanced.xml'
+  'files' => array(
+    'quran-simple-enhanced.xml'
   ),
 );
 

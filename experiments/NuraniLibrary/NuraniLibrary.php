@@ -30,7 +30,7 @@ class NuraniLibrary {
       $class = 'Nurani' . $info['documentType'] . 'Document';
       require_once $class . '.php';
 
-      foreach ($info['books'] as $file) {
+      foreach ($info['files'] as $file) {
         $document = new $class($info['path'], $file, $info);
 
         $this->model->import($corpus, $document);

@@ -200,3 +200,7 @@ The OSIS format [looks like this](https://github.com/openscriptures/morphhb/blob
 Found [these Perl scripts](http://code.google.com/p/osis-converters/) which might help for converting from USFM to OSIS.
 
 There is a Javascript parsing library called [Bible Passage Reference Parser](https://github.com/openbibleinfo/Bible-Passage-Reference-Parser) which may be useful for us.
+
+##3. Good source of OSIS bibles
+
+http://sourceforge.net/projects/zefania-sharp/
