@@ -1,0 +1,19 @@
+# With this command file, you may set paths which are used by
+# osis-converters scripts.
+
+# You may set SWORD_PATH to a directory where module copies
+# will then be made.
+SWORD_PATH:
+
+# Set GO_BIBLE_CREATOR to the Go Bible Creator directory
+# if you are using osis2GoBible.pl.
+GO_BIBLE_CREATOR:
+
+# Set SWORD_BIN to the directory where SWORD tools (osis2mod,
+# emptyvss mod2zmod) are located, unless already in your PATH.
+SWORD_BIN:
+
+# Set XMLLINT to the xmllint executable's directory if
+# it's not in your PATH.
+XMLLINT:
+

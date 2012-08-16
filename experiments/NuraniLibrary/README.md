@@ -7,6 +7,8 @@
 
 
 
-Tasks:
+##TODOs
 
-1. Nurani
+1. Add direct MySQL / PGSQL support
+2. Add Redis support?
+3. 
