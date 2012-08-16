@@ -3,7 +3,7 @@
 /**
  * .
  */
-Drupal.behaviors.osisFieldTextsFormTable = {
+Drupal.behaviors.nuraniLibraryTextsFormTable = {
   attach: function (context) {
     $('.delete-action', context).click(function (e) {
       // TODO: Finish the delete action.

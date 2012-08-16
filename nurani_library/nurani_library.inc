@@ -1,7 +1,30 @@
 <?php
 
-// TODO: Un-stub osis_field_texts().
-function osis_field_texts() {
+function nurani_library_texts_path() {
+  return variable_get('nurani_library_texts_path', 'sites/all/texts');
+}
+
+function nurani_library_find_texts($path) {
+  $texts = glob_recursive($path . '/*.xml');
+  dpm($texts);
+}
+
+/**
+ * Recursive glob function.
+ * @see http://us.php.net/manual/en/function.glob.php#106595
+ */
+function glob_recursive($pattern, $flags = 0) {
+  $files = glob($pattern, $flags);
+
+  foreach (glob(dirname($pattern).'/*', GLOB_ONLYDIR|GLOB_NOSORT) as $dir) {
+    $files = array_merge($files, glob_recursive($dir.'/'.basename($pattern), $flags));
+  }
+
+  return $files;
+}
+
+// TODO: Un-stub nurani_library_texts().
+function nurani_library_texts() {
   return array(
     (object) array('machine_name' => 'niv', 'name' => t("NIV"), 'type' => 'biblical'),
     (object) array('machine_name' => 'nkjv', 'name' => t("NKJV"), 'type' => 'biblical'),
@@ -9,16 +32,16 @@ function osis_field_texts() {
   );
 }
 
-function osis_field_text_options() {
+function nurani_library_text_options() {
   $options = array();
-  foreach (osis_field_texts() as $type) {
+  foreach (nurani_library_texts() as $type) {
     $options[$type->machine_name] = $type->name;
   }
   return $options;
 }
 
-// TODO: Un-stub osis_field_text_types().
-function osis_field_text_types() {
+// TODO: Un-stub nurani_library_text_types().
+function nurani_library_text_types() {
   return array(
     (object) array(
       'machine_name' => 'biblical',
@@ -40,9 +63,9 @@ function osis_field_text_types() {
   );
 }
 
-function osis_field_text_type_options() {
+function nurani_library_text_type_options() {
   $options = array();
-  foreach (osis_field_text_types() as $type) {
+  foreach (nurani_library_text_types() as $type) {
     $options[$type->machine_name] = $type->name;
   }
   return $options;
@@ -56,7 +79,7 @@ function osis_field_text_type_options() {
  * @param (array) $options
  *  A list of options, see $defaults.
  */
-function osis_field_books($type, $options = array()) {
+function nurani_library_books($type, $options = array()) {
   // Default options per-type
   $defaults = array(
     'biblical' => array(
@@ -74,7 +97,7 @@ function osis_field_books($type, $options = array()) {
 
   $books = array();
   foreach ($options['volumes'] as $volume) {
-    $function = "_osis_field_books_" . $type . "_" . $volume;
+    $function = "_nurani_library_books_" . $type . "_" . $volume;
 
     if (function_exists($function)) {
       $books = array_merge($books, call_user_func($function));
@@ -84,7 +107,7 @@ function osis_field_books($type, $options = array()) {
   return $books;
 }
 
-function _osis_field_books_biblical_old_testament() {
+function _nurani_library_books_biblical_old_testament() {
   return array(
     'Gen'    => 'Genesis',         'Exod'   => 'Exodus',          'Lev'    => 'Leviticus',
     'Num'    => 'Numbers',         'Deut'   => 'Deuteronomy',     'Josh'   => 'Joshua',
@@ -102,7 +125,7 @@ function _osis_field_books_biblical_old_testament() {
   );
 }
 
-function _osis_field_books_biblical_new_testament() {
+function _nurani_library_books_biblical_new_testament() {
   return array(
     'Matt'   => 'Matthew',         'Mark'   => 'Mark',            'Luke'   => 'Luke',
     'John'   => 'John',            'Acts'   => 'Acts',            'Rom'    => 'Romans',
@@ -116,11 +139,11 @@ function _osis_field_books_biblical_new_testament() {
   );
 }
 
-function _osis_field_books_hebraic_old_testament() {
-  return _osis_field_books_biblical_old_testament();
+function _nurani_library_books_hebraic_old_testament() {
+  return _nurani_library_books_biblical_old_testament();
 }
 
-function _osis_field_books_biblical_apocrypha() {
+function _nurani_library_books_biblical_apocrypha() {
   return array(
     'Tob'     => 'Tobit',                 'Jdt'     => 'Judith',
     'GkEsth'  => 'Greek Esther',          'Wis'     => 'Wisdom of Solomon',
@@ -134,7 +157,7 @@ function _osis_field_books_biblical_apocrypha() {
   );
 }
 
-function _osis_field_books_quranic_quran() {
+function _nurani_library_books_quranic_quran() {
   return array(
     '1' => 'الفاتحة',    '2' => 'البقرة',     '3' => 'آل عمران',
     '4' => 'النساء',     '5' => 'المائدة',    '6' => 'الأنعام',

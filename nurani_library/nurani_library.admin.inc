@@ -1,10 +1,29 @@
 <?php
 
 /**
- * OSIS Field administrative form for managing texts.
+ * Nurani Library administrative settings form.
  */
-function osis_field_texts_form($form, &$form_state) {
-  drupal_add_js(drupal_get_path('module', 'osis_field') . '/osis_field.js');
+function nurani_library_admin_form($form, &$form_state) {
+  $form['nurani_library_texts_path'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Nurani Library texts path'),
+    '#size' => 60,
+    '#maxlength' => 255,
+    '#default_value' => nurani_library_texts_path(),
+    '#description' => t('Path to the directory which contains raw texts.  Currently supported formats are <a href="http://www.crosswire.org/osis/">OSIS</a> and <a href="http://tanzil.net/download/">Tanzil XML</a>.  Texts may reside in subdirectories of this path.'),
+    '#required' => FALSE,
+  );
+  $form = system_settings_form($form);
+  return $form;
+}
+
+/**
+ * Nurani Library administrative form for managing texts.
+ */
+function nurani_library_texts_form($form, &$form_state) {
+  drupal_add_js(drupal_get_path('module', 'nurani_library') . '/nurani_library.js');
+
+  $texts = nurani_library_find_texts(nurani_library_texts_path());
 
   $form['texts'] = array(
     '#type' => 'fieldset',
@@ -12,12 +31,12 @@ function osis_field_texts_form($form, &$form_state) {
     '#collapsible' => FALSE,
     'table' => array(
       '#tree' => TRUE,
-      '#theme' => 'osis_field_texts_form_table',
+      '#theme' => 'nurani_library_texts_form_table',
     )
   );
   $row = 0;
-  $type_options = osis_field_text_type_options();
-  foreach (osis_field_texts() as $text) {
+  $type_options = nurani_library_text_type_options();
+  foreach (nurani_library_texts() as $text) {
     $form['texts'][$row] = array(
       '#text' => $text,
     );
@@ -71,7 +90,7 @@ function osis_field_texts_form($form, &$form_state) {
 /**
  * Theme function to render the form elements for each Text as a table.
  */
-function theme_osis_field_texts_form_table(&$variables) {
+function theme_nurani_library_texts_form_table(&$variables) {
   $output = '';
 
   $rows = array();
@@ -90,6 +109,6 @@ function theme_osis_field_texts_form_table(&$variables) {
     }
   }
 
-  drupal_add_css(drupal_get_path('module', 'osis_field') . '/osis_field.css');
-  return theme('table', array('header' => $header, 'rows' => $rows, 'attributes' => array('class' => array('osis-field-texts-form-table'))));
+  drupal_add_css(drupal_get_path('module', 'nurani_library') . '/nurani_library.css');
+  return theme('table', array('header' => $header, 'rows' => $rows, 'attributes' => array('class' => array('nurani-library-texts-form-table'))));
 }

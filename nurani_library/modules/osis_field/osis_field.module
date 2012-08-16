@@ -9,33 +9,11 @@
 // TODO: Integrate the OSIS bible reference parser https://github.com/openbibleinfo/Bible-Passage-Reference-Parser.
 // TODO: Build an autocompleter / picker widget type (low priority).
 
-require_once dirname(__FILE__) . '/osis_field.inc';
-
-/**
- * Implements hook_menu().
- */
-function osis_field_menu() {
-  $items = array();
-  $items['admin/structure/osis-field'] = array(
-    'title' => 'OSIS Texts',
-    'description' => 'Manage the texts available to OSIS fields.',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('osis_field_texts_form'),
-    'access arguments' => array('administer content types'),
-    'file' => 'osis_field.admin.inc',
-  );
-  return $items;
-}
-
 /**
  * Implements hook_theme().
  */
 function osis_field_theme($existing, $type, $theme, $path) {
   return array(
-    'osis_field_texts_form_table' => array(
-      'render element' => 'element',
-      'file' => 'osis_field.admin.inc',
-    ),
     'osis_field' => array(
       'render element' => 'element',
     ),
@@ -73,7 +51,7 @@ function osis_field_field_settings_form($field, $instance, $has_data) {
     $form['texts'] = array(
       '#type' => 'checkboxes',
       '#title' => t('Texts'),
-      '#options' => osis_field_text_options(),
+      '#options' => nurani_library_text_options(),
       '#default_value' => $settings['texts'],
       '#description' => t('Limit which texts can be referenced by this field.'),
       '#required' => TRUE,

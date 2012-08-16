@@ -1,5 +1,68 @@
 <?php
 
+require_once dirname(__FILE__) . '/nurani_library.inc';
+
+/**
+ * Implements hook_theme().
+ */
+function nurani_library_theme($existing, $type, $theme, $path) {
+  return array(
+    'nurani_library_texts_form_table' => array(
+      'render element' => 'element',
+      'file' => 'nurani_library.admin.inc',
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function nurani_library_menu() {
+  $items = array();
+  $items['admin/structure/nurani-library'] = array(
+    'title' => 'Nurani Library',
+    'description' => 'Manage Nurani Library configuration and texts.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('nurani_library_admin_form'),
+    'access arguments' => array('administer content types'),
+    'file' => 'nurani_library.admin.inc',
+  );
+  $items['admin/structure/nurani-library/settings'] = array(
+    'title' => 'Settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('nurani_library_admin_form'),
+    'access arguments' => array('administer content types'),
+    'file' => 'nurani_library.admin.inc',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+  $items['admin/structure/nurani-library/texts'] = array(
+    'title' => 'Texts',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('nurani_library_texts_form'),
+    'access arguments' => array('administer content types'),
+    'file' => 'nurani_library.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => -5,
+  );
+
+  return $items;
+}
+
+function nurani_library_validate_osisID($osisID) {
+  // Ex:
+  // *  Gen.1.1               Book + CH + Verse
+  // *  Gen.1.1-8             Book + CH + Verse Range
+  // *  Tob.1.1               Apocryphal book
+  // *  Quran.21.1            Quran Sura #21, Aya #1
+
+  // Not allowed (short forms):
+  // *  Gen                   Book
+  // *  Gen.1                 Book + CH
+
+  return FALSE; // Everything is invalid for now
+}
+
 /**
  * Implementation of hook_views_api().
  */
@@ -8,4 +71,3 @@ function nurani_library_views_api() {
     'api' => 3.0,
   );
 }
-

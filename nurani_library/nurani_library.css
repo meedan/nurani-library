@@ -1,0 +1,7 @@
+table.nurani-library-texts-form-table {
+  width: 100%;
+}
+table.nurani-library-texts-form-table input[type=text],
+table.nurani-library-texts-form-table select {
+  width: 100%;
+}
