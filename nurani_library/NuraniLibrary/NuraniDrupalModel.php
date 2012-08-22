@@ -171,4 +171,20 @@ class NuraniDrupalModel extends NuraniModel {
   }
 
 
+  public function deleteCorpus($corpus_id) {
+    db_delete('nurani_library_corpora')
+      ->condition('id', $corpus_id)
+      ->execute();
+    db_delete('nurani_library')
+      ->condition('corpus_id', $corpus_id)
+      ->execute();
+    db_delete('nurani_library_books')
+      ->condition('corpus_id', $corpus_id)
+      ->execute();
+    db_delete('nurani_library_chapters')
+      ->condition('corpus_id', $corpus_id)
+      ->execute();
+  }
+
+
 }

@@ -7,7 +7,6 @@
 
 // ---- Low priority
 // TODO: Integrate the OSIS bible reference parser https://github.com/openbibleinfo/Bible-Passage-Reference-Parser.
-// TODO: Build an autocompleter / picker widget type (low priority).
 
 /**
  * Implements hook_theme().
@@ -260,7 +259,7 @@ function osis_field_field_process($element, $form_state) {
     '#type' => 'select',
     '#title' => t('Work'),
     '#default_value' => isset($element['#value']['osisIDWork']) ? $element['#value']['osisIDWork'] : NULL,
-    '#options' => osis_field_text_options(),
+    '#options' => nurani_library_text_options(),
     '#required' => TRUE,
   );
   $element['osisID'] = array(

@@ -81,10 +81,17 @@ function nurani_library_schema() {
         'length' => 12,
         'not null' => TRUE,
       ),
+      'type' => array(
+        'description' => 'The type of corpus, see the list of allowed types in the NuraniText class.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+      ),
     ),
     'indexes' => array(
       'name' => array('name'),
       'full_name' => array('full_name'),
+      'type' => array('type'),
     ),
     'unique keys' => array(
       'name_language' => array('name', 'language')

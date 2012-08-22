@@ -1,7 +1,36 @@
-table.nurani-library-texts-form-table {
+#nurani-library-texts-form table {
   width: 100%;
 }
-table.nurani-library-texts-form-table input[type=text],
-table.nurani-library-texts-form-table select {
+#nurani-library-texts-form table thead th small {
+  display: block;
+}
+#nurani-library-texts-form table input[type=text],
+#nurani-library-texts-form table select {
   width: 100%;
+}
+#nurani-library-texts-form .nurani-library-texts-col-name {
+  width: 350px;
+}
+
+.nurani-library-import-form-table .form-type-checkbox {
+  display: inline-block;
+}
+
+.nurani-library-import-form-table .nurani-library-row-directory {
+  background: #a8d1ff;
+}
+.nurani-library-import-form-table .nurani-library-row-depth-2 .nurani-library-col-import {
+  padding-left: 2em;
+}
+.nurani-library-import-form-table .nurani-library-row-depth-3 .nurani-library-col-import {
+  padding-left: 4em;
+}
+.nurani-library-import-form-table .nurani-library-row-depth-4 .nurani-library-col-import {
+  padding-left: 6em;
+}
+.nurani-library-import-form-table .nurani-library-row-depth-5 .nurani-library-col-import {
+  padding-left: 8em;
+}
+.nurani-library-import-form-table .nurani-library-row-depth-6 .nurani-library-col-import {
+  padding-left: 10em;
 }

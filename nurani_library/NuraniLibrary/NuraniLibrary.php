@@ -15,7 +15,7 @@ class NuraniLibrary {
 
     require_once $model . '.php';
 
-    $database = $config['database'] ? $config['database'] : NULL;
+    $database = isset($config['database']) ? $config['database'] : NULL;
     $this->model = new $model($database);
   }
 

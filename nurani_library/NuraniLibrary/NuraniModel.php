@@ -16,5 +16,7 @@ abstract class NuraniModel {
 
   abstract public function import($corpus, $document);
 
+  abstract public function deleteCorpus($corpus_id);
+
 
 }
