@@ -47,12 +47,12 @@ function osis_field_field_settings_form($field, $instance, $has_data) {
   $form = array();
 
   if ($field['type'] == 'osis_field') {
-    $form['texts'] = array(
+    $form['works'] = array(
       '#type' => 'checkboxes',
-      '#title' => t('Texts'),
-      '#options' => nurani_library_text_options(),
-      '#default_value' => $settings['texts'],
-      '#description' => t('Limit which texts can be referenced by this field.'),
+      '#title' => t('Works'),
+      '#options' => nurani_library_work_options(),
+      '#default_value' => $settings['works'],
+      '#description' => t('Limit which texts (works) can be referenced by this field.'),
       '#required' => TRUE,
       '#disabled' => $has_data,
     );
@@ -120,7 +120,7 @@ function osis_field_field_prepare_view($entity_type, $entities, $field, $instanc
 function osis_field_field_widget_info() {
   return array(
     'osis_field' => array(
-      'label' => t('Text field'),
+      'label' => t('Work field'),
       'field types' => array('osis_field'),
       'multiple values' => FIELD_BEHAVIOR_DEFAULT,
     ),
@@ -259,7 +259,7 @@ function osis_field_field_process($element, $form_state) {
     '#type' => 'select',
     '#title' => t('Work'),
     '#default_value' => isset($element['#value']['osisIDWork']) ? $element['#value']['osisIDWork'] : NULL,
-    '#options' => nurani_library_text_options(),
+    '#options' => nurani_library_work_options(),
     '#required' => TRUE,
   );
   $element['osisID'] = array(
@@ -275,7 +275,7 @@ function osis_field_field_process($element, $form_state) {
 }
 
 /**
- * FAPI theme for an individual text elements.
+ * FAPI theme for an individual work elements.
  */
 function theme_osis_field($vars) {
   drupal_add_css(drupal_get_path('module', 'osis_field') .'/osis_field.css');

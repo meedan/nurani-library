@@ -14,22 +14,22 @@ class NuraniDrupalModel extends NuraniModel {
   }
 
 
-  public function search($corpus, $book, $chapter = NULL, $verse = NULL, $language = NULL, $offset = 0, $limit = 250) {
+  public function search($work, $book, $chapter = NULL, $verse = NULL, $language = NULL, $offset = 0, $limit = 250) {
     $select = db_select('nurani_library', 'l');
 
     // TODO: Simplify the NuraniDrupalModel::search() "SQL".  Using DBTNG makes a mess of it.
-    $select->join('nurani_library_corpora',  'co', 'l.corpus_id = co.id');
+    $select->join('nurani_library_works',  'co', 'l.work_id = co.id');
     $select->join('nurani_library_books',    'b',  'l.book_id = b.id');
     $select->join('nurani_library_chapters', 'ch', 'l.chapter_id = ch.id');
     $select->fields('l',  array('id',   'verse',    'text'));
-    $select->addField('co', 'name', 'corpus_name');
-    $select->addField('co', 'full_name', 'corpus_full_name');
-    $select->addField('co', 'language', 'corpus_language');
+    $select->addField('co', 'name', 'work_name');
+    $select->addField('co', 'full_name', 'work_full_name');
+    $select->addField('co', 'language', 'work_language');
     $select->addField('b',  'name', 'book_name');
     $select->addField('b',  'full_name', 'book_full_name');
     $select->addField('ch', 'name', 'chapter_name');
     $select->addField('ch', 'full_name', 'chapter_full_name');
-    $select->condition('co.name', $corpus);
+    $select->condition('co.name', $work);
     $select->condition('b.name', $book);
     $select->orderBy('co.name');
     $select->orderBy('co.language');
@@ -62,19 +62,19 @@ class NuraniDrupalModel extends NuraniModel {
   }
 
 
-  public function import($corpus, $document) {
+  public function import($work, $document) {
     if (!$document->contents) {
       return FALSE;
     }
 
-    $corpus_id = $this->getCorpusID($corpus, array('language' => $document->conf['language']));
-    if ($corpus_id === FALSE) {
-      return FALSE; // TODO: Log error for broken corpus ID.
+    $work_id = $this->getWorkID($work, array('language' => $document->conf['language']));
+    if ($work_id === FALSE) {
+      return FALSE; // TODO: Log error for broken work ID.
     }
 
     foreach ($document->contents as $bookKey => $book) {
       $book_id = $this->getBookID($bookKey,
-                                  array('corpus_id' => $corpus_id,
+                                  array('work_id' => $work_id,
                                         'weight'    => $document->bookOrder($bookKey),
                                         'full_name' => $document->bookFullName($bookKey)));
 
@@ -84,7 +84,7 @@ class NuraniDrupalModel extends NuraniModel {
 
       foreach ($book as $chapterKey => $chapter) {
         $chapter_id = $this->getChapterID($chapterKey,
-                                          array('corpus_id' => $corpus_id,
+                                          array('work_id' => $work_id,
                                                 'weight'    => $chapterKey,
                                                 'full_name' => $document->chapterFullName($chapterKey)));
         if ($chapter_id === FALSE) {
@@ -94,12 +94,12 @@ class NuraniDrupalModel extends NuraniModel {
         foreach ($chapter as $verseKey => $verse) {
           $record = db_query("SELECT *
                                 FROM {nurani_library}
-                               WHERE corpus_id  = :corpus_id
+                               WHERE work_id  = :work_id
                                  AND book_id    = :book_id
                                  AND chapter_id = :chapter_id
                                  AND verse      = :verse",
                              array(
-                               ":corpus_id"  => $corpus_id,
+                               ":work_id"  => $work_id,
                                ":book_id"    => $book_id,
                                ":chapter_id" => $chapter_id,
                                ":verse"      => $verseKey
@@ -110,7 +110,7 @@ class NuraniDrupalModel extends NuraniModel {
             $record = (object) array();
           }
 
-          $record->corpus_id  = $corpus_id;
+          $record->work_id  = $work_id;
           $record->book_id    = $book_id;
           $record->chapter_id = $chapter_id;
           $record->verse      = $verseKey;
@@ -123,11 +123,11 @@ class NuraniDrupalModel extends NuraniModel {
   }
 
 
-  public function getCorpusID($name, $createIfMissing = FALSE) {
+  public function getWorkID($name, $createIfMissing = FALSE) {
     if ($createIfMissing !== FALSE) {
       $fields = array_merge(array('name' => $name), $createIfMissing);
     }
-    return $this->getOrCreateObject('nurani_library_corpora', $fields, array('name'));
+    return $this->getOrCreateObject('nurani_library_works', $fields, array('name'));
   }
 
 
@@ -135,7 +135,7 @@ class NuraniDrupalModel extends NuraniModel {
     if ($createIfMissing !== FALSE) {
       $fields = array_merge(array('name' => $name), $createIfMissing);
     }
-    return $this->getOrCreateObject('nurani_library_books', $fields, array('corpus_id', 'name'));
+    return $this->getOrCreateObject('nurani_library_books', $fields, array('work_id', 'name'));
   }
 
 
@@ -143,12 +143,12 @@ class NuraniDrupalModel extends NuraniModel {
     if ($createIfMissing !== FALSE) {
       $fields = array_merge(array('name' => $name), $createIfMissing);
     }
-    return $this->getOrCreateObject('nurani_library_chapters', $fields, array('corpus_id', 'name'));
+    return $this->getOrCreateObject('nurani_library_chapters', $fields, array('work_id', 'name'));
   }
 
 
   public function getOrCreateObject($table, $fields, $pk_fields) {
-    // FIXME: this is not taking corpus_id into account for books and chapters
+    // FIXME: this is not taking work_id into account for books and chapters
     //        and hence fails for quaranic stuff.
     $select = db_select($table, 't');
     $select->addField('t', 'id');
@@ -171,18 +171,18 @@ class NuraniDrupalModel extends NuraniModel {
   }
 
 
-  public function deleteCorpus($corpus_id) {
-    db_delete('nurani_library_corpora')
-      ->condition('id', $corpus_id)
+  public function deleteWork($work_id) {
+    db_delete('nurani_library_works')
+      ->condition('id', $work_id)
       ->execute();
     db_delete('nurani_library')
-      ->condition('corpus_id', $corpus_id)
+      ->condition('work_id', $work_id)
       ->execute();
     db_delete('nurani_library_books')
-      ->condition('corpus_id', $corpus_id)
+      ->condition('work_id', $work_id)
       ->execute();
     db_delete('nurani_library_chapters')
-      ->condition('corpus_id', $corpus_id)
+      ->condition('work_id', $work_id)
       ->execute();
   }
 

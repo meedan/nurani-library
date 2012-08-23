@@ -20,20 +20,20 @@ class NuraniLibrary {
   }
 
 
-  function search($corpus, $book, $chapter = NULL, $verse = NULL, $language = NULL, $offset = 0, $limit = 250) {
-    return $this->model->search($corpus, $book, $chapter, $verse, $language, $offset, $limit);
+  function search($work, $book, $chapter = NULL, $verse = NULL, $language = NULL, $offset = 0, $limit = 250) {
+    return $this->model->search($work, $book, $chapter, $verse, $language, $offset, $limit);
   }
 
 
   function import($import) {
-    foreach ($import as $corpus => $info) {
+    foreach ($import as $work => $info) {
       $class = 'Nurani' . $info['documentType'] . 'Document';
       require_once $class . '.php';
 
       foreach ($info['files'] as $file) {
         $document = new $class($info['path'], $file, $info);
 
-        $this->model->import($corpus, $document);
+        $this->model->import($work, $document);
 
         unset($document); // Ensure the memory is freed, these can be big
       }

@@ -7,12 +7,8 @@ require_once dirname(__FILE__) . '/nurani_library.inc';
  */
 function nurani_library_help($path, $arg) {
   switch ($path) {
-    case 'admin/structure/nurani-library/texts':
-      return '<p>' . t("Texts are generated automatically when importing "
-                     . "documents into the Nurani Library. A text is a "
-                     . "container object which houses passages. Passages "
-                     . "are grouped into Chapters and Books governed by "
-                     . "the type of text.") . '</p>';
+    case 'admin/structure/nurani-library/works':
+      return '<p>' . t("Works are container objects which house passages. At least one work record must be created before ") . '</p>';
   }
 }
 
@@ -21,7 +17,7 @@ function nurani_library_help($path, $arg) {
  */
 function nurani_library_theme($existing, $type, $theme, $path) {
   return array(
-    'nurani_library_texts_form_table' => array(
+    'nurani_library_works_form_table' => array(
       'render element' => 'element',
       'file' => 'nurani_library.admin.inc',
     ),
@@ -39,7 +35,7 @@ function nurani_library_menu() {
   $items = array();
   $items['admin/structure/nurani-library'] = array(
     'title' => 'Nurani Library',
-    'description' => 'Manage Nurani Library configuration and texts.',
+    'description' => 'Manage Nurani Library configuration and works.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('nurani_library_admin_form'),
     'access arguments' => array('administer content types'),
@@ -54,10 +50,10 @@ function nurani_library_menu() {
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => -10,
   );
-  $items['admin/structure/nurani-library/texts'] = array(
-    'title' => 'Texts',
+  $items['admin/structure/nurani-library/works'] = array(
+    'title' => 'Works',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('nurani_library_texts_form'),
+    'page arguments' => array('nurani_library_works_form'),
     'access arguments' => array('administer content types'),
     'file' => 'nurani_library.admin.inc',
     'type' => MENU_LOCAL_TASK,

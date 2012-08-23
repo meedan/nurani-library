@@ -1,15 +1,15 @@
 <?php
 
 /**
- * Class to manage the text types.  Most useful for validation.
+ * Class to manage the work types.  Most useful for validation.
  */
-class NuraniText {
+class NuraniWork {
 
-  public $textTypes;
+  public $workTypes;
 
 
   function __construct() {
-    $this->textTypes = array(
+    $this->workTypes = array(
       'biblical' => (object) array(
         'name' => t("Biblical"),
         'books' => array_merge(

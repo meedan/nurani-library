@@ -4,7 +4,7 @@ require_once 'NuraniLibrary.php';
 
 $import = array();
 
-// Tanzil Quran Text
+// Tanzil Quran Work
 $import['Quran'] = array(
   'path'          => dirname(__FILE__) . '/data/quran',
   'documentType'  => 'TanzilXML',

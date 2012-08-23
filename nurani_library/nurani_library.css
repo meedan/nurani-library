@@ -1,14 +1,14 @@
-#nurani-library-texts-form table {
+#nurani-library-works-form table {
   width: 100%;
 }
-#nurani-library-texts-form table thead th small {
+#nurani-library-works-form table thead th small {
   display: block;
 }
-#nurani-library-texts-form table input[type=text],
-#nurani-library-texts-form table select {
+#nurani-library-works-form table input[type=text],
+#nurani-library-works-form table select {
   width: 100%;
 }
-#nurani-library-texts-form .nurani-library-texts-col-name {
+#nurani-library-works-form .nurani-library-works-col-name {
   width: 350px;
 }
 

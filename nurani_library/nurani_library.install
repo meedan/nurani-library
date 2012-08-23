@@ -7,7 +7,7 @@ function nurani_library_schema() {
   $schema = array();
 
   $schema['nurani_library'] = array(
-    'description' => 'Nurani library of scriptural texts.',
+    'description' => 'Nurani library of scriptural passages.',
     'fields' => array(
       'id' => array(
         'description' => 'The primary identifier for a verse.',
@@ -15,8 +15,8 @@ function nurani_library_schema() {
         'unsigned' => TRUE,
         'not null' => TRUE
       ),
-      'corpus_id' => array(
-        'description' => 'The {nurani_library_corpora}.id of this verse.',
+      'work_id' => array(
+        'description' => 'The {nurani_library_works}.id of this verse.',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
@@ -49,40 +49,40 @@ function nurani_library_schema() {
       'verse' => array('verse'),
     ),
     'unique keys' => array(
-      'corpus_book_chapter_verse' => array('corpus_id', 'book_id', 'chapter_id', 'verse')
+      'work_book_chapter_verse' => array('work_id', 'book_id', 'chapter_id', 'verse')
     ),
     'primary key' => array('id'),
   );
 
-  $schema['nurani_library_corpora'] = array(
-    'description' => 'Nurani library corpora.',
+  $schema['nurani_library_works'] = array(
+    'description' => 'Nurani library works.',
     'fields' => array(
       'id' => array(
-        'description' => 'The primary identifier for a corpus.',
+        'description' => 'The primary identifier for a work.',
         'type' => 'serial',
         'unsigned' => TRUE,
         'not null' => TRUE
       ),
       'name' => array(
-        'description' => 'The short name of the corpus, may not be unique.',
+        'description' => 'The short name of the work, may not be unique.',
         'type' => 'varchar',
         'length' => 32,
         'not null' => TRUE,
       ),
       'full_name' => array(
-        'description' => 'The full name of the corpus.',
+        'description' => 'The full name of the work.',
         'type' => 'varchar',
         'length' => 255,
         'not null' => TRUE,
       ),
       'language' => array(
-        'description' => 'The language of this corpus.',
+        'description' => 'The language of this work.',
         'type' => 'varchar',
         'length' => 12,
         'not null' => TRUE,
       ),
       'type' => array(
-        'description' => 'The type of corpus, see the list of allowed types in the NuraniText class.',
+        'description' => 'The type of work, see the list of allowed types in the NuraniWork class.',
         'type' => 'varchar',
         'length' => 32,
         'not null' => TRUE,
@@ -108,14 +108,14 @@ function nurani_library_schema() {
         'unsigned' => TRUE,
         'not null' => TRUE
       ),
-      'corpus_id' => array(
-        'description' => 'The {nurani_library_corpora}.id for this book.',
+      'work_id' => array(
+        'description' => 'The {nurani_library_works}.id for this book.',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
       'weight' => array(
-        'description' => 'The order of the book within the corpus.',
+        'description' => 'The order of the book within the work.',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
@@ -139,7 +139,7 @@ function nurani_library_schema() {
       'full_name' => array('full_name'),
     ),
     'unique keys' => array(
-      'corpus_name' => array('corpus_id', 'name')
+      'work_name' => array('work_id', 'name')
     ),
     'primary key' => array('id'),
   );
@@ -153,8 +153,8 @@ function nurani_library_schema() {
         'unsigned' => TRUE,
         'not null' => TRUE
       ),
-      'corpus_id' => array(
-        'description' => 'The {nurani_library_corpora}.id for this book.',
+      'work_id' => array(
+        'description' => 'The {nurani_library_works}.id for this book.',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
@@ -184,7 +184,7 @@ function nurani_library_schema() {
       'full_name' => array('full_name'),
     ),
     'unique keys' => array(
-      'corpus_name' => array('corpus_id', 'name')
+      'work_name' => array('work_id', 'name')
     ),
     'primary key' => array('id'),
   );

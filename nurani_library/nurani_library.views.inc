@@ -9,7 +9,7 @@ function nurani_library_views_data() {
   $data['nurani_library']['table']['base'] = array(
     'field' => 'id',
     'title' => t('Nurani verses'),
-    'help' => t('Nurani library of scriptural texts.'),
+    'help' => t('Nurani library of scriptural passages.'),
   );
 
   $data['nurani_library']['id'] = array(
@@ -31,9 +31,9 @@ function nurani_library_views_data() {
     ),
   );
 
-  $data['nurani_library']['corpus_id'] = array(
-    'title' => t('Corpus id'),
-    'help' => t('The corpus identifier for a verse.'),
+  $data['nurani_library']['work_id'] = array(
+    'title' => t('Work id'),
+    'help' => t('The work identifier for a verse.'),
     'field' => array(
       'handler' => 'views_handler_field_numeric',
       'click sortable' => TRUE,
@@ -118,19 +118,19 @@ function nurani_library_views_data() {
     ),
   );
 
-  $data['nurani_library_corpora']['table']['group']  = t('Nurani library');
+  $data['nurani_library_works']['table']['group']  = t('Nurani library');
 
-  $data['nurani_library_corpora']['table']['join'] = array(
+  $data['nurani_library_works']['table']['join'] = array(
     'nurani_library' => array(
-      'left_field' => 'corpus_id',
+      'left_field' => 'work_id',
       'field' => 'id',
       'type' => 'INNER',
     ),
   );
 
-  $data['nurani_library_corpora']['name'] = array(
-    'title' => t('Corpus short name'),
-    'help' => t('The short name of the corpus.'),
+  $data['nurani_library_works']['name'] = array(
+    'title' => t('Work short name'),
+    'help' => t('The short name of the work.'),
     'field' => array(
       'handler' => 'views_handler_field',
     ),
@@ -142,9 +142,9 @@ function nurani_library_views_data() {
     ),
   );
 
-  $data['nurani_library_corpora']['full_name'] = array(
-    'title' => t('Corpus full name'),
-    'help' => t('The full name of the corpus.'),
+  $data['nurani_library_works']['full_name'] = array(
+    'title' => t('Work full name'),
+    'help' => t('The full name of the work.'),
     'field' => array(
       'handler' => 'views_handler_field',
     ),
@@ -153,9 +153,9 @@ function nurani_library_views_data() {
     ),
   );
 
-  $data['nurani_library_corpora']['language'] = array(
-    'title' => t('Corpus language'),
-    'help' => t('The language of the corpus.'),
+  $data['nurani_library_works']['language'] = array(
+    'title' => t('Work language'),
+    'help' => t('The language of the work.'),
     'field' => array(
       'handler' => 'views_handler_field_locale_language',
       'click sortable' => TRUE,
@@ -183,7 +183,7 @@ function nurani_library_views_data() {
 
   $data['nurani_library_books']['weight'] = array(
     'title' => t('Book order'),
-    'help' => t('The order of the book within the corpus.'),
+    'help' => t('The order of the book within the work.'),
     'field' => array(
       'handler' => 'views_handler_field_numeric',
       'click sortable' => TRUE,

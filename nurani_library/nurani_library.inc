@@ -4,24 +4,24 @@ function nurani_library() {
   return new NuraniLibrary(array('backend' => 'Drupal'));
 }
 
-function nurani_library_texts_path() {
-  return variable_get('nurani_library_texts_path', 'sites/all/texts');
+function nurani_library_works_path() {
+  return variable_get('nurani_library_works_path', 'sites/all/works');
 }
 
 /**
- * Searches in $path for XML files which may be valid texts.
+ * Searches in $path for XML files which may be valid works.
  */
-function nurani_library_find_texts($path) {
+function nurani_library_find_works($path) {
   $files = glob_recursive($path . '/*.xml');
   asort($files);
 
   $path_regexp = '/^' . preg_quote($path . '/', '/') . '/';
 
-  $texts = array();
+  $works = array();
   $directories = array();
   foreach ($files as $filepath) {
     // Skip anything that is not a valid format
-    if (($format = nurnai_library_discover_text_format($filepath)) === FALSE) {
+    if (($format = nurnai_library_discover_work_format($filepath)) === FALSE) {
       continue;
     }
 
@@ -45,7 +45,7 @@ function nurani_library_find_texts($path) {
           $current_directory_fullpath = $path . '/' . $current_directory;
 
           if (is_dir($current_directory_fullpath)) {
-            $texts[] = (object) array(
+            $works[] = (object) array(
               'filepath' => $current_directory_fullpath,
               'relativepath' => $current_directory,
               'filename' => basename($current_directory_fullpath),
@@ -58,7 +58,7 @@ function nurani_library_find_texts($path) {
       }
     }
 
-    $texts[] = (object) array(
+    $works[] = (object) array(
       'filepath' => $filepath,
       'relativepath' => $relativepath,
       'filename' => basename($relativepath),
@@ -68,16 +68,16 @@ function nurani_library_find_texts($path) {
     );
   }
 
-  return $texts;
+  return $works;
 }
 
 /**
- * Determines if a file is a valid OSIS or Tanzil formatted text.  If it is
+ * Determines if a file is a valid OSIS or Tanzil formatted work.  If it is
  * the format is returned.
  * 
  * TODO: This function is fairly quick but not very tolerant of subtle differences.  Perhaps use a full XML parser here?
  */
-function nurnai_library_discover_text_format($filepath) {
+function nurnai_library_discover_work_format($filepath) {
   // Crude search tree
   $format_tree = array(
     '<?xml version="1.0" encoding="utf-8"' => array(
@@ -134,7 +134,7 @@ function glob_recursive($pattern, $flags = 0) {
   return $files;
 }
 
-function nurani_library_text_format_link($format) {
+function nurani_library_work_format_link($format) {
   switch ($format) {
     case 'osis':   return l('OSIS', 'http://www.crosswire.org/osis/');
     case 'tanzil': return l('Tanzil XML', 'http://tanzil.net/download/');
@@ -142,7 +142,7 @@ function nurani_library_text_format_link($format) {
   }
 }
 
-function nurani_library_text_languages() {
+function nurani_library_work_languages() {
   return array(
     'ar' => t("Arabic (ar)"),
     'en' => t("English (en)"),
@@ -152,40 +152,40 @@ function nurani_library_text_languages() {
 }
 
 /**
- * Returns the list of texts known to the system.
+ * Returns the list of works known to the system.
  */
-function nurani_library_texts() {
-  $result = db_query("SELECT * FROM {nurani_library_corpora} ORDER BY name, language");
-  $texts = array();
-  foreach ($result as $text) {
-    $texts[] = $text;
+function nurani_library_works() {
+  $result = db_query("SELECT * FROM {nurani_library_works} ORDER BY name, language");
+  $works = array();
+  foreach ($result as $work) {
+    $works[] = $work;
   }
-  return $texts;
+  return $works;
 }
 
-function nurani_library_text_options() {
+function nurani_library_work_options() {
   $options = array();
-  foreach (nurani_library_texts() as $type) {
+  foreach (nurani_library_works() as $type) {
     $options[$type->name] = $type->full_name . ' (' . $type->language . ')';
   }
   return $options;
 }
 
 /**
- * Returns the list of texts known to the system.
+ * Returns the list of works known to the system.
  */
-function nurani_library_text_load($text_name) {
-  return db_query("SELECT * FROM {nurani_library_corpora} WHERE name = :name", array(':name' => $text_name))->fetchObject();
+function nurani_library_work_load($work_name) {
+  return db_query("SELECT * FROM {nurani_library_works} WHERE name = :name", array(':name' => $work_name))->fetchObject();
 }
 
-function nurani_library_text_types() {
-  $text = new NuraniText();
-  return $text->textTypes;
+function nurani_library_work_types() {
+  $work = new NuraniWork();
+  return $work->workTypes;
 }
 
-function nurani_library_text_type_options() {
+function nurani_library_work_type_options() {
   $options = array();
-  foreach (nurani_library_text_types() as $machine_name => $type) {
+  foreach (nurani_library_work_types() as $machine_name => $type) {
     $options[$machine_name] = $type->name;
   }
   return $options;

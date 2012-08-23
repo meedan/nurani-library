@@ -54,21 +54,21 @@ function nurani_library_views_default_views() {
   $handler->display->display_options['fields']['name_1']['id'] = 'name_1';
   $handler->display->display_options['fields']['name_1']['table'] = 'nurani_library_chapters';
   $handler->display->display_options['fields']['name_1']['field'] = 'name';
-  /* Field: Nurani library: Corpus full name */
+  /* Field: Nurani library: Work full name */
   $handler->display->display_options['fields']['full_name_2']['id'] = 'full_name_2';
-  $handler->display->display_options['fields']['full_name_2']['table'] = 'nurani_library_corpora';
+  $handler->display->display_options['fields']['full_name_2']['table'] = 'nurani_library_works';
   $handler->display->display_options['fields']['full_name_2']['field'] = 'full_name';
-  /* Field: Nurani library: Corpus id */
-  $handler->display->display_options['fields']['corpus_id']['id'] = 'corpus_id';
-  $handler->display->display_options['fields']['corpus_id']['table'] = 'nurani_library';
-  $handler->display->display_options['fields']['corpus_id']['field'] = 'corpus_id';
-  /* Field: Nurani library: Corpus language */
+  /* Field: Nurani library: Work id */
+  $handler->display->display_options['fields']['work_id']['id'] = 'work_id';
+  $handler->display->display_options['fields']['work_id']['table'] = 'nurani_library';
+  $handler->display->display_options['fields']['work_id']['field'] = 'work_id';
+  /* Field: Nurani library: Work language */
   $handler->display->display_options['fields']['language']['id'] = 'language';
-  $handler->display->display_options['fields']['language']['table'] = 'nurani_library_corpora';
+  $handler->display->display_options['fields']['language']['table'] = 'nurani_library_works';
   $handler->display->display_options['fields']['language']['field'] = 'language';
-  /* Field: Nurani library: Corpus short name */
+  /* Field: Nurani library: Work short name */
   $handler->display->display_options['fields']['name_2']['id'] = 'name_2';
-  $handler->display->display_options['fields']['name_2']['table'] = 'nurani_library_corpora';
+  $handler->display->display_options['fields']['name_2']['table'] = 'nurani_library_works';
   $handler->display->display_options['fields']['name_2']['field'] = 'name';
   /* Field: Nurani library: Verse id */
   $handler->display->display_options['fields']['id_1']['id'] = 'id_1';
@@ -138,31 +138,31 @@ function nurani_library_views_default_views() {
   $handler->display->display_options['filters']['name_1']['expose']['label'] = 'Chapter machine name';
   $handler->display->display_options['filters']['name_1']['expose']['operator'] = 'name_1_op';
   $handler->display->display_options['filters']['name_1']['expose']['identifier'] = 'name_1';
-  /* Filter criterion: Nurani library: Corpus full name */
+  /* Filter criterion: Nurani library: Work full name */
   $handler->display->display_options['filters']['full_name_2']['id'] = 'full_name_2';
-  $handler->display->display_options['filters']['full_name_2']['table'] = 'nurani_library_corpora';
+  $handler->display->display_options['filters']['full_name_2']['table'] = 'nurani_library_works';
   $handler->display->display_options['filters']['full_name_2']['field'] = 'full_name';
   $handler->display->display_options['filters']['full_name_2']['exposed'] = TRUE;
   $handler->display->display_options['filters']['full_name_2']['expose']['operator_id'] = 'full_name_2_op';
-  $handler->display->display_options['filters']['full_name_2']['expose']['label'] = 'Corpus full name';
+  $handler->display->display_options['filters']['full_name_2']['expose']['label'] = 'Work full name';
   $handler->display->display_options['filters']['full_name_2']['expose']['operator'] = 'full_name_2_op';
   $handler->display->display_options['filters']['full_name_2']['expose']['identifier'] = 'full_name_2';
-  /* Filter criterion: Nurani library: Corpus language */
+  /* Filter criterion: Nurani library: Work language */
   $handler->display->display_options['filters']['language']['id'] = 'language';
-  $handler->display->display_options['filters']['language']['table'] = 'nurani_library_corpora';
+  $handler->display->display_options['filters']['language']['table'] = 'nurani_library_works';
   $handler->display->display_options['filters']['language']['field'] = 'language';
   $handler->display->display_options['filters']['language']['exposed'] = TRUE;
   $handler->display->display_options['filters']['language']['expose']['operator_id'] = 'language_op';
-  $handler->display->display_options['filters']['language']['expose']['label'] = 'Corpus language';
+  $handler->display->display_options['filters']['language']['expose']['label'] = 'Work language';
   $handler->display->display_options['filters']['language']['expose']['operator'] = 'language_op';
   $handler->display->display_options['filters']['language']['expose']['identifier'] = 'language';
-  /* Filter criterion: Nurani library: Corpus short name */
+  /* Filter criterion: Nurani library: Work short name */
   $handler->display->display_options['filters']['name_2']['id'] = 'name_2';
-  $handler->display->display_options['filters']['name_2']['table'] = 'nurani_library_corpora';
+  $handler->display->display_options['filters']['name_2']['table'] = 'nurani_library_works';
   $handler->display->display_options['filters']['name_2']['field'] = 'name';
   $handler->display->display_options['filters']['name_2']['exposed'] = TRUE;
   $handler->display->display_options['filters']['name_2']['expose']['operator_id'] = 'name_2_op';
-  $handler->display->display_options['filters']['name_2']['expose']['label'] = 'Corpus machine name';
+  $handler->display->display_options['filters']['name_2']['expose']['label'] = 'Work machine name';
   $handler->display->display_options['filters']['name_2']['expose']['operator'] = 'name_2_op';
   $handler->display->display_options['filters']['name_2']['expose']['identifier'] = 'name_2';
   /* Filter criterion: Nurani library: Verse number */

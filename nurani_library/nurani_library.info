@@ -5,5 +5,5 @@ version = 7.x-1.0
 package = Nurani
 
 files[] = nurani_library.inc
-files[] = NuraniLibrary/NuraniText.php
+files[] = NuraniLibrary/NuraniWork.php
 files[] = NuraniLibrary/NuraniLibrary.php
