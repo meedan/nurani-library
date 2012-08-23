@@ -1,0 +1,42 @@
+#nurani-library-provider-works-form table {
+  width: 100%;
+}
+#nurani-library-provider-works-form table thead th small {
+  display: block;
+}
+#nurani-library-provider-works-form table input[type=text],
+#nurani-library-provider-works-form table select {
+  width: 100%;
+}
+#nurani-library-provider-works-form .nurani-library-provider-works-col-name {
+  width: 350px;
+}
+#nurani-library-provider-works-form .nurani-library-provider-works-col-info ul {
+  margin: 0;
+}
+#nurani-library-provider-works-form .nurani-library-provider-works-col-info ul li {
+  list-style-type: none;
+}
+
+.nurani-library-provider-import-form-table .form-type-checkbox {
+  display: inline-block;
+}
+
+.nurani-library-provider-import-form-table .nurani-library-provider-row-directory {
+  background: #a8d1ff;
+}
+.nurani-library-provider-import-form-table .nurani-library-provider-row-depth-2 .nurani-library-provider-col-import {
+  padding-left: 2em;
+}
+.nurani-library-provider-import-form-table .nurani-library-provider-row-depth-3 .nurani-library-provider-col-import {
+  padding-left: 4em;
+}
+.nurani-library-provider-import-form-table .nurani-library-provider-row-depth-4 .nurani-library-provider-col-import {
+  padding-left: 6em;
+}
+.nurani-library-provider-import-form-table .nurani-library-provider-row-depth-5 .nurani-library-provider-col-import {
+  padding-left: 8em;
+}
+.nurani-library-provider-import-form-table .nurani-library-provider-row-depth-6 .nurani-library-provider-col-import {
+  padding-left: 10em;
+}

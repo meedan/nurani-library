@@ -15,8 +15,36 @@ class NuraniLibrary {
 
     require_once $model . '.php';
 
-    $database = isset($config['database']) ? $config['database'] : NULL;
-    $this->model = new $model($database);
+    $connection = isset($config['connection']) ? $config['connection'] : NULL;
+    $this->model = new $model($connection);
+  }
+
+
+  function getWorks() {
+    return $this->model->getWorks();
+  }
+
+
+  function getWork($work_name) {
+    return $this->model->getWork($work_name);
+  }
+
+
+  function getWorkStats($work_name) {
+    return array(
+      'num_passages' => $this->model->numPassagesForWork($work_name),
+    );
+  }
+
+
+  function isDuplicateWork($test_work) {
+    $works = $this->getWorks();
+    foreach ($works as $work) {
+      if ($work->name == $test_work->name && $work->id == $test_work->id) {
+        return TRUE;
+      }
+    }
+    return FALSE;
   }
 
 
@@ -27,11 +55,11 @@ class NuraniLibrary {
 
   function import($import) {
     foreach ($import as $work => $info) {
-      if (!isset($info['documentType']) || !$info['documentType']) {
+      if (!isset($info['format']) || !$info['format']) {
         continue;
       }
 
-      $class = 'Nurani' . $info['documentType'] . 'Document';
+      $class = 'Nurani' . $info['format'] . 'Document';
       require_once $class . '.php';
 
       foreach ($info['files'] as $file) {

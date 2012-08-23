@@ -1,0 +1,81 @@
+<?php
+
+require_once dirname(__FILE__) . '/nurani_library_provider.inc';
+
+/**
+ * Implements hook_help().
+ */
+function nurani_library_provider_help($path, $arg) {
+  switch ($path) {
+    case 'admin/structure/nurani-library/provider/works':
+      return '<p>' . t("Works are container objects which house passages. At least one work record must be created before ") . '</p>';
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function nurani_library_provider_theme($existing, $type, $theme, $path) {
+  return array(
+    'nurani_library_provider_works_form_table' => array(
+      'render element' => 'element',
+      'file' => 'nurani_library_provider.admin.inc',
+    ),
+    'nurani_library_provider_import_form_table' => array(
+      'render element' => 'element',
+      'file' => 'nurani_library_provider.admin.inc',
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function nurani_library_provider_menu() {
+  $items = array();
+  $items['admin/structure/nurani-library/provider'] = array(
+    'title' => 'Provider',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('nurani_library_provider_admin_form'),
+    'access arguments' => array('administer content types'),
+    'file' => 'nurani_library_provider.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+  );
+  $items['admin/structure/nurani-library/provider/settings'] = array(
+    'title' => 'Settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('nurani_library_provider_admin_form'),
+    'access arguments' => array('administer content types'),
+    'file' => 'nurani_library_provider.admin.inc',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+  $items['admin/structure/nurani-library/provider/works'] = array(
+    'title' => 'Works',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('nurani_library_provider_works_form'),
+    'access arguments' => array('administer content types'),
+    'file' => 'nurani_library_provider.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => -5,
+  );
+  $items['admin/structure/nurani-library/provider/import'] = array(
+    'title' => 'Import',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('nurani_library_provider_import_form'),
+    'access arguments' => array('administer content types'),
+    'file' => 'nurani_library_provider.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => -4,
+  );
+  return $items;
+}
+
+/**
+ * Implementation of hook_views_api().
+ */
+function nurani_library_provider_views_api() {
+  return array(
+    'api' => 3.0,
+  );
+}

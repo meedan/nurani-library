@@ -9,8 +9,8 @@ require_once 'NuraniModel.php';
 class NuraniDrupalModel extends NuraniModel {
 
 
-  public function __construct($database) {
-    parent::__construct($database);
+  public function __construct($connection) {
+    parent::__construct($connection);
   }
 
 
@@ -171,6 +171,22 @@ class NuraniDrupalModel extends NuraniModel {
   }
 
 
+  public function getWorks() {
+    $result = db_query("SELECT * FROM {nurani_library_works} ORDER BY name, language");
+    $works = array();
+    foreach ($result as $work) {
+      $works[] = $work;
+    }
+    return $works;
+  }
+
+
+
+  public function getWork($work_name) {
+    return db_query("SELECT * FROM {nurani_library_works} WHERE name = :name", array(':name' => $work_name))->fetchObject();
+  }
+
+
   public function deleteWork($work_id) {
     db_delete('nurani_library_works')
       ->condition('id', $work_id)
@@ -186,5 +202,14 @@ class NuraniDrupalModel extends NuraniModel {
       ->execute();
   }
 
+
+  public function numPassagesForWork($work_name) {
+    return (int) db_query("SELECT COUNT(nl.id)
+                             FROM {nurani_library} nl
+                       INNER JOIN {nurani_library_works} nlw ON nl.work_id = nlw.id
+                            WHERE nlw.name = :work_name", array(
+                            ':work_name' => $work_name
+                         ))->fetchField();
+  }
 
 }

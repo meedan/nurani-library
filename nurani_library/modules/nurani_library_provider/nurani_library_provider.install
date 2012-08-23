@@ -3,7 +3,7 @@
 /**
  * Implements hook_schema().
  */
-function nurani_library_schema() {
+function nurani_library_provider_schema() {
   $schema = array();
 
   $schema['nurani_library'] = array(

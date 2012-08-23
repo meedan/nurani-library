@@ -3,7 +3,7 @@
 /**
  * Implements hook_views_default_views().
  */
-function nurani_library_views_default_views() {
+function nurani_library_provider_views_default_views() {
   $views = array();
 
   $view = new view();
@@ -211,4 +211,3 @@ function nurani_library_views_default_views() {
 
   return $views;
 }
-

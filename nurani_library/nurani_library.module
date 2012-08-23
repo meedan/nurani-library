@@ -41,8 +41,8 @@ function nurani_library_menu() {
     'access arguments' => array('administer content types'),
     'file' => 'nurani_library.admin.inc',
   );
-  $items['admin/structure/nurani-library/settings'] = array(
-    'title' => 'Settings',
+  $items['admin/structure/nurani-library/information'] = array(
+    'title' => 'Information',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('nurani_library_admin_form'),
     'access arguments' => array('administer content types'),
@@ -50,47 +50,5 @@ function nurani_library_menu() {
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => -10,
   );
-  $items['admin/structure/nurani-library/works'] = array(
-    'title' => 'Works',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('nurani_library_works_form'),
-    'access arguments' => array('administer content types'),
-    'file' => 'nurani_library.admin.inc',
-    'type' => MENU_LOCAL_TASK,
-    'weight' => -5,
-  );
-  $items['admin/structure/nurani-library/import'] = array(
-    'title' => 'Import',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('nurani_library_import_form'),
-    'access arguments' => array('administer content types'),
-    'file' => 'nurani_library.admin.inc',
-    'type' => MENU_LOCAL_TASK,
-    'weight' => -4,
-  );
-
   return $items;
-}
-
-function nurani_library_validate_osisID($osisID) {
-  // Ex:
-  // *  Gen.1.1               Book + CH + Verse
-  // *  Gen.1.1-8             Book + CH + Verse Range
-  // *  Tob.1.1               Apocryphal book
-  // *  Quran.21.1            Quran Sura #21, Aya #1
-
-  // Not allowed (short forms):
-  // *  Gen                   Book
-  // *  Gen.1                 Book + CH
-
-  return FALSE; // Everything is invalid for now
-}
-
-/**
- * Implementation of hook_views_api().
- */
-function nurani_library_views_api() {
-  return array(
-    'api' => 3.0,
-  );
 }

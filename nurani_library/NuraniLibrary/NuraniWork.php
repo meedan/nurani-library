@@ -6,6 +6,7 @@
 class NuraniWork {
 
   public $workTypes;
+  public $workLanguages;
 
 
   function __construct() {
@@ -34,6 +35,19 @@ class NuraniWork {
         'books' => $this->booksQuranicQuran(),
       ),
     );
+    $this->workTypeOptions = array();
+    foreach ($this->workTypes as $type_name => $type) {
+      $this->workTypeOptions[$type_name] = $type->name;
+    }
+
+    $this->workLanguages = array(
+      'ar' => t("Arabic (ar)"),
+      'en' => t("English (en)"),
+      'fr' => t("French (fr)"),
+      'he' => t("Hebrew (he)"),
+    );
+    // TODO: Need to add attributes for RTL; probably use Drupal language objects
+    $this->workLanguageOptions = $this->workLanguages;
   }
 
 

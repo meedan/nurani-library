@@ -1,0 +1,6 @@
+name = Nurani Library Provider
+description = Data provider for Nurani scriptural text framework.
+core = 7.x
+version = 7.x-1.0
+package = Nurani
+dependencies[] = nurani_library

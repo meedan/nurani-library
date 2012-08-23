@@ -3,7 +3,7 @@
 /**
  * Implements hook_views_data().
  */
-function nurani_library_views_data() {
+function nurani_library_provider_views_data() {
   $data['nurani_library']['table']['group']  = t('Nurani library');
 
   $data['nurani_library']['table']['base'] = array(
