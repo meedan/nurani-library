@@ -14,8 +14,8 @@ function nurani_library_admin_form($form, &$form_state) {
                       . "Currently supported formats are !osis_link and "
                       . "!tanzil_link.  Works may reside in subdirectories of "
                       . "this path.", array(
-                          '!osis_link' => nurani_library_work_format_link('osis'),
-                          '!tanzil_link' => nurani_library_work_format_link('tanzil'),
+                          '!osis_link' => nurani_library_work_format_link('OSIS'),
+                          '!tanzil_link' => nurani_library_work_format_link('TanzilXML'),
                         )),
     '#required' => FALSE,
   );
@@ -362,8 +362,8 @@ function nurani_library_import_form($form) {
       '#markup' => '<div class="messages error">'
                  .   '<h2 class="element-invisible">Error message</h2>'
                  .   t("No !osis or !tanzil works could be found in %path", array(
-                       '!osis'   => nurani_library_work_format_link('osis'),
-                       '!tanzil' => nurani_library_work_format_link('tanzil'),
+                       '!osis'   => nurani_library_work_format_link('OSIS'),
+                       '!tanzil' => nurani_library_work_format_link('TanzilXML'),
                        '%path'   => $path
                      ))
                  . '</div>',
@@ -449,6 +449,7 @@ function nurani_library_import_form_validate($form, &$form_state) {
   }
 
   $form_state['storage']['files'] = $files;
+  $form_state['storage']['format'] = $format;
 }
 
 /**
@@ -457,10 +458,11 @@ function nurani_library_import_form_validate($form, &$form_state) {
 function nurani_library_import_form_submit($form, &$form_state) {
   $work = nurani_library_work_load($form_state['values']['import']['work']);
   $files = $form_state['storage']['files'];
+  $format = $form_state['storage']['format'];
 
   $import[$work->name] = array(
     'path'          => nurani_library_works_path(),
-    'documentType'  => 'OSIS',
+    'documentType'  => $format,
     'language'      => $work->language,
     // TODO: textDirection should not be hard-coded.
     'textDirection' => in_array($work->language, array('he', 'ar')) ? 'rtl' : 'ltr',

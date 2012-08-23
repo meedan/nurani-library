@@ -136,8 +136,8 @@ function glob_recursive($pattern, $flags = 0) {
 
 function nurani_library_work_format_link($format) {
   switch ($format) {
-    case 'osis':   return l('OSIS', 'http://www.crosswire.org/osis/');
-    case 'tanzil': return l('Tanzil XML', 'http://tanzil.net/download/');
+    case 'OSIS':   return l('OSIS', 'http://www.crosswire.org/osis/');
+    case 'TanzilXML': return l('Tanzil XML', 'http://tanzil.net/download/');
     default:       return '';
   }
 }
