@@ -11,6 +11,12 @@
 #nurani-library-works-form .nurani-library-works-col-name {
   width: 350px;
 }
+#nurani-library-works-form .nurani-library-works-col-info ul {
+  margin: 0;
+}
+#nurani-library-works-form .nurani-library-works-col-info ul li {
+  list-style-type: none;
+}
 
 .nurani-library-import-form-table .form-type-checkbox {
   display: inline-block;

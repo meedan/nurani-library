@@ -120,7 +120,7 @@ function osis_field_field_prepare_view($entity_type, $entities, $field, $instanc
 function osis_field_field_widget_info() {
   return array(
     'osis_field' => array(
-      'label' => t('Work field'),
+      'label' => t('Text field'),
       'field types' => array('osis_field'),
       'multiple values' => FIELD_BEHAVIOR_DEFAULT,
     ),

@@ -178,6 +178,12 @@ function nurani_library_work_load($work_name) {
   return db_query("SELECT * FROM {nurani_library_works} WHERE name = :name", array(':name' => $work_name))->fetchObject();
 }
 
+function nurani_library_work_info($work_id) {
+  return array(
+    'num_passages' => (int) db_query("SELECT COUNT(*) FROM {nurani_library} WHERE work_id = :work_id", array(':work_id' => $work_id))->fetchField(),
+  );
+}
+
 function nurani_library_work_types() {
   $work = new NuraniWork();
   return $work->workTypes;

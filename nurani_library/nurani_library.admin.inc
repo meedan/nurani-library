@@ -117,8 +117,20 @@ function nurani_library_works_form($form, &$form_state) {
       $form['works']['table'][$row][$col]['#row'] = $row;
     }
 
+    $info = nurani_library_work_info($work->id);
+    $form['works']['table'][$row]['info'] = array(
+      '#type' => 'markup',
+      '#markup' => theme('item_list', array(
+        'items' => array(
+            t("<strong>Passages: </strong> @passages", array('@passages' => (string) $info['num_passages'])),
+          )
+        )
+      ),
+    );
+
     $form['works']['table'][$row]['actions'] = array();
     if ($row === 'new') {
+      $form['works']['table'][$row]['info'] = array();
       $form['works']['table'][$row]['actions']['add'] = array(
         '#type' => 'submit',
         '#value' => t('Add new work'),
