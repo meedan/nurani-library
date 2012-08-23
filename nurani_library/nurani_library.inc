@@ -165,8 +165,8 @@ function nurani_library_works() {
 
 function nurani_library_work_options() {
   $options = array();
-  foreach (nurani_library_works() as $type) {
-    $options[$type->name] = $type->full_name . ' (' . $type->language . ')';
+  foreach (nurani_library_works() as $work) {
+    $options[$work->name] = $work->full_name;
   }
   return $options;
 }

@@ -27,6 +27,10 @@ class NuraniLibrary {
 
   function import($import) {
     foreach ($import as $work => $info) {
+      if (!isset($info['documentType']) || !$info['documentType']) {
+        continue;
+      }
+
       $class = 'Nurani' . $info['documentType'] . 'Document';
       require_once $class . '.php';
 

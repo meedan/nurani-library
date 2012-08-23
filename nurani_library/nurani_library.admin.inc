@@ -46,9 +46,9 @@ function nurani_library_works_form($form, &$form_state) {
     'type'     => nurani_library_work_type_options(),
   );
   $descriptions = array(
-    'name' => t('The machine-readable name. Can only contain lowercase letters, numbers, and underscores.'),
+    'name'      => t('A unique machine-readable name. Can only contain lowercase letters, numbers, and underscores.'),
     'full_name' => t("The human readable title of the work."),
-    'language' => t("The language this version of the work is written in."),
+    'language'  => t("The language this version of the work is written in."),
   );
   $row = 0;
   $works = nurani_library_works();
@@ -277,16 +277,14 @@ function _nurani_library_validate_work($work, $element, $validate_empty = FALSE)
   $dupe = db_query("SELECT 1
                       FROM {nurani_library_works}
                      WHERE name = :name
-                       AND language = :language
                        AND id <> :id",
                    array(
                      ':name' => $work['name'],
-                     ':language' => $work['language'],
                      ':id' => $work['id'],
                    ))->fetchCol();
 
   if ($dupe) {
-    form_set_error($element['name'], t("This <em>name + language</em> combination %name + %language already exists.", array('%name' => $work['name'], '%language' => $work['language'])));
+    form_set_error($element['name'], t("The work %name already exists.", array('%name' => $work['name'])));
   }
   if (preg_match('@[^a-z0-9_]+@', $work['name'])) {
     form_error($element['name'], t('The machine-readable name must contain only lowercase letters, numbers, and underscores.'));
@@ -323,18 +321,18 @@ function nurani_library_import_form($form) {
 
   $path = nurani_library_works_path();
   $row = 0;
-  foreach (nurani_library_find_works($path) as $work) {
-    $form['import']['table'][$row]['#work'] = $work;
-    $form['import']['table'][$row]['work'] = array();
+  foreach (nurani_library_find_works($path) as $file) {
+    $form['import']['table'][$row]['#file'] = $file;
+    $form['import']['table'][$row]['file'] = array();
     $form['import']['table'][$row]['import'] = array();
 
-    if ($work->is_dir) {
+    if ($file->is_dir) {
       // TODO: Finish whole directory selection / import code
     }
     else {
-      $form['import']['table'][$row]['work'] = array(
+      $form['import']['table'][$row]['file'] = array(
         '#type' => 'value',
-        '#value' => $work,
+        '#value' => $file,
       );
       $form['import']['table'][$row]['import'] = array(
         '#type' => 'checkbox',
@@ -389,24 +387,24 @@ function theme_nurani_library_import_form_table(&$variables) {
   $element = &$variables['element'];
 
   foreach (element_children($element) as $row) {
-    $work = $element[$row]['#work'];
+    $file = $element[$row]['#file'];
     unset($element[$row]['import']['#title']);
 
     $row_classes = array();
-    $row_classes[] = 'nurani-library-row-' . ($work->is_dir ? 'directory' : 'file');
-    if ($work->format) {
-      $row_classes[] = 'nurani-library-row-' . $work->format;
+    $row_classes[] = 'nurani-library-row-' . ($file->is_dir ? 'directory' : 'file');
+    if ($file->format) {
+      $row_classes[] = 'nurani-library-row-' . $file->format;
     }
-    $row_classes[] = 'nurani-library-row-depth-' . $work->depth;
+    $row_classes[] = 'nurani-library-row-depth-' . $file->depth;
 
     $rows[] = array(
       'class' => $row_classes,
       'data' => array(
         array(
           'class' => array('nurani-library-col-import'),
-          'data' => drupal_render($element[$row]['import']) . ' <span>' . check_plain($work->filepath) . '</span>',
+          'data' => drupal_render($element[$row]['import']) . ' <span>' . check_plain($file->filepath) . '</span>',
         ),
-        nurani_library_work_format_link($work->format),
+        nurani_library_work_format_link($file->format),
         '',
       )
     );
@@ -422,23 +420,23 @@ function theme_nurani_library_import_form_table(&$variables) {
 function nurani_library_import_form_validate($form, &$form_state) {
   $import = $form_state['values']['import'];
 
-  $works = array();
+  $files = array();
   $format = NULL;
   foreach ($import as $row => $data) {
     if (!is_array($data) || $data['import'] != 1) {
       continue;
     }
 
-    $format = is_null($format) ? $data['work']->format : $format;
-    if ($data['work']->format != $format) {
-      form_error($form['import']['table'][$row], t("!format1 and !format2 works cannot be imported at the same time.", array('!format1' => nurani_library_work_format_link($format), '!format2' => nurani_library_work_format_link($data['work']->format))));
+    $format = is_null($format) ? $data['file']->format : $format;
+    if ($data['file']->format != $format) {
+      form_error($form['import']['table'][$row], t("!format1 and !format2 works cannot be imported at the same time.", array('!format1' => nurani_library_work_format_link($format), '!format2' => nurani_library_work_format_link($data['file']->format))));
       break;
     }
 
-    $works[] = $data['work'];
+    $files[] = $data['file'];
   }
 
-  $form_state['storage']['works'] = $works;
+  $form_state['storage']['files'] = $files;
 }
 
 /**
@@ -446,7 +444,7 @@ function nurani_library_import_form_validate($form, &$form_state) {
  */
 function nurani_library_import_form_submit($form, &$form_state) {
   $work = nurani_library_work_load($form_state['values']['import']['work']);
-  $works = $form_state['storage']['works'];
+  $files = $form_state['storage']['files'];
 
   $import[$work->name] = array(
     'path'          => nurani_library_works_path(),
@@ -460,8 +458,8 @@ function nurani_library_import_form_submit($form, &$form_state) {
     'files' => array(),
   );
 
-  foreach ($works as $work) {
-    $import[$work->name]['files'][] = $work->relativepath;
+  foreach ($files as $file) {
+    $import[$work->name]['files'][] = $file->relativepath;
   }
 
   $library = new NuraniLibrary(array('backend' => 'Drupal'));
