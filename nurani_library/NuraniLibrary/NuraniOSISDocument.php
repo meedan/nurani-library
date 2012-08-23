@@ -161,7 +161,7 @@ class NuraniOSISDocument extends NuraniDocument {
     );
 
     // TODO: Verify if the list of Apocrypha is correct
-    if ($this->conf['includeApocrypha']) {
+    if (isset($this->conf['includeApocrypha']) && $this->conf['includeApocrypha']) {
       $this->bibleBooks = array_merge($this->bibleBooks, array(
         'Tob'     => 'Tobit',                      'Jdt'     => 'Judith',
         'GkEsth'  => 'Greek Esther',               'Wis'     => 'Wisdom of Solomon',

@@ -42,7 +42,7 @@ function nurani_library_texts_form($form, &$form_state) {
 
   $select_col_options = array(
     // TODO: The list of languages should not be hard-coded.
-    'language' => array('en' => t("English (en)"), 'he' => t("Hebrew (he)"), 'ar' => t("Arabic (ar)")),
+    'language' => nurani_library_text_languages(),
     'type'     => nurani_library_text_type_options(),
   );
   $descriptions = array(
@@ -324,15 +324,18 @@ function nurani_library_import_form($form) {
   $path = nurani_library_texts_path();
   $row = 0;
   foreach (nurani_library_find_texts($path) as $text) {
-    $form['import']['table'][$row]['text'] = array(
-      '#type' => 'value',
-      '#value' => $text,
-    );
+    $form['import']['table'][$row]['#text'] = $text;
+    $form['import']['table'][$row]['text'] = array();
+    $form['import']['table'][$row]['import'] = array();
+
     if ($text->is_dir) {
       // TODO: Finish whole directory selection / import code
-      $form['import']['table'][$row]['import'] = array();
     }
     else {
+      $form['import']['table'][$row]['text'] = array(
+        '#type' => 'value',
+        '#value' => $text,
+      );
       $form['import']['table'][$row]['import'] = array(
         '#type' => 'checkbox',
         '#title' => t('Import?'),
@@ -341,10 +344,34 @@ function nurani_library_import_form($form) {
     }
     $row += 1;
   }
-  $form['import']['import'] = array(
-    '#type' => 'button',
-    '#value' => t('(Re)import selected texts'),
-  );
+
+  // No texts were found
+  if ($row == 0) {
+    $form['import']['no_texts'] = array(
+      '#type' => 'markup',
+      '#markup' => '<div class="messages error">'
+                 .   '<h2 class="element-invisible">Error message</h2>'
+                 .   t("No !osis or !tanzil texts could be found in %path", array(
+                       '!osis'   => nurani_library_text_format_link('osis'),
+                       '!tanzil' => nurani_library_text_format_link('tanzil'),
+                       '%path'   => $path
+                     ))
+                 . '</div>',
+    );
+  }
+  else {
+    $form['import']['text'] = array(
+      '#type' => 'select',
+      '#title' => t('Import into this text'),
+      '#options' => nurani_library_text_options(),
+      '#required' => TRUE,
+    );
+
+    $form['import']['import'] = array(
+      '#type' => 'submit',
+      '#value' => t('(Re)import selected texts'),
+    );
+  }
 
   return $form;
 }
@@ -360,7 +387,7 @@ function theme_nurani_library_import_form_table(&$variables) {
   $element = &$variables['element'];
 
   foreach (element_children($element) as $row) {
-    $text = $element[$row]['text']['#value'];
+    $text = $element[$row]['#text'];
     unset($element[$row]['import']['#title']);
 
     $row_classes = array();
@@ -391,10 +418,50 @@ function theme_nurani_library_import_form_table(&$variables) {
  * Validation handler for import form
  */
 function nurani_library_import_form_validate($form, &$form_state) {
+  $import = $form_state['values']['import'];
+
+  $texts = array();
+  $format = NULL;
+  foreach ($import as $row => $data) {
+    if (!is_array($data) || $data['import'] != 1) {
+      continue;
+    }
+
+    $format = is_null($format) ? $data['text']->format : $format;
+    if ($data['text']->format != $format) {
+      form_error($form['import']['table'][$row], t("!format1 and !format2 texts cannot be imported at the same time.", array('!format1' => nurani_library_text_format_link($format), '!format2' => nurani_library_text_format_link($data['text']->format))));
+      break;
+    }
+
+    $texts[] = $data['text'];
+  }
+
+  $form_state['storage']['texts'] = $texts;
 }
 
 /**
  * Submission handler for import form
  */
 function nurani_library_import_form_submit($form, &$form_state) {
+  $corpus = nurani_library_text_load($form_state['values']['import']['text']);
+  $texts = $form_state['storage']['texts'];
+
+  $import[$corpus->name] = array(
+    'path'          => nurani_library_texts_path(),
+    'documentType'  => 'OSIS',
+    'language'      => $corpus->language,
+    // TODO: textDirection should not be hard-coded.
+    'textDirection' => in_array($corpus->language, array('he', 'ar')) ? 'rtl' : 'ltr',
+    'stripMarkup'   => TRUE,
+    // NOTE: Character stripping should not be hard-coded.
+    'stripChars'    => $corpus->language == 'he' ? '/' : '',
+    'files' => array(),
+  );
+
+  foreach ($texts as $text) {
+    $import[$corpus->name]['files'][] = $text->relativepath;
+  }
+
+  $library = new NuraniLibrary(array('backend' => 'Drupal'));
+  $library->import($import);
 }

@@ -142,6 +142,15 @@ function nurani_library_text_format_link($format) {
   }
 }
 
+function nurani_library_text_languages() {
+  return array(
+    'ar' => t("Arabic (ar)"),
+    'en' => t("English (en)"),
+    'fr' => t("French (fr)"),
+    'he' => t("Hebrew (he)"),
+  );
+}
+
 /**
  * Returns the list of texts known to the system.
  */
@@ -157,9 +166,16 @@ function nurani_library_texts() {
 function nurani_library_text_options() {
   $options = array();
   foreach (nurani_library_texts() as $type) {
-    $options[$type->machine_name] = $type->name;
+    $options[$type->name] = $type->full_name . ' (' . $type->language . ')';
   }
   return $options;
+}
+
+/**
+ * Returns the list of texts known to the system.
+ */
+function nurani_library_text_load($text_name) {
+  return db_query("SELECT * FROM {nurani_library_corpora} WHERE name = :name", array(':name' => $text_name))->fetchObject();
 }
 
 function nurani_library_text_types() {
