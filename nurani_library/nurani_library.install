@@ -64,7 +64,7 @@ function nurani_library_schema() {
         'not null' => TRUE
       ),
       'name' => array(
-        'description' => 'The short name of the work, may not be unique.',
+        'description' => 'The short name of the work, must be unique.',
         'type' => 'varchar',
         'length' => 32,
         'not null' => TRUE,
@@ -89,12 +89,11 @@ function nurani_library_schema() {
       ),
     ),
     'indexes' => array(
-      'name' => array('name'),
       'full_name' => array('full_name'),
       'type' => array('type'),
     ),
     'unique keys' => array(
-      'name_language' => array('name', 'language')
+      'name' => array('name'),
     ),
     'primary key' => array('id'),
   );
