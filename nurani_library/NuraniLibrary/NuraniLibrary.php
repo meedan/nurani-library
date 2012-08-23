@@ -48,8 +48,8 @@ class NuraniLibrary {
   }
 
 
-  function search($work, $book, $chapter = NULL, $verse = NULL, $language = NULL, $offset = 0, $limit = 250) {
-    return $this->model->search($work, $book, $chapter, $verse, $language, $offset, $limit);
+  function search($work_name, $book, $chapter = NULL, $verse = NULL, $language = NULL, $offset = 0, $limit = 250) {
+    return $this->model->search($work_name, $book, $chapter, $verse, $language, $offset, $limit);
   }
 
 
