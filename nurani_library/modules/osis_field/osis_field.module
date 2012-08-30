@@ -253,9 +253,10 @@ function theme_osis_field($vars) {
 
   $element = $vars['element'];
 
-  $output = '';
+  $output = '<div class="osis-field-inline-group clearfix">';
   $output .= drupal_render($element['osisIDWork']);
   $output .= drupal_render($element['osisID']);
+  $output .= '</div>';
   return $output;
 }
 

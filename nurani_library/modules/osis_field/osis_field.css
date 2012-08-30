@@ -1,0 +1,8 @@
+.osis-field-inline-group > .form-item {
+  float: left;
+  width: 30%;
+}
+.osis-field-inline-group .form-text,
+.osis-field-inline-group .form-select {
+  width: 95%;
+}
