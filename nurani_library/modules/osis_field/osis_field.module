@@ -248,15 +248,16 @@ function osis_field_field_process($element, $form_state) {
 /**
  * FAPI theme for an individual work elements.
  */
-function theme_osis_field($vars) {
+function theme_osis_field(&$vars) {
   drupal_add_css(drupal_get_path('module', 'osis_field') .'/osis_field.css');
 
-  $element = $vars['element'];
+  $element = &$vars['element'];
 
-  $output = '<div class="osis-field-inline-group clearfix">';
+  $output = '<div class="osis-field-input-group clearfix">';
   $output .= drupal_render($element['osisIDWork']);
   $output .= drupal_render($element['osisID']);
   $output .= '</div>';
+
   return $output;
 }
 
