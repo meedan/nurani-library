@@ -8,7 +8,6 @@ require_once 'NuraniModel.php';
  */
 class NuraniRESTModel extends NuraniModel {
 
-
   public function __construct($connection) {
     parent::__construct($connection);
   }
@@ -27,7 +26,6 @@ class NuraniRESTModel extends NuraniModel {
   public function getWorks() {
     return 1;
   }
-
 
 
   public function getWork($work_name) {

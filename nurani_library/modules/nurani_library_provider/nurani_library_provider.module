@@ -13,6 +13,20 @@ function nurani_library_provider_help($path, $arg) {
 }
 
 /**
+ * Implements hook_permission().
+ */
+function nurani_library_provider_permission() {
+  return array(
+    'validate passages' =>  array(
+      'title' => t('Validate Nurani Library passages'),
+    ),
+    'access nurani library' =>  array(
+      'title' => t('Access the Nurani Library'),
+    ),
+  );
+}
+
+/**
  * Implements hook_theme().
  */
 function nurani_library_provider_theme($existing, $type, $theme, $path) {
@@ -77,5 +91,100 @@ function nurani_library_provider_menu() {
 function nurani_library_provider_views_api() {
   return array(
     'api' => 3.0,
+  );
+}
+
+/**
+ * Implements hook_services_resources().
+ */
+function nurani_library_provider_services_resources() {
+  return array(
+
+    'passage' => array(
+      'actions' => array(
+        'validate' => array(
+          'file' => array('type' => 'inc', 'module' => 'nurani_library_provider', 'name' => 'nurani_library_provider.resource'),
+          'callback' => '_nurani_library_provider_api_passage_validate',
+          'args' => array(
+            array(
+              'name' => 'osisID',
+              'optional' => FALSE,
+              'type' => 'string',
+              'description' => 'The OSIS identifier of the passage to validate',
+              'source' => array('data' => 'osisID'),
+            ),
+          ),
+          'access arguments' => array('validate passages'),
+        ),
+      ),
+      'retrieve' => array(
+        'file' => array('type' => 'inc', 'module' => 'nurani_library_provider', 'name' => 'nurani_library_provider.resource'),
+        'callback' => '_nurani_library_provider_api_passage_retrieve',
+        'args' => array(
+          array(
+            'name' => 'osisID',
+            'optional' => FALSE,
+            'type' => 'string',
+            'description' => 'The OSIS identifier of the passage to get',
+            'source' => array('path' => 0),
+          ),
+        ),
+        'access arguments' => array('access nurani library'),
+      ),
+      'index' => array(
+        'file' => array('type' => 'inc', 'module' => 'nurani_library_provider', 'name' => 'nurani_library_provider.resource'),
+        'callback' => '_nurani_library_provider_api_passage_index',
+        'args' => array(
+          array(
+            'name' => 'page',
+            'optional' => TRUE,
+            'type' => 'int',
+            'description' => 'The zero-based index of the page to get, defaults to 0.',
+            'default value' => 0,
+            'source' => array('param' => 'page'),
+          ),
+          array(
+            'name' => 'parameters',
+            'optional' => TRUE,
+            'type' => 'array',
+            'description' => 'Parameters array',
+            'default value' => array(),
+            'source' => array('param' => 'parameters'),
+          ),
+          array(
+            'name' => 'pagesize',
+            'optional' => TRUE,
+            'type' => 'int',
+            'description' => 'Number of records to get per page.',
+            'default value' => variable_get('nurani_library_provider_api_pagesize', 20),
+            'source' => array('param' => 'pagesize'),
+          ),
+        ),
+        'access arguments' => array('access nurani library'),
+      ),
+    ),
+
+    'work' => array(
+      'retrieve' => array(
+        'file' => array('type' => 'inc', 'module' => 'nurani_library_provider', 'name' => 'nurani_library_provider.resource'),
+        'callback' => '_nurani_library_provider_api_work_retrieve',
+        'args' => array(
+          array(
+            'name' => 'name',
+            'optional' => FALSE,
+            'type' => 'string',
+            'description' => 'The machine name of the work to get',
+            'source' => array('path' => 0),
+          ),
+        ),
+        'access arguments' => array('access nurani library'),
+      ),
+      'index' => array(
+        'file' => array('type' => 'inc', 'module' => 'nurani_library_provider', 'name' => 'nurani_library_provider.resource'),
+        'callback' => '_nurani_library_provider_api_work_index',
+        'access arguments' => array('access nurani library'),
+      ),
+    ),
+
   );
 }
