@@ -81,12 +81,12 @@ function nurnai_library_provider_discover_work_format($filepath) {
   $format_tree = array(
     '<?xml version="1.0" encoding="utf-8"' => array(
       'xsi:schemaLocation="http://www.bibletechnologies.net/2003/OSIS/namespace http://www.bibletechnologies.net/osisCore.2.1.1.xsd"' => array(
-        'osis',
+        'OSIS',
       ),
       '<quran>' => array(
         '<sura' => array(
           '<aya' => array(
-            'tanzil'
+            'TanzilXML'
           )
         )
       )
