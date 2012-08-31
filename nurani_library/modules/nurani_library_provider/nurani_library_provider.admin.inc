@@ -118,12 +118,11 @@ function nurani_library_provider_works_form($form, &$form_state) {
       $form['works']['table'][$row][$col]['#row'] = $row;
     }
 
-    $info = $nl->getWorkStats($work->name);
     $form['works']['table'][$row]['info'] = array(
       '#type' => 'markup',
       '#markup' => theme('item_list', array(
         'items' => array(
-            t("<strong>Passages: </strong> @passages", array('@passages' => (string) $info['num_passages'])),
+            t("<strong>Passages: </strong> @passages", array('@passages' => (string) $work->num_passages)),
           )
         )
       ),
@@ -264,11 +263,12 @@ function nurani_library_provider_works_form_delete_submit($form, &$form_state) {
 function _nurani_library_provider_new_work($form_state) {
   $edit = isset($form_state['values']['works']['new']) ? $form_state['values']['works']['new'] : array();
   $work = array(
-    'id'        => 'new',
-    'name'      => '',
-    'full_name' => '',
-    'language'  => 'en',
-    'type'      => 'biblical',
+    'id'           => 'new',
+    'name'         => '',
+    'full_name'    => '',
+    'language'     => 'en',
+    'type'         => 'biblical',
+    'num_passages' => 0
   );
   return (object) array_merge($work, $edit);
 }

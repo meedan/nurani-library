@@ -11,18 +11,12 @@ abstract class NuraniModel {
   }
 
 
-  abstract public function search($work_name, $book, $chapter = NULL, $verse = NULL,
-                                  $language = NULL, $offset = 0, $limit = 250);
-
-  abstract public function import($work, $document);
+  abstract public function search($work_name, $book, $chapter = NULL, $verse = NULL, $offset = 0, $limit = 250);
 
   abstract public function getWorks();
-
   abstract public function getWork($work_name);
-
   abstract public function deleteWork($work_id);
 
-  abstract public function numPassagesForWork($work_name);
-
+  abstract public function import($work, $document);
 
 }

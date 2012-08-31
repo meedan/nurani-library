@@ -52,3 +52,19 @@ function nurani_library_menu() {
   );
   return $items;
 }
+
+/**
+ * Implements hook_nurani_library_backend().
+ */
+function nurani_library_nurani_library_backend() {
+  return array(
+    array(
+      'name' => 'REST',
+      'description' => t("Remote Nurani Library server, using REST+JSON connection."),
+      'settings' => array(
+        'file' => drupal_get_path('module', 'nurani_library') . '/nurani_library.admin.inc',
+        'callback' => 'nurani_library_rest_settings_form',
+      ),
+    )
+  );
+}

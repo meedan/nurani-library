@@ -38,8 +38,4 @@ class NuraniRESTModel extends NuraniModel {
   }
 
 
-  public function numPassagesForWork($work_name) {
-    return 1;
-  }
-
 }

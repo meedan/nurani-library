@@ -14,41 +14,46 @@ class NuraniDrupalModel extends NuraniModel {
   }
 
 
-  public function search($work_name, $book, $chapter = NULL, $verse = NULL, $language = NULL, $offset = 0, $limit = 250) {
+  public function search($work_name, $book, $chapter = NULL, $verse = NULL, $page = 0, $limit = 250) {
     $select = db_select('nurani_library', 'l');
 
     // TODO: Simplify the NuraniDrupalModel::search() "SQL".  Using DBTNG makes a mess of it.
-    $select->join('nurani_library_works',  'co', 'l.work_id = co.id');
+    $select->join('nurani_library_works',  'w', 'l.work_id = w.id');
     $select->join('nurani_library_books',    'b',  'l.book_id = b.id');
     $select->join('nurani_library_chapters', 'ch', 'l.chapter_id = ch.id');
     $select->fields('l',  array('id',   'verse',    'text'));
-    $select->addField('co', 'name', 'work_name');
-    $select->addField('co', 'full_name', 'work_full_name');
-    $select->addField('co', 'language', 'work_language');
+    $select->addField('w', 'name', 'work_name');
+    $select->addField('w', 'full_name', 'work_full_name');
+    $select->addField('w', 'language', 'work_language');
     $select->addField('b',  'name', 'book_name');
     $select->addField('b',  'full_name', 'book_full_name');
     $select->addField('ch', 'name', 'chapter_name');
     $select->addField('ch', 'full_name', 'chapter_full_name');
-    $select->condition('co.name', $work_name);
+    $select->condition('w.name', $work_name);
     $select->condition('b.name', $book);
-    $select->orderBy('co.name');
-    $select->orderBy('co.language');
+    $select->orderBy('w.name');
+    $select->orderBy('w.language');
     $select->orderBy('b.name');
     $select->orderBy('ch.name');
-    $select->orderBy('co.name');
+    $select->orderBy('w.name');
 
     if (!is_null($chapter)) {
       $select->condition('ch.name', $chapter);
     }
     if (!is_null($verse)) {
-      $select->condition('l.verse', $verse);
-    }
-    if (!is_null($language)) {
-      $select->condition('co.language', $language);
+      if (strstr($verse, '-') === FALSE) {
+        $select->condition('l.verse', $verse);
+      }
+      // Handle verse range (eg: John.3.15-17)
+      else {
+        $parts = explode('-', $verse);
+        $select->condition('l.verse', $parts[0], '>=');
+        $select->condition('l.verse', $parts[1], '<=');
+      }
     }
 
     if ($limit > 0) {
-      $select->range($offset, $limit);
+      $select->range($page * $limit, $limit);
     }
 
     $result = $select->execute();
@@ -59,6 +64,46 @@ class NuraniDrupalModel extends NuraniModel {
     }
 
     return $search;
+  }
+
+
+  public function getWorks() {
+    $result = db_query("SELECT w.*, COUNT(l.id) AS num_passages
+                          FROM {nurani_library_works} w
+                    INNER JOIN {nurani_library} l ON w.id = l.work_id
+                      GROUP BY w.id
+                      ORDER BY w.name, w.language");
+    $works = array();
+    foreach ($result as $work) {
+      $works[] = $work;
+    }
+    return $works;
+  }
+
+
+  public function getWork($work_name) {
+    return db_query("SELECT w.*, COUNT(l.id) AS num_passages
+                          FROM {nurani_library_works} w
+                    INNER JOIN {nurani_library} l ON w.id = l.work_id
+                         WHERE w.name = :name
+                      GROUP BY w.id
+                      ORDER BY w.name, w.language", array(':name' => $work_name))->fetchObject();
+  }
+
+
+  public function deleteWork($work_id) {
+    db_delete('nurani_library_works')
+      ->condition('id', $work_id)
+      ->execute();
+    db_delete('nurani_library')
+      ->condition('work_id', $work_id)
+      ->execute();
+    db_delete('nurani_library_books')
+      ->condition('work_id', $work_id)
+      ->execute();
+    db_delete('nurani_library_chapters')
+      ->condition('work_id', $work_id)
+      ->execute();
   }
 
 
@@ -168,48 +213,6 @@ class NuraniDrupalModel extends NuraniModel {
     }
 
     return $id;
-  }
-
-
-  public function getWorks() {
-    $result = db_query("SELECT * FROM {nurani_library_works} ORDER BY name, language");
-    $works = array();
-    foreach ($result as $work) {
-      $works[] = $work;
-    }
-    return $works;
-  }
-
-
-
-  public function getWork($work_name) {
-    return db_query("SELECT * FROM {nurani_library_works} WHERE name = :name", array(':name' => $work_name))->fetchObject();
-  }
-
-
-  public function deleteWork($work_id) {
-    db_delete('nurani_library_works')
-      ->condition('id', $work_id)
-      ->execute();
-    db_delete('nurani_library')
-      ->condition('work_id', $work_id)
-      ->execute();
-    db_delete('nurani_library_books')
-      ->condition('work_id', $work_id)
-      ->execute();
-    db_delete('nurani_library_chapters')
-      ->condition('work_id', $work_id)
-      ->execute();
-  }
-
-
-  public function numPassagesForWork($work_name) {
-    return (int) db_query("SELECT COUNT(nl.id)
-                             FROM {nurani_library} nl
-                       INNER JOIN {nurani_library_works} nlw ON nl.work_id = nlw.id
-                            WHERE nlw.name = :work_name", array(
-                            ':work_name' => $work_name
-                         ))->fetchField();
   }
 
 }

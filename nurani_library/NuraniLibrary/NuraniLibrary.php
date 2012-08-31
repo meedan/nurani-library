@@ -30,13 +30,6 @@ class NuraniLibrary {
   }
 
 
-  function getWorkStats($work_name) {
-    return array(
-      'num_passages' => $this->model->numPassagesForWork($work_name),
-    );
-  }
-
-
   function isDuplicateWork($test_work) {
     $works = $this->getWorks();
     foreach ($works as $work) {
@@ -48,7 +41,7 @@ class NuraniLibrary {
   }
 
 
-  function search($work_name, $book, $chapter = NULL, $verse = NULL, $language = NULL, $offset = 0, $limit = 250) {
+  function search($work_name, $book, $chapter = NULL, $verse = NULL, $offset = 0, $limit = 250) {
     return $this->model->search($work_name, $book, $chapter, $verse, $language, $offset, $limit);
   }
 

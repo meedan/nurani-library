@@ -1,8 +1,7 @@
 <?php
 
 function nurani_library() {
-  // TODO: Need to pass information regarding whether this is a local or remote connection.
-  return new NuraniLibrary(array('backend' => 'Drupal'));
+  return new NuraniLibrary(array('backend' => variable_get('nurani_library_backend', 'REST')));
 }
 
 function nurani_library_work_format_link($format) {
@@ -22,5 +21,32 @@ function nurani_library_work_options() {
   return $options;
 }
 
-function nurani_library_work_info($work_name) {
+function nurani_library_backends() {
+  $backends = array();
+
+  foreach (module_implements('nurani_library_backend') as $module) {
+    $function = $module . '_nurani_library_backend';
+    $backends = array_merge($backends, $function());
+  }
+
+  return $backends;
+}
+
+function nurani_library_backend_options() {
+  $options = array();
+
+  foreach (nurani_library_backends() as $backend) {
+    $options[$backend['name']] = $backend['description'];
+  }
+
+  return $options;
+}
+
+function nurani_library_rest_settings() {
+  return array(
+    'scheme' => variable_get('nurani_library_rest_scheme', 'http'),
+    'host'   => variable_get('nurani_library_rest_host', 'library.nurani.org'),
+    'port'   => variable_get('nurani_library_rest_port', 80),
+    'path'   => variable_get('nurani_library_rest_path', 'api'),
+  );
 }
