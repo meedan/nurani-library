@@ -1,0 +1,21 @@
+.nurani-library-tests .test-pass {
+  background: #a9ffa7;
+}
+.nurani-library-tests .test-pass.even {
+  background: #c4ffc1;
+}
+.nurani-library-tests .test-fail {
+  background: #f96672;
+}
+.nurani-library-tests .test-fail.even {
+  background: #fa9fa6;
+}
+.nurani-library-tests td pre {
+  background: #000;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  padding: 1em;
+  border-radius: 3px;
+  overflow-y: auto;
+  max-height: 200px;
+}

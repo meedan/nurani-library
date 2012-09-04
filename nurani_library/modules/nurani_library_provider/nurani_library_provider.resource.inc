@@ -157,7 +157,6 @@ function _nurani_library_provider_api_passage_retrieve($work_name, $osisID) {
 function _nurani_library_provider_api_passage_index($work_name, $book, $chapter, $verse, $page, $pagesize) {
   $nl = nurani_library();
   $verses = $nl->search($work_name, $book, $chapter, $verse, $page, $pagesize);
-  // TODO: Handle errors.
 
   return $verses;
 }

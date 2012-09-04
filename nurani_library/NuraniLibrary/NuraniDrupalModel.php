@@ -14,7 +14,7 @@ class NuraniDrupalModel extends NuraniModel {
   }
 
 
-  public function search($work_name, $book, $chapter = NULL, $verse = NULL, $page = 0, $limit = 250) {
+  public function search($work_name, $book, $chapter = NULL, $verse = NULL, $page = 0, $pagesize = 100) {
     $select = db_select('nurani_library', 'l');
 
     // TODO: Simplify the NuraniDrupalModel::search() "SQL".  Using DBTNG makes a mess of it.

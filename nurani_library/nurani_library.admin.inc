@@ -94,21 +94,42 @@ function nurani_library_rest_settings_form(&$form_state) {
 function nurani_library_tests() {
   $nl = nurani_library();
 
-  $header = array(t("Test"), t("Status"));
+  $header = array(t("Test"), t("Data"), t("Status"));
   $rows = array();
 
+  $result = $nl->getWorks();
+  $error  = $nl->model->getError();
   $rows[] = array(
-    t('Test fetching all works'),
-    var_export($nl->getWorks(), 1),
-  );
-  $rows[] = array(
-    t('Test fetching the work "wlc_he"'),
-    var_export($nl->getWork('wlc_he'), 1),
-  );
-  $rows[] = array(
-    t('Test fetching passages from Genesis in work "wlc_he"'),
-    var_export($nl->search('wlc_he', 'Gen', 1, '1-5'), 1),
+    'data' => array(
+      t('Test fetching all works'),
+      '<pre>' . var_export($result, 1) . '</pre>',
+      is_null($error) ? t('Pass') : '<pre>' . var_export($error, 1) . '</pre>',
+    ),
+    'class' => array(is_null($error) ? 'test-pass' : 'test-fail'),
   );
 
-  return theme('table', array('header' => $header, 'rows' => $rows));
+  $result = $nl->getWork('wlc_he');
+  $error  = $nl->model->getError();
+  $rows[] = array(
+    'data' => array(
+      t('Test fetching the work "wlc_he"'),
+      '<pre>' . var_export($result, 1) . '</pre>',
+      is_null($error) ? t('Pass') : '<pre>' . var_export($error, 1) . '</pre>',
+    ),
+    'class' => array(is_null($error) ? 'test-pass' : 'test-fail'),
+  );
+
+  $result = $nl->search('wlc_he', 'Gen', 1, '1-5');
+  $error  = $nl->model->getError();
+  $rows[] = array(
+    'data' => array(
+      t('Test fetching passages wlc_he:Gen.1.1-5'),
+      '<pre>' . var_export($result, 1) . '</pre>',
+      is_null($error) ? t('Pass') : '<pre>' . var_export($error, 1) . '</pre>',
+    ),
+    'class' => array(is_null($error) ? 'test-pass' : 'test-fail'),
+  );
+
+  drupal_add_css(drupal_get_path('module', 'nurani_library') . '/nurani_library.css');
+  return theme('table', array('header' => $header, 'rows' => $rows, 'attributes' => array('class' => array('nurani-library-tests'))));
 }

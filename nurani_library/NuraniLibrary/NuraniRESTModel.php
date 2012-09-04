@@ -17,6 +17,8 @@ class NuraniRESTModel extends NuraniModel {
    * Performs a search against a remote Nurani Library Provider instance.
    */
   public function search($work_name, $book = NULL, $chapter = NULL, $verse = NULL, $page = 0, $pagesize = 100) {
+    $this->resetErrorState();
+
     $query = array();
 
     foreach (array('work_name', 'book', 'chapter', 'verse', 'page', 'pagesize') as $variable) {
@@ -26,8 +28,7 @@ class NuraniRESTModel extends NuraniModel {
       }
     }
 
-    $response = $this->restRequest('GET', 'passage' . $this->_queryString($query));
-    return $response;
+    return $this->restRequest('GET', 'passage' . $this->_queryString($query));
   }
 
 
@@ -36,7 +37,8 @@ class NuraniRESTModel extends NuraniModel {
    * remote Nurani Library Provider instances is not allowed at this time.
    */
   public function import($work, $document) {
-    return FALSE;
+    $this->resetErrorState();
+    return $this->error("Importing into remote Nurani Library Provider instances is not allowed at this time.", 0);
   }
 
 
@@ -44,8 +46,8 @@ class NuraniRESTModel extends NuraniModel {
    * Fetches all works in a remote Nurani Library Provider instance.
    */
   public function getWorks() {
-    $response = $this->restRequest('GET', 'work');
-    return $response;
+    $this->resetErrorState();
+    return $this->restRequest('GET', 'work');
   }
 
 
@@ -53,13 +55,14 @@ class NuraniRESTModel extends NuraniModel {
    * Fetches a specific work from a remote Nurani Library Provider instance.
    */
   public function getWork($work_name) {
-    $response = $this->restRequest('GET', 'work/' . urlencode($work_name));
-    return $response;
+    $this->resetErrorState();
+    return $this->restRequest('GET', 'work/' . urlencode($work_name));
   }
 
 
   public function deleteWork($work_id) {
-    return FALSE;
+    $this->resetErrorState();
+    return $this->error("Deleting from remote Nurani Library Provider instances is not allowed at this time.", 0);
   }
 
 
@@ -112,7 +115,21 @@ class NuraniRESTModel extends NuraniModel {
       watchdog('NuraniRESTModel', "Response: <pre>!response</pre>", array('!response' => var_export($response, 1)));
     }
 
-    return $response;
+    if ($response->code != 200) {
+      $message = "Error: " . $response->status_message;
+      if ($response->data) {
+        $message .= "; Data: " . $response->data;
+      }
+      return $this->error($message, $response->code);
+    }
+
+    $data = drupal_json_decode($response->data);
+    if (is_null($data)) {
+      return $this->error("Null response or unable to decode JSON", 1, array('data' => $response->data));
+    }
+    else {
+      return $data;
+    }
   }
 
 
