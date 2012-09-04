@@ -57,5 +57,7 @@ function nurani_library_rest_settings() {
     'port'   => variable_get('nurani_library_rest_port', 80),
     'path'   => variable_get('nurani_library_rest_path', 'api'),
     'debug'  => variable_get('nurani_library_rest_debug', '0'),
+    'user'   => variable_get('nurani_library_rest_user', 'API'),
+    'pass'   => variable_get('nurani_library_rest_pass', ''),
   );
 }

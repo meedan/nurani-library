@@ -33,7 +33,7 @@ function nurani_library_admin_form($form, &$form_state) {
 
   $form['tests'] = array(
     '#type' => 'item',
-    '#title' => t("Connection status"),
+    '#title' => t("%backend Connection status", array('%backend' => variable_get('nurani_library_backend', 'REST'))),
     '#markup' => nurani_library_tests(),
   );
 
@@ -82,7 +82,24 @@ function nurani_library_rest_settings_form(&$form_state) {
   $form['nurani_library_rest_debug'] = array(
     '#type' => 'checkbox',
     '#title' => t('Debug enabled?'),
+    '#description' => t('All REST communication will be logged using <a href="!url">watchdog</a>.', array('!url' => 'http://api.drupal.org/api/drupal/includes%21bootstrap.inc/function/watchdog/7')),
     '#default_value' => $settings['debug'],
+  );
+  $form['nurani_library_rest_user'] = array(
+    '#type' => 'textfield',
+    '#title' => t('API User @ @host', array('@host' => $settings['host'])),
+    '#size' => 8,
+    '#maxlength' => 60,
+    '#default_value' => $settings['user'],
+    '#required' => TRUE,
+  );
+  $form['nurani_library_rest_pass'] = array(
+    '#type' => 'textfield',
+    '#title' => t('API Password @ @host', array('@host' => $settings['host'])),
+    '#size' => 16,
+    '#maxlength' => 128,
+    '#default_value' => $settings['pass'],
+    '#required' => TRUE,
   );
 
   return $form;

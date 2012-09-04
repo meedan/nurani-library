@@ -52,8 +52,8 @@ class NuraniDrupalModel extends NuraniModel {
       }
     }
 
-    if ($limit > 0) {
-      $select->range($page * $limit, $limit);
+    if ($pagesize > 0) {
+      $select->range($page * $pagesize, $pagesize);
     }
 
     $result = $select->execute();

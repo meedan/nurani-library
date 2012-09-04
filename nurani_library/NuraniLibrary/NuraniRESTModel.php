@@ -10,6 +10,7 @@ class NuraniRESTModel extends NuraniModel {
 
   public function __construct($connection) {
     parent::__construct($connection);
+    $this->establishConnection();
   }
 
 
@@ -28,7 +29,7 @@ class NuraniRESTModel extends NuraniModel {
       }
     }
 
-    return $this->restRequest('GET', 'passage' . $this->_queryString($query));
+    return $this->restRequest('GET', 'passage' . $this->queryString($query));
   }
 
 
@@ -77,12 +78,12 @@ class NuraniRESTModel extends NuraniModel {
    *  Optional, any extra HTTP headers.  The basic ones are there already.
    * @param (mixed) $form_data
    *  Optional, the POST/PUT data payload. Array or string are fine.
-   * @param (int) $retry
-   *  Optional, passed to drupal_http_request() as $retry param
+   * @param (int) $max_redirects
+   *  Optional, passed to drupal_http_request() as $max_redirects param
    * @param (float) $timeout
    *  Optional, passed to drupal_http_request() as $timeout param
    */
-  private function restRequest($method, $resource, $headers = array(), $form_data = NULL, $retry = 3, $timeout = 30.0) {
+  private function restRequest($method, $resource, $form_data = NULL, $headers = array(), $max_redirects = 3, $timeout = 30.0) {
     $path = $this->connection['path'] ? $this->connection['path'] . '/' : '';
 
     $url  = $this->connection['scheme'] . '://' . $this->connection['host'];
@@ -94,8 +95,10 @@ class NuraniRESTModel extends NuraniModel {
       $headers['content-type'] = 'application/x-www-form-urlencoded';
     }
 
-    // TODO: Need to authenticate with the server in some clean way, OAuth?
-    // $headers['cookie'] = session_name() . '=' . session_id()
+    // Use the session, if one is set
+    if (isset($this->session['id']) && isset($this->session['name'])) {
+      $headers['cookie'] = $this->session['name'] . '=' . $this->session['id'];
+    }
 
     $data = NULL;
     if (is_array($form_data)) {
@@ -106,10 +109,16 @@ class NuraniRESTModel extends NuraniModel {
     }
 
     if ($this->connection['debug']) {
-      watchdog('NuraniRESTModel', "URL, headers, method, data, retry timeout: <pre>!info</pre>", array('!info' => var_export(array($url, $headers, $method, $data, $retry, $timeout), 1)));
+      watchdog('NuraniRESTModel', "URL, headers, method, data, max_redirects timeout: <pre>!info</pre>", array('!info' => var_export(array($url, $headers, $method, $data, $max_redirects, $timeout), 1)));
     }
 
-    $response = drupal_http_request($url, $headers, $method, $data, $retry, $timeout);
+    $response = drupal_http_request($url, array(
+      'headers' => $headers,
+      'method' => $method,
+      'data' => $data,
+      'max_redirects' => $max_redirects,
+      'timeout' => $timeout,
+    ));
 
     if ($this->connection['debug']) {
       watchdog('NuraniRESTModel', "Response: <pre>!response</pre>", array('!response' => var_export($response, 1)));
@@ -136,10 +145,49 @@ class NuraniRESTModel extends NuraniModel {
   /**
    * Builds a query string from an array. Includes the leading question mark '?'.
    */
-  private function _queryString($query) {
+  private function queryString($query) {
     return (is_array($query) && !empty($query))
            ? '?' . http_build_query($query, '', '&')
            : '';
+  }
+
+
+  /**
+   * Makes a connection with the 
+   */
+  private function establishConnection() {
+    // Attempt to bind to the existing session
+    if (isset($_SESSION['nurani_rest_session']) && isset($_SESSION['nurani_rest_session']['id']) && isset($_SESSION['nurani_rest_session']['name'])) {
+      $this->session = $_SESSION['nurani_rest_session'];
+      return TRUE;
+    }
+
+    // No session, attempt to get a new one. Ensure any partial connections are
+    // cleaned up first.
+    $this->destroyConnection();
+
+    $login = $this->restRequest('POST', 'user/login', array('username' => $this->connection['user'], 'password' => $this->connection['pass']));
+    if ($this->getError() || !$login['sessid'] || !$login['session_name']) {
+      $this->destroyConnection();
+      return FALSE;
+    }
+
+    // Store the session so the next $this->restRequest() can use it
+    $this->session = array(
+      'id' => $login['sessid'],
+      'name' => $login['session_name'],
+    );
+    $_SESSION['nurani_rest_session'] = $this->session;
+
+    return TRUE;
+  }
+
+
+  /**
+   * Removes variables associated with a NuraniRESTModel session.
+   */
+  private function destroyConnection() {
+    unset($_SESSION['nurani_rest_session'], $this->session);
   }
 
 }
