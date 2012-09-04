@@ -72,9 +72,18 @@ function _nurani_library_provider_services_resources() {
           array(
             'name' => 'chapter',
             'optional' => TRUE,
-            'type' => 'string',
-            'description' => 'The number of the chapter to filter this work by',
-            'source' => array('param' => 'book'),
+            'type' => 'int',
+            'description' => 'The number of the chapter to filter this work by.',
+            'default value' => 1,
+            'source' => array('param' => 'chapter'),
+          ),
+          array(
+            'name' => 'verse',
+            'optional' => TRUE,
+            'type' => 'int',
+            'description' => 'The number of the verse to filter this work by.',
+            'default value' => 1,
+            'source' => array('param' => 'verse'),
           ),
           array(
             'name' => 'page',
@@ -147,9 +156,9 @@ function _nurani_library_provider_api_passage_retrieve($work_name, $osisID) {
  *  A list of verses corresponding to the query or an empty array if no verses
  *  match that query.
  */
-function _nurani_library_provider_api_passage_index($work_name, $book, $chapter, $page, $pagesize) {
+function _nurani_library_provider_api_passage_index($work_name, $book, $chapter, $verse, $page, $pagesize) {
   $nl = nurani_library();
-  $verses = $nl->search($work_name, $book, $chapter, NULL, $page, $pagesize);
+  $verses = $nl->search($work_name, $book, $chapter, $verse, $page, $pagesize);
   // TODO: Handle errors.
 
   return $verses;

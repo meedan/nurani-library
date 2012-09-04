@@ -5,9 +5,10 @@
  */
 abstract class NuraniModel {
 
+  public $connection;
 
-  public function __construct() {
-
+  public function __construct($connection = array()) {
+    $this->connection = $connection;
   }
 
 

@@ -86,10 +86,15 @@ function nurani_library_rest_settings_form(&$form_state) {
  * Returns an HTML table of REST tests.
  */
 function nurani_library_rest_tests() {
+  $nl = nurani_library();
+
   $header = array(t("Test"), t("Status"));
   $rows = array();
 
-  $rows[] = array('Foo', 'Pass');
+  $rows[] = array(
+    t('Test fetching all works'),
+    var_export($nl->getWorks(), 1),
+  );
 
   return theme('table', array('header' => $header, 'rows' => $rows));
 }

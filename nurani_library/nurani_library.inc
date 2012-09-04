@@ -1,7 +1,15 @@
 <?php
 
 function nurani_library() {
-  return new NuraniLibrary(array('backend' => variable_get('nurani_library_backend', 'REST')));
+  $settings = array();
+  $settings['backend'] = variable_get('nurani_library_backend', 'REST');
+
+  // HACK: FIXME: This should be gracefully determined with a callback in hook_nurani_library_backend()
+  if ($settings['backend'] == 'REST') {
+    $settings['connection'] = nurani_library_rest_settings();
+  }
+
+  return new NuraniLibrary($settings);
 }
 
 function nurani_library_work_format_link($format) {
