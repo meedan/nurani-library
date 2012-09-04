@@ -3,7 +3,6 @@ description = Nurani scriptural text framework.
 core = 7.x
 version = 7.x-1.0
 package = Nurani
-dependencies[] = rest_client
 
 files[] = nurani_library.inc
 files[] = NuraniLibrary/NuraniWork.php

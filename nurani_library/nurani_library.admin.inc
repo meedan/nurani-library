@@ -8,10 +8,10 @@ function nurani_library_admin_form($form, &$form_state) {
     '#type' => 'fieldset',
     '#title' => t('Nurani Library data connection'),
   );
-  $form['connection']['backend'] = array(
+  $form['connection']['nurani_library_backend'] = array(
     '#type' => 'select',
     '#title' => t('Backend type'),
-    '#default_value' => variable_get('nurani_library_backend', 'Drupal'),
+    '#default_value' => variable_get('nurani_library_backend', 'REST'),
     '#options' => nurani_library_backend_options(),
     '#required' => TRUE,
   );
@@ -30,6 +30,12 @@ function nurani_library_admin_form($form, &$form_state) {
       );
     }
   }
+
+  $form['tests'] = array(
+    '#type' => 'item',
+    '#title' => t("Connection status"),
+    '#markup' => nurani_library_tests(),
+  );
 
   return system_settings_form($form);
 }
@@ -73,10 +79,10 @@ function nurani_library_rest_settings_form(&$form_state) {
     '#default_value' => $settings['path'],
     '#required' => TRUE,
   );
-  $form['tests'] = array(
-    '#type' => 'item',
-    '#title' => t("REST connection status"),
-    '#markup' => nurani_library_rest_tests(),
+  $form['nurani_library_rest_debug'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Debug enabled?'),
+    '#default_value' => $settings['debug'],
   );
 
   return $form;
@@ -85,7 +91,7 @@ function nurani_library_rest_settings_form(&$form_state) {
 /**
  * Returns an HTML table of REST tests.
  */
-function nurani_library_rest_tests() {
+function nurani_library_tests() {
   $nl = nurani_library();
 
   $header = array(t("Test"), t("Status"));
@@ -94,6 +100,14 @@ function nurani_library_rest_tests() {
   $rows[] = array(
     t('Test fetching all works'),
     var_export($nl->getWorks(), 1),
+  );
+  $rows[] = array(
+    t('Test fetching the work "wlc_he"'),
+    var_export($nl->getWork('wlc_he'), 1),
+  );
+  $rows[] = array(
+    t('Test fetching passages from Genesis in work "wlc_he"'),
+    var_export($nl->search('wlc_he', 'Gen', 1, '1-5'), 1),
   );
 
   return theme('table', array('header' => $header, 'rows' => $rows));

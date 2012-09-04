@@ -60,7 +60,7 @@ function _nurani_library_provider_services_resources() {
             'optional' => FALSE,
             'type' => 'string',
             'description' => 'The machine name of the work containing the index to get',
-            'source' => array('path' => 0),
+            'source' => array('param' => 'work_name'),
           ),
           array(
             'name' => 'book',
@@ -74,15 +74,13 @@ function _nurani_library_provider_services_resources() {
             'optional' => TRUE,
             'type' => 'int',
             'description' => 'The number of the chapter to filter this work by.',
-            'default value' => 1,
             'source' => array('param' => 'chapter'),
           ),
           array(
             'name' => 'verse',
             'optional' => TRUE,
-            'type' => 'int',
-            'description' => 'The number of the verse to filter this work by.',
-            'default value' => 1,
+            'type' => 'string',
+            'description' => 'The number of the verse to filter this work by, ranges are okay.',
             'source' => array('param' => 'verse'),
           ),
           array(

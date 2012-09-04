@@ -56,5 +56,6 @@ function nurani_library_rest_settings() {
     'host'   => variable_get('nurani_library_rest_host', 'library.nurani.org'),
     'port'   => variable_get('nurani_library_rest_port', 80),
     'path'   => variable_get('nurani_library_rest_path', 'api'),
+    'debug'  => variable_get('nurani_library_rest_debug', '0'),
   );
 }
