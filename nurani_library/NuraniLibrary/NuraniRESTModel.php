@@ -29,7 +29,14 @@ class NuraniRESTModel extends NuraniModel {
       }
     }
 
-    return $this->restRequest('GET', 'passage' . $this->queryString($query));
+    $passages = $this->restRequest('GET', 'passage' . $this->queryString($query));
+    if (is_array($passages)) {
+      foreach ($passages as &$passage) {
+        $passage = (object) $passage;
+      }
+    }
+
+    return $passages;
   }
 
 
@@ -48,7 +55,15 @@ class NuraniRESTModel extends NuraniModel {
    */
   public function getWorks() {
     $this->resetErrorState();
-    return $this->restRequest('GET', 'work');
+
+    $works = $this->restRequest('GET', 'work');
+    if (is_array($works)) {
+      foreach ($works as &$work) {
+        $work = (object) $work;
+      }
+    }
+
+    return $works;
   }
 
 
@@ -57,7 +72,13 @@ class NuraniRESTModel extends NuraniModel {
    */
   public function getWork($work_name) {
     $this->resetErrorState();
-    return $this->restRequest('GET', 'work/' . urlencode($work_name));
+
+    $work = $this->restRequest('GET', 'work/' . urlencode($work_name));
+    if (is_array($work)) {
+      $work = (object) $work;
+    }
+
+    return $work;
   }
 
 
