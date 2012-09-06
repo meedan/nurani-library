@@ -66,6 +66,8 @@ function nurani_library_provider_works_form($form, &$form_state) {
 
     foreach ($work as $col => $value) {
       switch ($col) {
+        case 'num_passages':
+          break;
         case 'id':
           $form['works']['table'][$row][$col] = array(
             '#type' => 'value',
@@ -300,7 +302,7 @@ function _nurani_library_provider_validate_work($work, $element, $validate_empty
 function _nurani_library_provider_save_work($work) {
   $record = (object) $work;
   $is_new = ($record->id === 'new');
-  unset($record->actions);
+  unset($record->actions, $record->num_passages);
 
   if ($is_new) {
     unset($record->id);

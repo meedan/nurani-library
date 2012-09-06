@@ -70,7 +70,7 @@ class NuraniDrupalModel extends NuraniModel {
   public function getWorks() {
     $result = db_query("SELECT w.*, COUNT(l.id) AS num_passages
                           FROM {nurani_library_works} w
-                    INNER JOIN {nurani_library} l ON w.id = l.work_id
+                     LEFT JOIN {nurani_library} l ON w.id = l.work_id
                       GROUP BY w.id
                       ORDER BY w.name, w.language");
     $works = array();
@@ -84,7 +84,7 @@ class NuraniDrupalModel extends NuraniModel {
   public function getWork($work_name) {
     return db_query("SELECT w.*, COUNT(l.id) AS num_passages
                           FROM {nurani_library_works} w
-                    INNER JOIN {nurani_library} l ON w.id = l.work_id
+                     LEFT JOIN {nurani_library} l ON w.id = l.work_id
                          WHERE w.name = :name
                       GROUP BY w.id
                       ORDER BY w.name, w.language", array(':name' => $work_name))->fetchObject();
