@@ -1,0 +1,45 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function nurani_library_install() {
+  nurani_library_create_API_account();
+}
+
+/**
+ * Implementation of hook_requirements().
+ */
+function nurani_library_requirements($phase) {
+  $requirements = array();
+  $t = get_t();
+
+  if ($phase == 'runtime') {
+    $account = user_load_by_name('API');
+    $pass = variable_get('nurani_library_api_user_pass', FALSE);
+
+    $requirements['nurani_library']['title'] = $t('Nurani Library');
+    if (!$account || $account->uid <= 0) {
+      $requirements['nurani_library']['value'] = $t('Nurani Library API account missing! <a href="!url">Create it now</a>', array(
+        '!url' => url('admin/structure/nurani-library/create-api-account', array('query' => array('destination' => $_GET['q'])))
+      ));
+      $requirements['nurani_library']['severity'] = REQUIREMENT_ERROR;
+    }
+    else if ($pass !== FALSE) {
+      drupal_add_js(drupal_get_path('module', 'nurani_library') . '/js/nurani_library_reveal_password.js');
+
+      $requirements['nurani_library']['value'] = $t("Nurani Library API account exists");
+      $requirements['nurani_library']['description'] = $t('Store the password for the API account in a safe place then delete the <em>nurani_library_api_user_pass</em> variable.  Password: <strong class="reveal-password">!pass</strong>', array(
+        // For (some) safety, only display the password to the admin user
+        '!pass' => $GLOBALS['user']->uid == 1 ? $pass : $t('<span style="color: red">You do not have sufficient permissions, log in as the admin user.</span>')
+      ));
+      $requirements['nurani_library']['severity'] = REQUIREMENT_WARNING;
+    }
+    else {
+      $requirements['nurani_library']['value'] = $t("Nurani Library API account exists");
+      $requirements['nurani_library']['severity'] = REQUIREMENT_OK;
+    }
+  }
+
+  return $requirements;
+}

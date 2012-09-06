@@ -150,3 +150,33 @@ function nurani_library_tests() {
   drupal_add_css(drupal_get_path('module', 'nurani_library') . '/nurani_library.css');
   return theme('table', array('header' => $header, 'rows' => $rows, 'attributes' => array('class' => array('nurani-library-tests'))));
 }
+
+/**
+ * Confirm form to create a missing Nurani Library API account.
+ */
+function nurani_library_create_api_account_form($form, &$form_state) {
+  $account = user_load_by_name('API');
+
+  if ($account && $account->uid > 0) {
+    drupal_set_message(t('API account exists. If you wish to re-create it, please delete it first.'));
+    drupal_goto();
+    return;
+  }
+
+  return confirm_form(
+    $form,
+    t('Are you sure you want to create the Nurani Library API account?'),
+    'admin/structure/nurani-library',
+    '',
+    t('Create API account'),
+    t('Cancel')
+  );
+}
+
+/**
+ * Submission callback for Nurani Library API account creation confirm form.
+ */
+function nurani_library_create_api_account_form_submit($form, &$form_state) {
+  nurani_library_create_API_account();
+  $form_state['redirect'] = 'admin/structure/nurani-library';
+}
