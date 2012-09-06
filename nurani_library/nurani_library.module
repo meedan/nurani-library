@@ -25,8 +25,8 @@ function nurani_library_menu() {
     'access arguments' => array('administer content types'),
     'file' => 'nurani_library.admin.inc',
   );
-  $items['admin/structure/nurani-library/information'] = array(
-    'title' => 'Information',
+  $items['admin/structure/nurani-library/connection'] = array(
+    'title' => 'Connection',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('nurani_library_admin_form'),
     'access arguments' => array('administer content types'),
@@ -34,6 +34,36 @@ function nurani_library_menu() {
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => -10,
   );
+  $items['admin/structure/nurani-library/connection/info'] = array(
+    'title' => 'Information',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('nurani_library_admin_form'),
+    'access arguments' => array('administer content types'),
+    'file' => 'nurani_library.admin.inc',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => 0,
+  );
+  $weight = 1;
+  foreach (nurani_library_backends() as $backend) {
+    if (isset($backend['settings'])) {
+      $item = array(
+        'title' => $backend['name'] . ' Settings',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array($backend['settings']['callback']),
+        'access arguments' => array('administer content types'),
+        'type' => MENU_LOCAL_TASK,
+        'weight' => $weight,
+      );
+      if (isset($backend['settings']['file'])) {
+        $item['file'] = $backend['settings']['file'];
+      }
+      if (isset($backend['settings']['file path'])) {
+        $item['file path'] = $backend['settings']['file path'];
+      }
+      $items['admin/structure/nurani-library/connection/' . $backend['name']] = $item;
+    }
+    $weight++;
+  }
   $items['admin/structure/nurani-library/create-api-account'] = array(
     'title' => 'Create missing Nurani Library API account',
     'page callback' => 'drupal_get_form',
@@ -53,7 +83,7 @@ function nurani_library_nurani_library_backend() {
       'name' => 'REST',
       'description' => t("Remote Nurani Library server, using REST+JSON connection."),
       'settings' => array(
-        'file' => drupal_get_path('module', 'nurani_library') . '/nurani_library.admin.inc',
+        'file' => 'nurani_library.admin.inc',
         'callback' => 'nurani_library_rest_settings_form',
       ),
     )

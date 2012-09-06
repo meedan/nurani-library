@@ -52,13 +52,15 @@ function nurani_library_backend_options() {
 
 function nurani_library_rest_settings() {
   return array(
-    'scheme' => variable_get('nurani_library_rest_scheme', 'http'),
-    'host'   => variable_get('nurani_library_rest_host', 'library.nurani.org'),
-    'port'   => variable_get('nurani_library_rest_port', 80),
-    'path'   => variable_get('nurani_library_rest_path', 'api'),
-    'debug'  => variable_get('nurani_library_rest_debug', '0'),
-    'user'   => variable_get('nurani_library_rest_user', 'API'),
-    'pass'   => variable_get('nurani_library_rest_pass', ''),
+    'scheme'    => variable_get('nurani_library_rest_scheme', 'http'),
+    'auth_user' => variable_get('nurani_library_rest_auth_user', ''),
+    'auth_pass' => variable_get('nurani_library_rest_auth_pass', ''),
+    'host'      => variable_get('nurani_library_rest_host', 'library.nurani.org'),
+    'port'      => variable_get('nurani_library_rest_port', 80),
+    'path'      => variable_get('nurani_library_rest_path', 'api'),
+    'debug'     => variable_get('nurani_library_rest_debug', '0'),
+    'user'      => variable_get('nurani_library_rest_user', 'API'),
+    'pass'      => variable_get('nurani_library_rest_pass', ''),
   );
 }
 

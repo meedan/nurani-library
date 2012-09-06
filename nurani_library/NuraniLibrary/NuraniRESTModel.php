@@ -107,7 +107,9 @@ class NuraniRESTModel extends NuraniModel {
   private function restRequest($method, $resource, $form_data = NULL, $headers = array(), $max_redirects = 3, $timeout = 30.0) {
     $path = $this->connection['path'] ? $this->connection['path'] . '/' : '';
 
-    $url  = $this->connection['scheme'] . '://' . $this->connection['host'];
+    $url  = $this->connection['scheme'] . '://';
+    $url .= ($this->connection['auth_user']) ? $this->connection['auth_user'] . ($this->connection['auth_pass'] ? ':' . $this->connection['auth_pass'] . '' : '') . '@' : '';
+    $url .= $this->connection['host'];
     $url .= ':' . $this->connection['port'];
     $url .= '/' . $path . $resource;
 
