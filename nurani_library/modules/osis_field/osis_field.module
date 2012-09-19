@@ -236,7 +236,7 @@ function osis_field_field_process($element, $form_state) {
     '#type' => 'textfield',
     '#title' => t('OSIS identifier'),
     '#description' => t("Eg: <em>Gen.1.1</em>, <em>John.3.16</em> and <em>Quran.2.96-98</em>"),
-    '#default_value' => isset($element['#value']['osisIDWork']) ? $element['#value']['osisIDWork'] : NULL,
+    '#default_value' => isset($element['#value']['osisID']) ? $element['#value']['osisID'] : NULL,
     '#size' => 16,
     '#maxlength' => 64,
     '#required' => TRUE,
