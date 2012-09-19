@@ -172,16 +172,17 @@ function _osis_field_validate(&$item, $delta, $field, $node, $instance) {
   $work = $nl->getWork($item['osisIDWork']);
   if (!$work || !isset($work->id)) {
     form_set_error($work_key, t("Invalid work selected."));
-    return;
+    return FALSE;
   }
 
   $osis = explode('.', $item['osisID']);
   if (!$osis || count($osis) != 3) {
     form_set_error($osis_key, t("Invalid OSIS identifier, only full 'Book.Chapter.Verse' references are allowed."));
-    return;
+    return FALSE;
   }
   else if (!is_numeric($osis[1])) {
     form_set_error($osis_key, t("Invalid OSIS identifier, only numeric chapters are allowed."));
+    return FALSE;
   }
 
   $verse = explode('-', $osis[2]);
@@ -190,13 +191,16 @@ function _osis_field_validate(&$item, $delta, $field, $node, $instance) {
       $test = $nl->search($work->name, $osis[0], $osis[1], $verse_number);
       if (empty($test)) {
         form_set_error($osis_key, t("Invalid OSIS identifier, could not locate the passage %work : %osis.", array('%work' => $item['osisIDWork'], '%osis' => $item['osisID'])));
-        return;
+        return FALSE;
       }
-    } 
+    }
   }
   else {
     form_set_error($osis_key, t("Invalid OSIS identifier, verse format not recognized."));
+    return FALSE;
   }
+
+  return TRUE;
 }
 
 /**
