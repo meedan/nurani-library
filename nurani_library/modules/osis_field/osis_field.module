@@ -77,7 +77,12 @@ function osis_field_field_is_empty($item, $field) {
  */
 function osis_field_field_validate($entity_type, $entity, $field, $instance, $langcode, $items, &$errors) {
   foreach ($items as $delta => $value) {
-    _osis_field_validate($items[$delta], $delta, $field, $entity, $instance);
+    $result = osis_field_validate($items[$delta], $delta, $field, $entity, $instance);
+    if (is_array($result)) {
+      foreach ($result as $key => $message) {
+        form_set_error($key, $message);
+      }
+    }
   }
 }
 
@@ -163,26 +168,28 @@ function _osis_field_sanitize(&$item, $delta, &$field, $instance, &$node) {
  *   Gen                   Book
  *   Gen.1                 Book + CH
  */
-function _osis_field_validate(&$item, $delta, $field, $node, $instance) {
+function osis_field_validate(&$item, $delta, $field, $node, $instance) {
   $nl = nurani_library();
 
   $work_key = $field['field_name'] .']['. $delta .'][osisIDWork';
   $osis_key = $field['field_name'] .']['. $delta .'][osisID';
 
+  $errors = array();
+
   $work = $nl->getWork($item['osisIDWork']);
   if (!$work || !isset($work->id)) {
-    form_set_error($work_key, t("Invalid work selected."));
-    return FALSE;
+    $errors[$work_key] = t("Invalid work selected.");
+    return $errors;
   }
 
   $osis = explode('.', $item['osisID']);
   if (!$osis || count($osis) != 3) {
-    form_set_error($osis_key, t("Invalid OSIS identifier, only full 'Book.Chapter.Verse' references are allowed."));
-    return FALSE;
+    $errors[$osis_key] = t("Invalid OSIS identifier, only full 'Book.Chapter.Verse' references are allowed.");
+    return $errors;
   }
   else if (!is_numeric($osis[1])) {
-    form_set_error($osis_key, t("Invalid OSIS identifier, only numeric chapters are allowed."));
-    return FALSE;
+    $errors[$osis_key] = t("Invalid OSIS identifier, only numeric chapters are allowed.");
+    return $errors;
   }
 
   $verse = explode('-', $osis[2]);
@@ -190,14 +197,14 @@ function _osis_field_validate(&$item, $delta, $field, $node, $instance) {
     foreach ($verse as $verse_number) {
       $test = $nl->search($work->name, $osis[0], $osis[1], $verse_number);
       if (empty($test)) {
-        form_set_error($osis_key, t("Invalid OSIS identifier, could not locate the passage %work : %osis.", array('%work' => $item['osisIDWork'], '%osis' => $item['osisID'])));
-        return FALSE;
+        $errors[$osis_key] = t("Invalid OSIS identifier, could not locate the passage %work : %osis.", array('%work' => $item['osisIDWork'], '%osis' => $item['osisID']));
+        return $errors;
       }
     }
   }
   else {
-    form_set_error($osis_key, t("Invalid OSIS identifier, verse format not recognized."));
-    return FALSE;
+    $errors[$osis_key] = t("Invalid OSIS identifier, verse format not recognized.");
+    return $errors;
   }
 
   return TRUE;
