@@ -39,6 +39,10 @@ function nurani_library_provider_theme($existing, $type, $theme, $path) {
       'render element' => 'element',
       'file' => 'nurani_library_provider.admin.inc',
     ),
+    'nurani_library_provider_passage_widget' => array(
+      'variables' => array('osisIDWork' => NULL, 'osisID' => NULL, 'passages' => NULL),
+      'file' => 'nurani_library_provider.widget.inc',
+    ),
   );
 }
 
@@ -112,4 +116,57 @@ function nurani_library_provider_nurani_library_backend() {
       'description' => t("Local Drupal database storage"),
     )
   );
+}
+
+/**
+ * Implements hook_oembedprovider().
+ */
+function nurani_library_provider_oembedprovider() {
+  $base_url = url('', array('absolute' => TRUE)) . 'passages/*';
+  return array(
+    $base_url => array(
+      'callback' => 'nurani_library_provider_passages_provider',
+    ),
+  );
+}
+
+/**
+ * OEmbed provider callback for passages/*
+ *
+ * Used like: http://library.nurani.org/oembed/endpoint?url=http://library.nurani.org/passages/wlc_he/Gen.1.1&format=json
+ */
+function nurani_library_provider_passages_provider($provider, $url, $matches) {
+  $result = FALSE;
+
+  list($osisIDWork, $osisID) = explode('/', $matches[1]);
+
+  if (trim($osisIDWork) == '' || trim($osisID) == '') {
+    return FALSE;
+  }
+
+  $osis = explode('.', $osisID);
+  if (count($osis) != 3) {
+    return FALSE;
+  }
+
+  $nl = nurani_library();
+  $passages = $nl->search($osisIDWork, $osis[0], $osis[1], $osis[2]);
+
+  if (count($passages) <= 0) {
+    return FALSE;
+  }
+
+  $last  = end($passages);
+  $first = reset($passages);
+
+  $verse = $first->verse . ($last->verse != $first->verse ? '-' . $last->verse : '');
+
+  $result = _oembedprovider_result('rich', array(
+    'html' => theme('nurani_library_provider_passage_widget', array('osisIDWork' => $osisIDWork, 'osisID' => $osisID, 'passages' => $passages)),
+    'title' => "$first->book_full_name $first->chapter_full_name:$verse",
+    'author_name' => variable_get('site_name', 'Nurani Library'),
+    'author_url' => url('', array('absolute' => TRUE)),
+  ));
+
+  return $result;
 }
