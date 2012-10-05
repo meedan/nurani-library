@@ -3,3 +3,9 @@
   direction: rtl;
   text-align: right;
 }
+/* line 7, scss/nurani_passage_widget.scss */
+.passage-widget .verse {
+  display: inline-block;
+  direction: ltr !important;
+  text-align: left !important;
+}

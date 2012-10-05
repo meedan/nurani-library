@@ -98,6 +98,26 @@ function nurani_library_base_url() {
   return $url;
 }
 
+function nurani_library_format_passage_string_from_passages($passages) {
+  $first = reset($passages);
+  $last  = FALSE;
+
+  if (count($passages) > 1) {
+    $last = end($passages);
+  }
+
+  $title  = $first->book_full_name;
+  $title .= ' ';
+  $title .= $first->chapter_full_name;
+  $title .= ':';
+  $title .= $first->verse;
+  if ($last) {
+    $title .= '-' . $last->verse;
+  }
+
+  return $title;
+}
+
 /**
  * Creates an account named 'API' for use with REST Services.
  */

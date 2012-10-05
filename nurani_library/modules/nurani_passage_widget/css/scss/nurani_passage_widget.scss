@@ -3,4 +3,10 @@
     direction: rtl;
     text-align: right;
   }
+
+  .verse {
+    display: inline-block;
+    direction: ltr !important;
+    text-align: left !important;
+  }
 }
