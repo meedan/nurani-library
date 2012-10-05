@@ -2,7 +2,7 @@
 
 function nurani_library() {
   $settings = array();
-  $settings['backend'] = variable_get('nurani_library_backend', 'REST');
+  $settings['backend'] = nurani_library_backend();
 
   // HACK: FIXME: This should be gracefully determined with a callback in hook_nurani_library_backend()
   if ($settings['backend'] == 'REST') {
@@ -27,6 +27,10 @@ function nurani_library_work_options() {
     $options[$work->name] = $work->full_name;
   }
   return $options;
+}
+
+function nurani_library_backend() {
+  return variable_get('nurani_library_backend', 'REST');
 }
 
 function nurani_library_backends() {
@@ -62,6 +66,36 @@ function nurani_library_rest_settings() {
     'user'      => variable_get('nurani_library_rest_user', 'API'),
     'pass'      => variable_get('nurani_library_rest_pass', ''),
   );
+}
+
+function nurani_library_l() {
+  $args = func_get_args();
+  $backend = nurani_library_backend();
+
+  if ($backend == 'REST') {
+    $args[0] = nurani_library_base_url() . '/' . $args[0];
+  }
+  $args[2]['absolute'] = TRUE;
+
+  return call_user_func_array('l', $args);
+}
+
+function nurani_library_base_url() {
+  $backend = nurani_library_backend();
+
+  if ($backend == 'REST') {
+    $settings = nurani_library_rest_settings();
+
+    $url  = $settings['scheme'] . '://';
+    $url .= ($settings['auth_user']) ? $settings['auth_user'] . ($settings['auth_pass'] ? ':' . $settings['auth_pass'] . '' : '') . '@' : '';
+    $url .= $settings['host'];
+    $url .= $settings['port'] != 80 ? ':' . $settings['port'] : '';
+  }
+  else {
+    $url = preg_replace('@[/]*$@', '', url(''));
+  }
+
+  return $url;
 }
 
 /**

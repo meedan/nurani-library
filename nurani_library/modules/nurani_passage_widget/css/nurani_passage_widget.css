@@ -1,0 +1,5 @@
+/* line 2, scss/nurani_passage_widget.scss */
+.passage-widget .he, .passage-widget .ar {
+  direction: rtl;
+  text-align: right;
+}

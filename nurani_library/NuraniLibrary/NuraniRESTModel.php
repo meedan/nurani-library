@@ -110,7 +110,7 @@ class NuraniRESTModel extends NuraniModel {
     $url  = $this->connection['scheme'] . '://';
     $url .= ($this->connection['auth_user']) ? $this->connection['auth_user'] . ($this->connection['auth_pass'] ? ':' . $this->connection['auth_pass'] . '' : '') . '@' : '';
     $url .= $this->connection['host'];
-    $url .= ':' . $this->connection['port'];
+    $url .= $this->connection['port'] != 80 ? ':' . $this->connection['port'] : '';
     $url .= '/' . $path . $resource;
 
     $headers['accept'] = 'application/json';

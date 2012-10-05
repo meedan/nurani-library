@@ -1,0 +1,6 @@
+name = Nurani Passage Widget
+description = Renders a passage from the Nurani Library using the OEmbed API.
+core = 7.x
+version = 7.x-1.0
+package = Nurani
+dependencies[] = nurani_library

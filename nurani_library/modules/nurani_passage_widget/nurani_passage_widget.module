@@ -1,0 +1,73 @@
+<?php
+
+/**
+ * Returns a Nurani Library Passage Widget.
+ */
+function nurani_passage_widget($osisIDWork, $osisID) {
+  $backend = nurani_library_backend();
+  $output = '';
+
+  drupal_add_js(drupal_get_path('module', 'nurani_passage_widget') . '/js/nurani_passage_widget.js');
+  drupal_add_css(drupal_get_path('module', 'nurani_passage_widget') . '/css/nurani_passage_widget.css');
+
+  $id  = 'passage-widget-' . substr(md5($osisIDWork . '/' . $osisID), 0, 8);
+
+  // TODO: Will the remote JSONP approach for widget setup be an issue for SEO?
+  // When connecting to a remote back-end use JSONP to initiate the widget
+  // client-side
+  if ($backend == 'REST') {
+    $url = nurani_passage_widget_oembed_url($osisIDWork, $osisID, $id, 'jsonp');
+    $output .= '<div class="passage-widget-wrapper" id="' . $id . '"></div>';
+
+    // This script will initiate a sequence of events:
+    // (1) The script will load
+    // (2) The script contents will be JSONP
+    // (3) This will invoke the PassageWidget.JSONP function
+    // (4) That will create a new PassageWidget object for the widget
+    // (5) The JSON data for the widget contains information about the CSS ID
+    //     of the passage-widget <div>, that's how the div receives its contents
+    $output .= '<script src="' . $url . '"></script>';
+  }
+  // Invoke the provider directly if it is installed locally
+  else if (module_exists('nurani_library_provider')) {
+    $provider = array(
+      'callback' => 'nurani_library_provider_passages_provider'
+    );
+    $passages_path = 'passages/' . $osisIDWork . '/' . $osisID;
+    $url = url($passages_path, array('absolute' => TRUE));
+
+    $oembed = nurani_library_provider_passages_provider($provider, $url, array($url, $passages_path));
+
+    if ($oembed && $oembed['html']) {
+      $output .= '<div class="passage-widget-wrapper" id="' . $id . '">' . $oembed['html'] . '</div>';
+    }
+  }
+  else {
+    watchdog('nurani_passage_widget', "Could not generate passage widget, no Nurani Library backend to connect to.", array(), WATCHDOG_ERROR);
+    return NULL;
+  }
+
+  return $output;
+}
+
+/**
+ * Returns the OEmbed URL. This only makes sense when using a remote backend.
+ *
+ * @param $osisIDWork
+ * @param $osisID
+ * @param $hash
+ * @param $format
+ */
+function nurani_passage_widget_oembed_url($osisIDWork, $osisID, $hash = NULL, $format = 'jsonp') {
+  $nl_base_url = nurani_library_base_url();
+
+  $hash = $hash ? '#' . $hash : '';
+
+  return url($nl_base_url . '/oembed/endpoint', array(
+    'query' => array(
+      'url'      => $nl_base_url . '/passages/' . $osisIDWork . '/' . $osisID . $hash,
+      'format'   => $format,
+      'callback' => 'PassageWidget.JSONP'
+    )
+  ));
+}

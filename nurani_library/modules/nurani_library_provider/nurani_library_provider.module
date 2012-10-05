@@ -138,7 +138,8 @@ function nurani_library_provider_oembedprovider() {
 function nurani_library_provider_passages_provider($provider, $url, $matches) {
   $result = FALSE;
 
-  list($osisIDWork, $osisID) = explode('/', $matches[1]);
+  $scrubbed_url = preg_replace('/#.*$/', '', $matches[1]);
+  list($osisIDWork, $osisID) = explode('/', $scrubbed_url);
 
   if (trim($osisIDWork) == '' || trim($osisID) == '') {
     return FALSE;
