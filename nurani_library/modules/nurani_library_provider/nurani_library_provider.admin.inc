@@ -473,4 +473,8 @@ function nurani_library_provider_import_form_submit($form, &$form_state) {
 
   $library = new NuraniLibrary(array('backend' => 'Drupal'));
   $library->import($import);
+
+  // Wipe the omebed cache so that the newly imported records can show up
+  // in existing widgets.
+  cache_clear_all('*', 'cache_oembed', TRUE);
 }

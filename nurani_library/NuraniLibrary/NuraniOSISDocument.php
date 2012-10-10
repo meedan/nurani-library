@@ -91,10 +91,7 @@ class NuraniOSISDocument extends NuraniDocument {
     if (isset($verseXML->w) || isset($verseXML->seg)) {
       $words = array();
       foreach ($verseXML->xpath('w|seg') as $part) {
-        $words[] = (string) $part;
-      }
-      if ($this->conf['textDirection'] == 'rtl') {
-        $words = array_reverse($words);
+        $words[] = trim((string) $part);
       }
       $verse->text = implode(' ', $words);
     }

@@ -43,6 +43,7 @@ class NuraniWork {
     $this->workLanguages = array(
       'ar' => t("Arabic (ar)"),
       'en' => t("English (en)"),
+      'el' => t("Greek (el)"),
       'fr' => t("French (fr)"),
       'he' => t("Hebrew (he)"),
     );

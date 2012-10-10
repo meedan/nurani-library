@@ -203,4 +203,5 @@ There is a Javascript parsing library called [Bible Passage Reference Parser](ht
 
 ##3. Good source of OSIS bibles
 
-http://sourceforge.net/projects/zefania-sharp/
+* http://sourceforge.net/projects/zefania-sharp/
+* http://biblos.com/

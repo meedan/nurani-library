@@ -3,8 +3,14 @@
   direction: rtl;
   text-align: right;
 }
-/* line 7, scss/nurani_passage_widget.scss */
+/* line 6, scss/nurani_passage_widget.scss */
+.passage-widget .he .verse, .passage-widget .ar .verse {
+  margin-right: 0;
+  margin-left: 1em;
+}
+/* line 12, scss/nurani_passage_widget.scss */
 .passage-widget .verse {
+  margin-right: 1em;
   display: inline-block;
   direction: ltr !important;
   text-align: left !important;

@@ -2,9 +2,15 @@
   .he,.ar {
     direction: rtl;
     text-align: right;
+
+    .verse {
+      margin-right: 0;
+      margin-left: 1em;
+    }
   }
 
   .verse {
+    margin-right: 1em;
     display: inline-block;
     direction: ltr !important;
     text-align: left !important;

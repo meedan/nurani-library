@@ -106,9 +106,9 @@ function nurani_library_format_passage_string_from_passages($passages) {
     $last = end($passages);
   }
 
-  $title  = $first->book_full_name;
+  $title  = ucfirst($first->book_full_name); // HACK: This is really lazy, we need a human book full name for the Qur'an
   $title .= ' ';
-  $title .= $first->chapter_full_name;
+  $title .= $first->chapter_name;
   $title .= ':';
   $title .= $first->verse;
   if ($last) {
