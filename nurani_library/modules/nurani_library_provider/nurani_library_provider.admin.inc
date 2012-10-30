@@ -457,7 +457,7 @@ function nurani_library_provider_import_form_submit($form, &$form_state) {
 
   $import[$work->name] = array(
     'path'          => nurani_library_provider_works_path(),
-    'format'  => $format,
+    'format'        => $format,
     'language'      => $work->language,
     // TODO: textDirection should not be hard-coded.
     'textDirection' => in_array($work->language, array('he', 'ar')) ? 'rtl' : 'ltr',
