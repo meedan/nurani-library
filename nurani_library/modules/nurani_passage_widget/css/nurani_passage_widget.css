@@ -15,3 +15,9 @@
   direction: ltr !important;
   text-align: left !important;
 }
+
+/* line 23, scss/nurani_passage_widget.scss */
+.passage-widget-wrapper {
+  max-height: 40em;
+  overflow-y: auto;
+}

@@ -16,3 +16,11 @@
     text-align: left !important;
   }
 }
+
+//
+// Colours and visual styles, separated for easy removal
+//
+.passage-widget-wrapper {
+  max-height: 40em;
+  overflow-y: auto;
+}
