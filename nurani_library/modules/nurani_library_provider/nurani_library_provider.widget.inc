@@ -10,6 +10,7 @@ function theme_nurani_library_provider_passage_widget(&$variables) {
 
   $first = current($passages);
 
+  $passage_output = '';
   foreach ($passages as $passage) {
     $passage_osisID = "$passage->book_name.$passage->chapter_name.$passage->verse";
 
