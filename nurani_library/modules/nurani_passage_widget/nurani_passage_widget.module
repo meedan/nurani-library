@@ -33,9 +33,10 @@ function nurani_passage_widget($osisIDWork, $osisID) {
     $provider = array(
       'callback' => 'nurani_library_provider_passages_provider'
     );
-    $passages_path = 'passages/' . $osisIDWork . '/' . $osisID;
-    $url = url($passages_path, array('absolute' => TRUE));
+    $passages_path = $osisIDWork . '/' . $osisID;
+    $url = url('passages/' . $passages_path, array('absolute' => TRUE));
 
+    module_load_include('inc', 'oembedprovider');
     $oembed = nurani_library_provider_passages_provider($provider, $url, array($url, $passages_path));
 
     if ($oembed && $oembed['html']) {
