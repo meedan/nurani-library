@@ -8,13 +8,25 @@ require_once 'NuraniModel.php';
  */
 class NuraniDrupalModel extends NuraniModel {
 
+  private $connected;
 
   public function __construct($connection) {
     parent::__construct($connection);
+
+    $this->connected = (
+         db_table_exists('nurani_library')
+      && db_table_exists('nurani_library_works')
+      && db_table_exists('nurani_library_books')
+      && db_table_exists('nurani_library_chapters')
+    );
   }
 
 
   public function search($work_name, $book, $chapter = NULL, $verse = NULL, $page = 0, $pagesize = 100) {
+    if (!$this->connected) {
+      return $this->error(t("Could not establish connection to {nurani_library} database tables."), 0);
+    }
+
     $select = db_select('nurani_library', 'l');
 
     // TODO: Simplify the NuraniDrupalModel::search() "SQL".  Using DBTNG makes a mess of it.
@@ -68,6 +80,10 @@ class NuraniDrupalModel extends NuraniModel {
 
 
   public function getWorks() {
+    if (!$this->connected) {
+      return $this->error(t("Could not establish connection to {nurani_library} database tables."), 0);
+    }
+
     $result = db_query("SELECT w.*, COUNT(l.id) AS num_passages
                           FROM {nurani_library_works} w
                      LEFT JOIN {nurani_library} l ON w.id = l.work_id
@@ -82,6 +98,10 @@ class NuraniDrupalModel extends NuraniModel {
 
 
   public function getWork($work_name) {
+    if (!$this->connected) {
+      return $this->error(t("Could not establish connection to {nurani_library} database tables."), 0);
+    }
+
     return db_query("SELECT w.*, COUNT(l.id) AS num_passages
                           FROM {nurani_library_works} w
                      LEFT JOIN {nurani_library} l ON w.id = l.work_id
@@ -92,6 +112,10 @@ class NuraniDrupalModel extends NuraniModel {
 
 
   public function deleteWork($work_id) {
+    if (!$this->connected) {
+      return $this->error(t("Could not establish connection to {nurani_library} database tables."), 0);
+    }
+
     db_delete('nurani_library_works')
       ->condition('id', $work_id)
       ->execute();
@@ -108,6 +132,10 @@ class NuraniDrupalModel extends NuraniModel {
 
 
   public function import($work, $document) {
+    if (!$this->connected) {
+      return $this->error(t("Could not establish connection to {nurani_library} database tables."), 0);
+    }
+
     if (!$document->contents) {
       return FALSE;
     }
