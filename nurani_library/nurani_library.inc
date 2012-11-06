@@ -80,14 +80,16 @@ function nurani_library_l() {
   return call_user_func_array('l', $args);
 }
 
-function nurani_library_base_url() {
+function nurani_library_base_url($no_authentication = FALSE) {
   $backend = nurani_library_backend();
 
   if ($backend == 'REST') {
     $settings = nurani_library_rest_settings();
 
     $url  = $settings['scheme'] . '://';
-    $url .= ($settings['auth_user']) ? $settings['auth_user'] . ($settings['auth_pass'] ? ':' . $settings['auth_pass'] . '' : '') . '@' : '';
+    if (!$no_authentication) {
+      $url .= ($settings['auth_user']) ? $settings['auth_user'] . ($settings['auth_pass'] ? ':' . $settings['auth_pass'] . '' : '') . '@' : '';
+    }
     $url .= $settings['host'];
     $url .= $settings['port'] != 80 ? ':' . $settings['port'] : '';
   }

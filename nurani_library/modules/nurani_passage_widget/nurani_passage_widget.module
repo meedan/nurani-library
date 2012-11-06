@@ -60,13 +60,11 @@ function nurani_passage_widget($osisIDWork, $osisID) {
  * @param $format
  */
 function nurani_passage_widget_oembed_url($osisIDWork, $osisID, $hash = NULL, $format = 'jsonp') {
-  $nl_base_url = nurani_library_base_url();
-
   $hash = $hash ? '#' . $hash : '';
 
-  return url($nl_base_url . '/oembed/endpoint', array(
+  return url(nurani_library_base_url() . '/oembed/endpoint', array(
     'query' => array(
-      'url'      => $nl_base_url . '/passages/' . $osisIDWork . '/' . $osisID . $hash,
+      'url'      => nurani_library_base_url(TRUE) . '/passages/' . $osisIDWork . '/' . $osisID . $hash,
       'format'   => $format,
       'callback' => 'PassageWidget.JSONP'
     )
