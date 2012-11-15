@@ -29,6 +29,53 @@ function nurani_library_work_options() {
   return $options;
 }
 
+/**
+ * Returns an array of passages and passage information using OSIS ID
+ * information.
+ */
+function nurani_library_get_passages($osisIDWork, $osisID) {
+  if (trim($osisIDWork) == '' || trim($osisID) == '') {
+    return FALSE;
+  }
+
+  $osis = explode('.', $osisID);
+  if (count($osis) != 3) {
+    return FALSE;
+  }
+
+  $nl = nurani_library();
+  $passages = $nl->search($osisIDWork, $osis[0], $osis[1], $osis[2]);
+
+  if ($nl->model->getError()) {
+    return FALSE;
+  }
+
+  return $passages;
+}
+
+/**
+ * Returns extra information along with an array of passages using OSIS ID
+ * information.
+ */
+function nurani_library_get_passages_info($osisIDWork, $osisID) {
+  $passages = nurani_library_get_passages($osisIDWork, $osisID);
+
+  if ($passages === FALSE) {
+    return FALSE;
+  }
+
+  $last  = end($passages);
+  $first = reset($passages);
+
+  $verse = $first->verse . ($last->verse != $first->verse ? '-' . $last->verse : '');
+
+  return array(
+    'passage_human' => "$first->book_full_name $first->chapter_full_name:$verse",
+    'work_full_name' => $first->work_full_name,
+    'passages' => $passages,
+  );
+}
+
 function nurani_library_backend() {
   return variable_get('nurani_library_backend', 'REST');
 }
