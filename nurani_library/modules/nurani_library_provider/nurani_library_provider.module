@@ -141,7 +141,7 @@ function nurani_library_provider_passages_provider($provider, $url, $matches) {
   $scrubbed_url = preg_replace('/#.*$/', '', $matches[1]);
   list($osisIDWork, $osisID) = explode('/', $scrubbed_url);
 
-  $info = nurani_library_get_passage_info($osisIDWork, $osisID);
+  $info = nurani_library_get_passages_info($osisIDWork, $osisID);
 
   if ($info === FALSE) {
     return FALSE;
