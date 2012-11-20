@@ -81,16 +81,9 @@ function nurani_library_provider_schema() {
         'length' => 12,
         'not null' => TRUE,
       ),
-      'type' => array(
-        'description' => 'The type of work, see the list of allowed types in the NuraniWork class.',
-        'type' => 'varchar',
-        'length' => 32,
-        'not null' => TRUE,
-      ),
     ),
     'indexes' => array(
       'full_name' => array('full_name'),
-      'type' => array('type'),
     ),
     'unique keys' => array(
       'name' => array('name'),
@@ -189,4 +182,13 @@ function nurani_library_provider_schema() {
   );
 
   return $schema;
+}
+
+/**
+ * Removing the 'type' field from 'nurani_library_works'.
+ */
+function nurani_library_provider_update_7000(&$sandbox) {
+  if (db_field_exists('nurani_library_works', 'type')) {
+    db_drop_field('nurani_library_works', 'type');
+  }
 }

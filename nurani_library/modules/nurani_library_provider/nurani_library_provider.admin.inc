@@ -44,7 +44,6 @@ function nurani_library_provider_works_form($form, &$form_state) {
   $select_col_options = array(
     // TODO: The list of languages should not be hard-coded.
     'language' => $nw->workLanguageOptions,
-    'type'     => $nw->workTypeOptions,
   );
   $descriptions = array(
     'name'      => t('A unique machine-readable name. Can only contain lowercase letters, numbers, and underscores.'),
@@ -66,8 +65,6 @@ function nurani_library_provider_works_form($form, &$form_state) {
 
     foreach ($work as $col => $value) {
       switch ($col) {
-        case 'num_passages':
-          break;
         case 'id':
           $form['works']['table'][$row][$col] = array(
             '#type' => 'value',
@@ -75,6 +72,7 @@ function nurani_library_provider_works_form($form, &$form_state) {
           );
           break;
 
+        case 'num_passages':
         case 'name':
           if ($row !== 'new') {
             $form['works']['table'][$row][$col] = array(
@@ -87,7 +85,7 @@ function nurani_library_provider_works_form($form, &$form_state) {
               ),
             );
           }
-          else {
+          else if ($col == 'name') {
             $form['works']['table'][$row][$col] = array(
               '#type' => 'textfield',
               '#size' => 16,
@@ -96,7 +94,6 @@ function nurani_library_provider_works_form($form, &$form_state) {
           }
           break;
 
-        case 'type':
         case 'language':
           $form['works']['table'][$row][$col] = array(
             '#type' => 'select',
@@ -120,19 +117,8 @@ function nurani_library_provider_works_form($form, &$form_state) {
       $form['works']['table'][$row][$col]['#row'] = $row;
     }
 
-    $form['works']['table'][$row]['info'] = array(
-      '#type' => 'markup',
-      '#markup' => theme('item_list', array(
-        'items' => array(
-            t("<strong>Passages: </strong> @passages", array('@passages' => (string) $work->num_passages)),
-          )
-        )
-      ),
-    );
-
     $form['works']['table'][$row]['actions'] = array();
     if ($row === 'new') {
-      $form['works']['table'][$row]['info'] = array();
       $form['works']['table'][$row]['actions']['add'] = array(
         '#type' => 'submit',
         '#value' => t('Add new work'),
@@ -148,6 +134,7 @@ function nurani_library_provider_works_form($form, &$form_state) {
         '#validate' => array('nurani_library_provider_works_form_delete_validate'),
         '#submit' => array('nurani_library_provider_works_form_delete_submit'),
         '#work' => $work,
+        '#name' => 'op_delete_' . $work->id,
       );
     }
 
@@ -256,7 +243,7 @@ function nurani_library_provider_works_form_delete_submit($form, &$form_state) {
     drupal_set_message(t("There was an error deleting this work. Please try again."), 'error');
   }
   else {
-    $nl = nurani_library_provider();
+    $nl = nurani_library();
     $nl->model->deleteWork($work->id);
     drupal_set_message(t("The work %full_name (%name) and all of its passages were removed from the system.", array('%full_name' => $work->full_name, '%name' => $work->name)));
   }
@@ -269,7 +256,6 @@ function _nurani_library_provider_new_work($form_state) {
     'name'         => '',
     'full_name'    => '',
     'language'     => 'en',
-    'type'         => 'biblical',
     'num_passages' => 0
   );
   return (object) array_merge($work, $edit);

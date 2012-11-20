@@ -5,41 +5,9 @@
  */
 class NuraniWork {
 
-  public $workTypes;
   public $workLanguages;
 
-
   function __construct() {
-    $this->workTypes = array(
-      'biblical' => (object) array(
-        'name' => t("Biblical"),
-        'books' => array_merge(
-          $this->booksBiblicalOldTestament(),
-          $this->booksBiblicalNewTestament()
-        ),
-      ),
-      'biblical_apocryhpa' => (object) array(
-        'name' => t("Biblical (including Apocrypha)"),
-        'books' => array_merge(
-          $this->booksBiblicalOldTestament(),
-          $this->booksBiblicalNewTestament(),
-          $this->booksBiblicalApocrypha()
-        ),
-      ),
-      'hebraic' => (object) array(
-        'name' => t("Hebraic (Hebrew bible)"),
-        'books' => $this->booksBiblicalOldTestament(),
-      ),
-      'quranic' => (object) array(
-        'name' => t("Quranic"),
-        'books' => $this->booksQuranicQuran(),
-      ),
-    );
-    $this->workTypeOptions = array();
-    foreach ($this->workTypes as $type_name => $type) {
-      $this->workTypeOptions[$type_name] = $type->name;
-    }
-
     $this->workLanguages = array(
       'ar' => t("Arabic (ar)"),
       'en' => t("English (en)"),
