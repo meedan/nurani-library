@@ -182,7 +182,11 @@ class NuraniRESTModel extends NuraniModel {
     // Attempt to bind to the existing session
     if (isset($_SESSION['nurani_rest_session']) && isset($_SESSION['nurani_rest_session']['id']) && isset($_SESSION['nurani_rest_session']['name'])) {
       $this->session = $_SESSION['nurani_rest_session'];
-      return TRUE;
+
+      if ($this->testConnection()) {
+        return TRUE;
+      }
+      // Else fall through and create a new connection
     }
 
     // No session, attempt to get a new one. Ensure any partial connections are
@@ -203,6 +207,20 @@ class NuraniRESTModel extends NuraniModel {
     $_SESSION['nurani_rest_session'] = $this->session;
 
     return TRUE;
+  }
+
+
+  /**
+   * Checks the status of the connection by ensuring the session is valid.
+   */
+  private function testConnection() {
+    $this->resetErrorState();
+
+    $response = $this->restRequest('POST', 'system/connect');
+    if (is_object($response) && is_object($response->user)) {
+      return $response->user->uid > 0;
+    }
+    return FALSE;
   }
 
 
