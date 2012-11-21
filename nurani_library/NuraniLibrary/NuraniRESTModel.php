@@ -104,7 +104,7 @@ class NuraniRESTModel extends NuraniModel {
    * @param (float) $timeout
    *  Optional, passed to drupal_http_request() as $timeout param
    */
-  private function restRequest($method, $resource, $form_data = NULL, $headers = array(), $max_redirects = 3, $timeout = 30.0) {
+  private function restRequest($method, $resource, $form_data = NULL, $headers = array(), $max_redirects = 3, $timeout = 30.0, $max_retries = 1) {;
     $path = $this->connection['path'] ? $this->connection['path'] . '/' : '';
 
     $url  = $this->connection['scheme'] . '://';
@@ -148,6 +148,15 @@ class NuraniRESTModel extends NuraniModel {
     }
 
     if ($response->code != 200) {
+      if ($max_retries > 0 && !$this->testConnection()) {
+        $this->destroyConnection();
+
+        if ($this->establishConnection()) {
+          $this->resetErrorState();
+          return $this->restRequest($method, $resource, $form_data, $headers, $max_redirects, $timeout, $max_retries - 1);
+        }
+      }
+
       $message = "Error: " . $response->status_message;
       if ($response->data) {
         $message .= "; Data: " . $response->data;
@@ -182,11 +191,7 @@ class NuraniRESTModel extends NuraniModel {
     // Attempt to bind to the existing session
     if (isset($_SESSION['nurani_rest_session']) && isset($_SESSION['nurani_rest_session']['id']) && isset($_SESSION['nurani_rest_session']['name'])) {
       $this->session = $_SESSION['nurani_rest_session'];
-
-      if ($this->testConnection()) {
-        return TRUE;
-      }
-      // Else fall through and create a new connection
+      return TRUE;
     }
 
     // No session, attempt to get a new one. Ensure any partial connections are
@@ -216,9 +221,11 @@ class NuraniRESTModel extends NuraniModel {
   private function testConnection() {
     $this->resetErrorState();
 
-    $response = $this->restRequest('POST', 'system/connect');
-    if (is_object($response) && is_object($response->user)) {
-      return $response->user->uid > 0;
+    // Connection request is only sent once, never retried to avoid getting
+    // stuck in a loop.
+    $response = $this->restRequest('POST', 'system/connect', NULL, array(), 3, 30.0, 0);
+    if (is_array($response) && is_array($response['user'])) {
+      return $response['user']['uid'] > 0;
     }
     return FALSE;
   }
