@@ -41,7 +41,7 @@ class NuraniLibrary {
   }
 
 
-  function search($work_name, $book, $chapter = NULL, $verse = NULL, $page = 0, $pagesize = 100) {
+  function search($work_name, $book = NULL, $chapter = NULL, $verse = NULL, $page = 0, $pagesize = 100) {
     return $this->model->search($work_name, $book, $chapter, $verse, $page, $pagesize);
   }
 

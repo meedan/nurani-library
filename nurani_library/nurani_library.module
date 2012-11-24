@@ -13,6 +13,16 @@ function nurani_library_help($path, $arg) {
 }
 
 /**
+ * Implements hook_init().
+ */
+function nurani_library_init() {
+  drupal_add_js(array('nuraniLibrary' => array(
+    'baseUrl' => nurani_library_base_url(TRUE),
+    'baseAPIUrl' => nurani_library_base_url(TRUE, TRUE),
+  )), 'setting');
+}
+
+/**
  * Implements hook_menu().
  */
 function nurani_library_menu() {

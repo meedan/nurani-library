@@ -22,7 +22,7 @@ class NuraniDrupalModel extends NuraniModel {
   }
 
 
-  public function search($work_name, $book, $chapter = NULL, $verse = NULL, $page = 0, $pagesize = 100) {
+  public function search($work_name, $book = NULL, $chapter = NULL, $verse = NULL, $page = 0, $pagesize = 100) {
     if (!$this->connected) {
       return $this->error(t("Could not establish connection to {nurani_library} database tables."), 0);
     }
@@ -42,17 +42,19 @@ class NuraniDrupalModel extends NuraniModel {
     $select->addField('ch', 'name', 'chapter_name');
     $select->addField('ch', 'full_name', 'chapter_full_name');
     $select->condition('w.name', $work_name);
-    $select->condition('b.name', $book);
     $select->orderBy('w.name');
     $select->orderBy('w.language');
     $select->orderBy('b.name');
     $select->orderBy('ch.name');
     $select->orderBy('w.name');
 
-    if (!is_null($chapter)) {
+    if ($book) {
+      $select->condition('b.name', $book);
+    }
+    if ($chapter) {
       $select->condition('ch.name', $chapter);
     }
-    if (!is_null($verse)) {
+    if ($verse) {
       if (strstr($verse, '-') === FALSE) {
         $select->condition('l.verse', $verse);
       }

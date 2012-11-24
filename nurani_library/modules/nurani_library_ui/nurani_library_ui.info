@@ -1,0 +1,5 @@
+name = Nurani Library User Interface
+description = User interface and helpers for Nurani Library, and sites which connect to it.
+core = 7.x
+version = 7.x-1.0
+package = Nurani

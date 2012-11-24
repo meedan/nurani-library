@@ -20,9 +20,9 @@ class NuraniRESTModel extends NuraniModel {
   public function search($work_name, $book = NULL, $chapter = NULL, $verse = NULL, $page = 0, $pagesize = 100) {
     $this->resetErrorState();
 
-    $query = array();
+    $query = array('work_name' => $work_name);
 
-    foreach (array('work_name', 'book', 'chapter', 'verse', 'page', 'pagesize') as $variable) {
+    foreach (array('book', 'chapter', 'verse', 'page', 'pagesize') as $variable) {
       // Beware the $$ notation..
       if (!is_null($$variable)) {
         $query[$variable] = $$variable;

@@ -127,7 +127,7 @@ function nurani_library_l() {
   return call_user_func_array('l', $args);
 }
 
-function nurani_library_base_url($no_authentication = FALSE) {
+function nurani_library_base_url($no_authentication = FALSE, $add_path = FALSE) {
   $backend = nurani_library_backend();
 
   if ($backend == 'REST') {
@@ -142,6 +142,10 @@ function nurani_library_base_url($no_authentication = FALSE) {
   }
   else {
     $url = preg_replace('@[/]*$@', '', url(''));
+  }
+
+  if ($add_path) {
+    $url .= '/' . (isset($settings) ? $settings['path'] : 'api');
   }
 
   return $url;
