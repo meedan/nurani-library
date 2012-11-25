@@ -86,46 +86,13 @@ class NuraniDrupalModel extends NuraniModel {
       return $this->error(t("Could not establish connection to {nurani_library} database tables."), 0);
     }
 
-    $result = db_query("SELECT w.*, COUNT(l.id) AS num_passages
-                          FROM {nurani_library_works} w
-                     LEFT JOIN {nurani_library} l ON w.id = l.work_id
-                      GROUP BY w.id
-                      ORDER BY w.name, w.language");
+    $result = db_query("SELECT name FROM {nurani_library_works} ORDER BY id");
     $works = array();
+
     foreach ($result as $work) {
-      //     SELECT w.name, w.full_name, w.language,
-      //            b.name AS book_name, b.full_name AS book_full_name,
-      //            c.name AS chapter_name, c.full_name AS chapter_full_name
-      //       FROM nurani_library nl
-      // INNER JOIN nurani_library_chapters c ON nl.chapter_id = c.id
-      // INNER JOIN nurani_library_books b ON nl.book_id = b.id
-      // INNER JOIN nurani_library_works w ON nl.work_id = w.id
-      //   GROUP BY nl.work_id, nl.book_id, nl.chapter_id
-      //   ORDER BY nl.work_id, b.weight, c.weight
-
-
-      // $work->books = array();
-
-      // $result_books = db_query("SELECT b.name, b.full_name
-      //                             FROM {nurani_library_books} b
-      //                            WHERE b.work_id = :work_id
-      //                         ORDER BY b.weight", array(':work_id' => $work->id));
-      // foreach ($result_books as $book) {
-      //   $book->chapters = array();
-
-      //   $result_chapters =  db_query("SELECT c.name, c.full_name
-      //                                   FROM {nurani_library_chapters} c
-      //                                  WHERE c.work_id = :work_id
-      //                               ORDER BY c.weight", array(':work_id' => $work->id));
-      //   foreach ($result_chapters as $chapter) {
-      //     $book->chapters[] = $chapter;
-      //   }
-
-      //   $work->books[] = $book;
-      // }
-
-      $works[] = $work;
+      $works[] = $this->getWork($work->name);
     }
+
     return $works;
   }
 
@@ -135,12 +102,73 @@ class NuraniDrupalModel extends NuraniModel {
       return $this->error(t("Could not establish connection to {nurani_library} database tables."), 0);
     }
 
-    return db_query("SELECT w.*, COUNT(l.id) AS num_passages
-                          FROM {nurani_library_works} w
-                     LEFT JOIN {nurani_library} l ON w.id = l.work_id
-                         WHERE w.name = :name
-                      GROUP BY w.id
-                      ORDER BY w.name, w.language", array(':name' => $work_name))->fetchObject();
+    $result = db_query("SELECT w.name, w.full_name, w.language,
+                               b.name AS book_name, b.full_name AS book_full_name,
+                               c.name AS chapter_name, c.full_name AS chapter_full_name
+                          FROM {nurani_library} nl
+                    INNER JOIN {nurani_library_chapters} c ON nl.chapter_id = c.id
+                    INNER JOIN {nurani_library_books} b ON nl.book_id = b.id
+                    INNER JOIN {nurani_library_works} w ON nl.work_id = w.id
+                         WHERE w.name = :work_name
+                      GROUP BY nl.work_id, nl.book_id, nl.chapter_id
+                      ORDER BY nl.work_id, b.weight, c.weight", array(':work_name' => $work_name));
+
+    $maps = array('books' => array(), 'chapters' => array());
+
+    foreach ($result as $row) {
+      $this->autoCastTypes($row);
+
+      $book_key    = $this->keyForValueInUniqueMap($row->book_name, $maps['books']);
+      $chapter_key = $this->keyForValueInUniqueMap($row->chapter_name, $maps['chapters']);
+
+      // $work is created on processing the first record
+      if (!isset($work)) {
+        $work = (object) array(
+          'name'      => $row->name,
+          'full_name' => $row->full_name,
+          'language'  => $row->language,
+          'books'     => array(),
+        );
+      }
+
+      if (!isset($work->books[$book_key])) {
+        $work->books[$book_key] = (object) array(
+          'name'      => $row->book_name,
+          'full_name' => $row->book_full_name,
+          'chapters'  => array(),
+        );
+      }
+
+      if ($row->chapter_name == $row->chapter_full_name) {
+        $work->books[$book_key]->chapters[$chapter_key] = $row->chapter_name;
+      }
+      else {
+        $work->books[$book_key]->chapters[$chapter_key] = array(
+          $row->chapter_name,
+          $row->chapter_full_name,
+        );
+      }
+    }
+
+    // Optimization, when possible flatten chapters into a range representation
+    foreach ($work->books as $book_key => $book) {
+      $found_non_numeric = FALSE;
+
+      foreach ($book->chapters as $chapter) {
+        if (!is_numeric($chapter)) {
+          $found_non_numeric = TRUE;
+          break;
+        }
+      }
+
+      if (!$found_non_numeric) {
+        $first = reset($book->chapters);
+        $last  = end($book->chapters);
+        $work->books[$book_key]->chapters = "{$first}-{$last}";
+      }
+    }
+
+    return $work;
   }
 
 
@@ -277,6 +305,28 @@ class NuraniDrupalModel extends NuraniModel {
     }
 
     return $id;
+  }
+
+  private function autoCastTypes(&$object) {
+    foreach ($object as &$value) {
+      if (is_numeric($value)) {
+        $value = strpos($value, '.') === FALSE
+               ? (int) $value
+               : (float) $value;
+      }
+    }
+  }
+
+  /**
+   * 
+   */
+  private function keyForValueInUniqueMap($value, &$map) {
+    $key = array_search($value, $map);
+    if ($key === FALSE) {
+      $map[] = $value;
+      $key = count($map) - 1;
+    }
+    return (int) $key;
   }
 
 }

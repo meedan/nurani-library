@@ -121,7 +121,6 @@ var NL = (function ($) {
   // Static template for the picker UI. Handlebars compiles this shared template
   // into a specific HTML blob for each PickerUI instance.
   PickerUI.templates = {
-    // Toolbar / header
     toolbar: [
       // Search box
       '<div class="form-item form-type-textfield form-item-search">',
@@ -166,7 +165,8 @@ var NL = (function ($) {
         '</select>',
       '</div>',
     ].join(''),
-    // List of passages, tickboxes
+
+
     passages: [
       '{{#each passages}}',
         '<div class="form-item form-type-checkbox form-item-passage-row {{work_language}}">',
