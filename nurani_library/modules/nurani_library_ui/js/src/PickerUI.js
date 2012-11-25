@@ -13,52 +13,8 @@ function PickerUI(opts) {
   return this;
 }
 
-// Static template for the picker UI. Handlebars compiles this shared template
-// into a specific HTML blob for each PickerUI instance.
-PickerUI.templates = {
-  // Toolbar / header
-  toolbar: [
-    // Search box
-    '<div class="form-item form-type-textfield form-item-search">',
-      '<label for="edit-search">',
-        'Work name ',
-        '<span class="form-required" title="This field is required.">*</span>',
-      '</label>',
-      '<input type="text" id="edit-search" name="search" value="" size="16" maxlength="32" class="form-text required">',
-    '</div>',
-    '<input class="search-action form-submit" type="submit" id="edit-search-submit" name="op" value="Search">',
-    // Works filter
-    '<div class="form-item form-type-select form-item-work-filter">',
-      '<label for="edit-work-filter">',
-        'Text ',
-        '<span class="form-required" title="This field is required.">*</span>',
-      '</label>',
-      '<select id="edit-work-filter" name="work_filter" class="form-select required">',
-        '{{#each works}}',
-          '<option value="{{name}}">{{full_name}}</option>',
-        '{{/each}}',
-      '</select>',
-    '</div>',
-  ].join(''),
-  // List of passages, tickboxes
-  passages: [
-    '{{#each passages}}',
-      '<div class="form-item form-type-checkbox form-item-passage-row">',
-        // "Select passage" tickbox
-        '<input type="checkbox" id="{{css_id}}" name="passage" value="{{osisID}}" class="form-checkbox"> ',
-        // The verse and its number link
-        '<label class="option" for="{{css_id}}">',
-          '<span class="verse">',
-            '<a href="{{verse_url}}">{{verse}}</a>',
-          '</span> ',
-          '{{text}}',
-        '</label>',
-      '</div>',
-    '{{/each}}',
-  ].join('')
-};
-
 PickerUI.prototype.init = function () {
+  // Contents of div.toolbar and div.passages is populated via handlebars.js templates
   this.$element = $('<div class="passage-picker-ui"><div class="toolbar"></div><div class="passages"></div></div>');
 
   // Render the initial templates, empty
@@ -73,6 +29,8 @@ PickerUI.prototype.render = function (to_render) {
   to_render = to_render || ['toolbar', 'passages'];
 
   for (var i = to_render.length - 1; i >= 0; i--) {
+    // Compile handlebars.js templates as needed
+    // @see: PickerUI.templates.js
     if (!this.templates[to_render[i]]) {
       this.templates[to_render[i]] = Handlebars.compile(PickerUI.templates[to_render[i]]);
     }
@@ -139,18 +97,9 @@ PickerUI.prototype.getSelectionOSIS = function () {
     osisIDWork: 'wlc_he',
     osisID: 'Gen.1.1'
   };
-}
+};
 
-                      // var osisIDWork = $('#edit-osisIDWork', $element).val(),
-                      //     osisID     = $('#edit-osisID', $element).val()
+PickerUI.prototype.didResize = function () {
+  this.$element.find('.toolbar').css('width', this.$element.width());
+};
 
-  // var $element = $('<div>'
-  //             +   '<div class="form-item form-type-textfield form-item-osisIDWork">'
-  //             +     '<label for="edit-osisIDWork">Work name <span class="form-required" title="This field is required.">*</span></label>'
-  //             +     '<input type="text" id="edit-osisIDWork" name="osisIDWork" value="' + this.opts.osisIDWork + '" size="16" maxlength="32" class="form-text required">'
-  //             +   '</div>'
-  //             +   '<div class="form-item form-type-textfield form-item-osisID">'
-  //             +     '<label for="edit-osisID">Osis ID <span class="form-required" title="This field is required.">*</span></label>'
-  //             +     '<input type="text" id="edit-osisID" name="osisID" value="' + this.opts.osisID + '" size="16" maxlength="64" class="form-text required">'
-  //             +   '</div>'
-  //             + '</div>');

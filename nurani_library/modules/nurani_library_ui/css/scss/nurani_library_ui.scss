@@ -1,3 +1,29 @@
+.ui-dialog .ui-dialog-content.passage-picker-ui {
+  position: static;
+}
 .passage-picker-ui {
-  // min-height: 20em !important;
+  .toolbar {
+    position: absolute;
+    top: 37px;
+    left: 16px;
+    height: 70px;
+    // NOTE: The width of the toolbar is (unfortunately) set dynamically via Javascript
+    //       @see: PickerUI.didResize()
+    background: #fff;
+    border-bottom: 2px solid #E1E2DC;
+
+    .form-item {
+      display: inline-block;
+      margin: 0 1em 1em 0;
+    }
+    .form-item-work-filter,
+    .form-item-book-filter,
+    .form-item-chapter-filter {
+      float: right;
+    }
+  }
+
+  .passages {
+    overflow-y: auto;
+  }
 }

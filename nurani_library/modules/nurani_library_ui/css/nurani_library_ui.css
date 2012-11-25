@@ -1,0 +1,29 @@
+/* line 1, scss/nurani_library_ui.scss */
+.ui-dialog .ui-dialog-content.passage-picker-ui {
+  position: static;
+}
+
+/* line 5, scss/nurani_library_ui.scss */
+.passage-picker-ui .toolbar {
+  position: absolute;
+  top: 37px;
+  left: 16px;
+  height: 70px;
+  background: #fff;
+  border-bottom: 2px solid #E1E2DC;
+}
+/* line 15, scss/nurani_library_ui.scss */
+.passage-picker-ui .toolbar .form-item {
+  display: inline-block;
+  margin: 0 1em 1em 0;
+}
+/* line 21, scss/nurani_library_ui.scss */
+.passage-picker-ui .toolbar .form-item-work-filter,
+.passage-picker-ui .toolbar .form-item-book-filter,
+.passage-picker-ui .toolbar .form-item-chapter-filter {
+  float: right;
+}
+/* line 26, scss/nurani_library_ui.scss */
+.passage-picker-ui .passages {
+  overflow-y: auto;
+}

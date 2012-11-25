@@ -12,6 +12,7 @@ require 'fileutils'
 @src_files = [
   "src/Util.js",
   "src/PickerUI.js",
+  "src/PickerUI.templates.js",
 ]
 @out_file = "nurani_library_ui.js"
 
