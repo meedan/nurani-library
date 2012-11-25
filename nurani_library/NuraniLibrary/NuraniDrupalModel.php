@@ -93,6 +93,37 @@ class NuraniDrupalModel extends NuraniModel {
                       ORDER BY w.name, w.language");
     $works = array();
     foreach ($result as $work) {
+      //     SELECT w.name, w.full_name, w.language,
+      //            b.name AS book_name, b.full_name AS book_full_name,
+      //            c.name AS chapter_name, c.full_name AS chapter_full_name
+      //       FROM nurani_library nl
+      // INNER JOIN nurani_library_chapters c ON nl.chapter_id = c.id
+      // INNER JOIN nurani_library_books b ON nl.book_id = b.id
+      // INNER JOIN nurani_library_works w ON nl.work_id = w.id
+      //   GROUP BY nl.work_id, nl.book_id, nl.chapter_id
+      //   ORDER BY nl.work_id, b.weight, c.weight
+
+
+      // $work->books = array();
+
+      // $result_books = db_query("SELECT b.name, b.full_name
+      //                             FROM {nurani_library_books} b
+      //                            WHERE b.work_id = :work_id
+      //                         ORDER BY b.weight", array(':work_id' => $work->id));
+      // foreach ($result_books as $book) {
+      //   $book->chapters = array();
+
+      //   $result_chapters =  db_query("SELECT c.name, c.full_name
+      //                                   FROM {nurani_library_chapters} c
+      //                                  WHERE c.work_id = :work_id
+      //                               ORDER BY c.weight", array(':work_id' => $work->id));
+      //   foreach ($result_chapters as $chapter) {
+      //     $book->chapters[] = $chapter;
+      //   }
+
+      //   $work->books[] = $book;
+      // }
+
       $works[] = $work;
     }
     return $works;
@@ -124,12 +155,16 @@ class NuraniDrupalModel extends NuraniModel {
     db_delete('nurani_library')
       ->condition('work_id', $work_id)
       ->execute();
-    db_delete('nurani_library_books')
-      ->condition('work_id', $work_id)
-      ->execute();
-    db_delete('nurani_library_chapters')
-      ->condition('work_id', $work_id)
-      ->execute();
+
+    // Cleaning up orphaned books and chapters
+    db_query("DELETE FROM {nurani_library_books}
+                    WHERE NOT EXISTS (SELECT *
+                                        FROM {nurani_library} nl
+                                       WHERE nl.book_id = {nurani_library_books}.id)");
+    db_query("DELETE FROM {nurani_library_chapters}
+                    WHERE NOT EXISTS (SELECT *
+                                        FROM {nurani_library} nl
+                                       WHERE nl.chapter_id = {nurani_library_chapters}.id)");
   }
 
 
@@ -149,8 +184,7 @@ class NuraniDrupalModel extends NuraniModel {
 
     foreach ($document->contents as $bookKey => $book) {
       $book_id = $this->getBookID($bookKey,
-                                  array('work_id' => $work_id,
-                                        'weight'    => $document->bookOrder($bookKey),
+                                  array('weight'    => $document->bookOrder($bookKey),
                                         'full_name' => $document->bookFullName($bookKey)));
 
       if ($book_id === FALSE) {
@@ -159,9 +193,9 @@ class NuraniDrupalModel extends NuraniModel {
 
       foreach ($book as $chapterKey => $chapter) {
         $chapter_id = $this->getChapterID($chapterKey,
-                                          array('work_id' => $work_id,
-                                                'weight'    => $chapterKey,
+                                          array('weight'    => $chapterKey,
                                                 'full_name' => $document->chapterFullName($chapterKey)));
+
         if ($chapter_id === FALSE) {
           continue; // TODO: Log error for broken chapter ID.
         }
@@ -185,7 +219,7 @@ class NuraniDrupalModel extends NuraniModel {
             $record = (object) array();
           }
 
-          $record->work_id  = $work_id;
+          $record->work_id    = $work_id;
           $record->book_id    = $book_id;
           $record->chapter_id = $chapter_id;
           $record->verse      = $verseKey;
@@ -210,7 +244,7 @@ class NuraniDrupalModel extends NuraniModel {
     if ($createIfMissing !== FALSE) {
       $fields = array_merge(array('name' => $name), $createIfMissing);
     }
-    return $this->getOrCreateObject('nurani_library_books', $fields, array('work_id', 'name'));
+    return $this->getOrCreateObject('nurani_library_books', $fields, array('name'));
   }
 
 
@@ -218,7 +252,7 @@ class NuraniDrupalModel extends NuraniModel {
     if ($createIfMissing !== FALSE) {
       $fields = array_merge(array('name' => $name), $createIfMissing);
     }
-    return $this->getOrCreateObject('nurani_library_chapters', $fields, array('work_id', 'name'));
+    return $this->getOrCreateObject('nurani_library_chapters', $fields, array('name'));
   }
 
 

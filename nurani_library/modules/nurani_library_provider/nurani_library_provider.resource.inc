@@ -27,7 +27,7 @@ function _nurani_library_provider_services_resources() {
               'source' => array('data' => 'osisID'),
             ),
           ),
-          'access arguments' => array('validate passages'),
+          'access arguments' => array('access nurani library'),
         ),
       ),
       'retrieve' => array(

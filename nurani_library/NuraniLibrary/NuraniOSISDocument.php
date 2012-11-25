@@ -111,10 +111,13 @@ class NuraniOSISDocument extends NuraniDocument {
 
 
   public function bookOrder($book) {
-    if (!array_key_exists($book, $this->bibleBooksKeys)) {
+    $order = array_search($book, $this->bibleBooksKeys);
+    if ($order === FALSE) {
       return 0;
     }
-    return array_search($book, $this->bibleBooksKeys) + 1;
+    else {
+      return $order + 1;
+    }
   }
 
 
