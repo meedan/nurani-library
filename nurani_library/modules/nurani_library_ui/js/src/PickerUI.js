@@ -45,7 +45,15 @@ PickerUI.prototype.populateWorks = function (and_passages) {
     url: Drupal.settings.nuraniLibrary.baseAPIUrl + '/work?format=jsonp&callback=?',
     dataType: 'jsonp',
     success: function (data) {
-      that.viewData.works = data;
+      that.viewData.works = that.unpackWorkData(data);
+
+      if (!that.viewData.selected_work) {
+        that.viewData.selected_work = that.viewData.works[0];
+      }
+      if (!that.viewData.selected_book) {
+        that.viewData.selected_book = that.viewData.selected_work.books[0];
+      }
+
       that.render(['toolbar']);
 
       if (and_passages) {
@@ -82,6 +90,48 @@ PickerUI.prototype.populatePassages = function () {
       that.render(['passages']);
     }
   });
+};
+
+PickerUI.prototype.unpackWorkData = function (data) {
+  var i,  j,  k,
+      books, chapters,
+      range;
+
+  for (i = data.length - 1; i >=0; i--) {
+    books = data[i].books;
+
+    for (j = books.length - 1; j >= 0; j--) {
+      chapters = data[i].books[j].chapters;
+
+      // Unpack the chapters: 'START-END' format
+      if (typeof chapters === 'string') {
+        range = chapters.split('-');
+
+        chapters = [];
+        for (k = range[0]; k <= range[1]; k++) {
+          chapters.push({
+            name: k,
+            full_name: k
+          });
+        }
+      }
+      // Unpack the duplicate chapter name format, eg: chapters: [1, 2, 3]
+      else if ($.isArray(chapters)) {
+        for (k = chapters.length - 1; k >= 0; k--) {
+          if (typeof chapters[k] !== 'object') { // Find 'number' and 'string'
+            chapter[k] = {
+              name: chapter[k],
+              full_name: chapter[k]
+            };
+          }
+        }
+      }
+
+      data[i].books[j].chapters = chapters;
+    }
+  }
+
+  return data;
 };
 
 PickerUI.prototype.getSelectionOSIS = function () {
