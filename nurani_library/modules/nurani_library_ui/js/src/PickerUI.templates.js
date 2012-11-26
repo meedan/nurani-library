@@ -16,9 +16,9 @@ PickerUI.templates = {
         'Chapter ',
       '</label>',
       '<select id="edit-chapter-filter" name="chapter_filter" class="form-select">',
-        '{{#each selected_book.chapters}}',
-          '<option value="{{name}}">{{full_name}}</option>',
-        '{{/each}}',
+        '{{#eachOption selected_book.chapters selected_chapter}}',
+          '<option value="{{name}}"{{markSelected this}}>{{full_name}}</option>',
+        '{{/eachOption}}',
       '</select>',
     '</div>',
     // Book filter
@@ -27,9 +27,9 @@ PickerUI.templates = {
         'Book ',
       '</label>',
       '<select id="edit-book-filter" name="book_filter" class="form-select">',
-        '{{#each selected_work.books}}',
-          '<option value="{{name}}">{{full_name}}</option>',
-        '{{/each}}',
+        '{{#eachOption selected_work.books selected_book}}',
+          '<option value="{{name}}"{{markSelected this}}>{{full_name}}</option>',
+        '{{/eachOption}}',
       '</select>',
     '</div>',
     // Works filter
@@ -39,9 +39,9 @@ PickerUI.templates = {
         '<span class="form-required" title="This field is required.">*</span>',
       '</label>',
       '<select id="edit-work-filter" name="work_filter" class="form-select required">',
-        '{{#each works}}',
-          '<option value="{{name}}">{{full_name}}</option>',
-        '{{/each}}',
+        '{{#eachOption works selected_work}}',
+          '<option value="{{name}}"{{markSelected this}}>{{full_name}}</option>',
+        '{{/eachOption}}',
       '</select>',
     '</div>',
   ].join(''),
@@ -49,6 +49,9 @@ PickerUI.templates = {
 
   passages: [
     '{{#each passages}}',
+      '{{#isChapterBeginning this}}',
+        '<h4>{{book_full_name}}, Chapter {{chapter_full_name}}</h4>',
+      '{{/isChapterBeginning}}',
       '<div class="form-item form-type-checkbox form-item-passage-row {{work_language}}">',
         // "Select passage" tickbox
         '<input type="checkbox" id="{{css_id}}" name="passage" value="{{osisID}}" class="form-checkbox"> ',
@@ -63,3 +66,55 @@ PickerUI.templates = {
     '{{/each}}',
   ].join('')
 };
+
+
+$(function () {
+
+  /**
+   * Handlebars.js helper, detects first chapter and verse condition
+   */
+  Handlebars.registerHelper('isBookBeginning', function (passage, options) {
+    if (passage.chapter_name == 1) {
+      return options.fn(this);
+    }
+  });
+
+  /**
+   * Handlebars.js helper, detects first chapter and verse condition
+   */
+  Handlebars.registerHelper('isChapterBeginning', function (passage, options) {
+    if (passage.verse == 1) {
+      return options.fn(this);
+    }
+  });
+
+  /**
+   * Extension of the 'each' helper which marks each item as selected or not.
+   */
+  Handlebars.registerHelper('eachOption', function(context, selected, options) {
+    var fn = options.fn, inverse = options.inverse;
+    var ret = "", data;
+
+    if (options.data) {
+      data = Handlebars.createFrame(options.data);
+    }
+
+    if (context && context.length > 0) {
+      for (var i = 0, j = context.length; i < j; i++) {
+        if (data) { data.index = i; }
+        ret = ret + fn($.extend({ selected: (context[i].name == selected.name) }, context[i]), { data: data });
+      }
+    } else {
+      ret = inverse(this);
+    }
+
+    return ret;
+  });
+
+  /**
+   * Helps selecting <option></option> tags.
+   */
+  Handlebars.registerHelper('markSelected', function (context) {
+    return context.selected ? ' selected="selected"' : '';
+  });
+});

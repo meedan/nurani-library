@@ -1,8 +1,5 @@
 var NL = (function ($) {
 
-  // paulirish.com/2009/log-a-lightweight-wrapper-for-consolelog/
-  var log = function f(){ log.history = log.history || []; log.history.push(arguments); if(this.console) { var args = arguments, newarr; args.callee = args.callee.caller; newarr = [].slice.call(args); if (typeof console.log === 'object') log.apply.call(console.log, console, newarr); else console.log.apply(console, newarr);}};
-
   /**
    * Corebox util library.
    */
@@ -12,6 +9,23 @@ var NL = (function ($) {
   // Globally available CB.Util
   var util = new Util();
 
+  // paulirish.com/2009/log-a-lightweight-wrapper-for-consolelog/
+  var log = function f(){ log.history = log.history || []; log.history.push(arguments); if(this.console) { var args = arguments, newarr; args.callee = args.callee.caller; newarr = [].slice.call(args); if (typeof console.log === 'object') log.apply.call(console.log, console, newarr); else console.log.apply(console, newarr);}};
+
+
+  /**
+   * Capitalizes the first letter of a string.
+   * @see: http://stackoverflow.com/a/1026087/806988
+   */
+  Util.prototype.capitalize = function (string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  };
+
+  Util.prototype.findByName = function (array, name) {
+    var search, key;
+    search = $.grep(array, function (o, i) { return o.name == name; });
+    return search.length > 0 ? $.extend({ _key: array.indexOf(search[0]) }, search[0]) : false;
+  };
   /**
    * Main controller object for the bundle UI.
    */
@@ -34,21 +48,74 @@ var NL = (function ($) {
     // Render the initial templates, empty
     this.templates = {};
     this.viewData = { works: [], passages: [] };
-    this.render();
+    this.renderViews();
 
     this.populateWorks(true);
   };
 
-  PickerUI.prototype.render = function (to_render) {
+  /**
+   * Initialize the elements in the toolbar. This is called dynamically when the
+   * toolbar view is loaded.
+   */
+  PickerUI.prototype.initToolbar = function ($toolbar) {
+    var that = this;
+
+    $('#edit-search-submit', $toolbar)
+      .click(function () {
+        log($('#edit-search', $toolbar).val(), 'TODO: Search in passage box');
+        return false;
+      });
+
+    $('#edit-work-filter', $toolbar)
+      .change(function () {
+        that.viewData.selected_work = util.findByName(that.viewData.works, $(this).val());
+        that.setFilterOptions(['selected_book', 'selected_chapter']);
+        that.renderViews(['toolbar']);
+        that.populatePassages();
+      });
+    $('#edit-book-filter', $toolbar)
+      .change(function () {
+        var i = that.viewData.selected_work._key;
+        that.viewData.selected_book = util.findByName(that.viewData.works[i].books, $(this).val());
+        that.setFilterOptions(['selected_chapter']);
+        that.renderViews(['toolbar']);
+        that.populatePassages();
+      });
+    $('#edit-chapter-filter', $toolbar)
+      .change(function () {
+        var i = that.viewData.selected_work._key,
+            j = that.viewData.selected_book._key;
+        that.viewData.selected_chapter = util.findByName(that.viewData.works[i].books[j].chapters, $(this).val());
+        that.populatePassages();
+      });
+  };
+
+  /**
+   * Initialize the elements in the passages list. This is called dynamically
+   * when the passages view is loaded.
+   */
+  PickerUI.prototype.initPassages = function ($passages) {
+
+  };
+
+  PickerUI.prototype.renderViews = function (to_render) {
+    var func, $el;
     to_render = to_render || ['toolbar', 'passages'];
 
     for (var i = to_render.length - 1; i >= 0; i--) {
+      $el = this.$element.find('.' + to_render[i]);
       // Compile handlebars.js templates as needed
       // @see: PickerUI.templates.js
       if (!this.templates[to_render[i]]) {
         this.templates[to_render[i]] = Handlebars.compile(PickerUI.templates[to_render[i]]);
       }
-      this.$element.find('.' + to_render[i]).html(this.templates[to_render[i]](this.viewData));
+      $el.html(this.templates[to_render[i]](this.viewData));
+
+      // Call the initializer for this view
+      func = 'init' + util.capitalize(to_render[i]);
+      if (typeof this[func] === 'function') {
+        this[func]($el);
+      }
     }
   };
 
@@ -61,14 +128,8 @@ var NL = (function ($) {
       success: function (data) {
         that.viewData.works = that.unpackWorkData(data);
 
-        if (!that.viewData.selected_work) {
-          that.viewData.selected_work = that.viewData.works[0];
-        }
-        if (!that.viewData.selected_book) {
-          that.viewData.selected_book = that.viewData.selected_work.books[0];
-        }
-
-        that.render(['toolbar']);
+        that.setFilterOptions(['selected_work', 'selected_book', 'selected_chapter']);
+        that.renderViews(['toolbar']);
 
         if (and_passages) {
           that.populatePassages();
@@ -78,13 +139,26 @@ var NL = (function ($) {
   };
 
   PickerUI.prototype.populatePassages = function () {
-    var that = this;
+    if (!this.viewData.page) {
+      this.viewData.page = 0;
+    }
+
+    var that  = this,
+        query = {
+          work_name: this.viewData.selected_work.name,
+          book:      this.viewData.selected_book.name,
+          chapter:   this.viewData.selected_chapter.name,
+          page:      this.viewData.page,
+          pagesize:  100,
+          format:    'jsonp',
+          callback:  '?'
+        };
 
     $.ajax({
       // TODO: Select the chosen work and pass it here.
       // TODO: Have filters for book / chapter.
       // TODO: Pagination??
-      url: Drupal.settings.nuraniLibrary.baseAPIUrl + '/passage?work_name=wlc_he&book=&chapter=&page=&pagesize=100&format=jsonp&callback=?',
+      url: Drupal.settings.nuraniLibrary.baseAPIUrl + '/passage?' + $.param(query),
       dataType: 'jsonp',
       success: function (data) {
         var i = 0,
@@ -101,7 +175,7 @@ var NL = (function ($) {
         }
 
         that.viewData.passages = data;
-        that.render(['passages']);
+        that.renderViews(['passages']);
       }
     });
   };
@@ -148,6 +222,33 @@ var NL = (function ($) {
     return data;
   };
 
+  /**
+   * Sets the options available for a filter.
+   *
+   * @param "object" type
+   *  Array having values: 'work', 'book', or 'chapter'.
+   */
+  PickerUI.prototype.setFilterOptions = function (to_clear) {
+    var i, len = to_clear.length;
+
+    for (i = 0; i < len; i++) {
+      this.viewData[to_clear[i]] = false;
+    }
+
+    if (!this.viewData.selected_work) {
+      this.viewData.selected_work = this.viewData.works[0];
+      this.viewData.selected_work._key = 0;
+    }
+    if (!this.viewData.selected_book) {
+      this.viewData.selected_book = this.viewData.selected_work.books[0];
+      this.viewData.selected_book._key = 0;
+    }
+    if (!this.viewData.selected_chapter) {
+      this.viewData.selected_chapter = this.viewData.selected_book.chapters[0];
+      this.viewData.selected_chapter._key = 0;
+    }
+  }
+
   PickerUI.prototype.getSelectionOSIS = function () {
     // FIXME: Errors should be managed by the PickerUI object.
     // for (var key in data.errors) {
@@ -186,9 +287,9 @@ var NL = (function ($) {
           'Chapter ',
         '</label>',
         '<select id="edit-chapter-filter" name="chapter_filter" class="form-select">',
-          '{{#each selected_book.chapters}}',
-            '<option value="{{name}}">{{full_name}}</option>',
-          '{{/each}}',
+          '{{#eachOption selected_book.chapters selected_chapter}}',
+            '<option value="{{name}}"{{markSelected this}}>{{full_name}}</option>',
+          '{{/eachOption}}',
         '</select>',
       '</div>',
       // Book filter
@@ -197,9 +298,9 @@ var NL = (function ($) {
           'Book ',
         '</label>',
         '<select id="edit-book-filter" name="book_filter" class="form-select">',
-          '{{#each selected_work.books}}',
-            '<option value="{{name}}">{{full_name}}</option>',
-          '{{/each}}',
+          '{{#eachOption selected_work.books selected_book}}',
+            '<option value="{{name}}"{{markSelected this}}>{{full_name}}</option>',
+          '{{/eachOption}}',
         '</select>',
       '</div>',
       // Works filter
@@ -209,9 +310,9 @@ var NL = (function ($) {
           '<span class="form-required" title="This field is required.">*</span>',
         '</label>',
         '<select id="edit-work-filter" name="work_filter" class="form-select required">',
-          '{{#each works}}',
-            '<option value="{{name}}">{{full_name}}</option>',
-          '{{/each}}',
+          '{{#eachOption works selected_work}}',
+            '<option value="{{name}}"{{markSelected this}}>{{full_name}}</option>',
+          '{{/eachOption}}',
         '</select>',
       '</div>',
     ].join(''),
@@ -219,6 +320,9 @@ var NL = (function ($) {
 
     passages: [
       '{{#each passages}}',
+        '{{#isChapterBeginning this}}',
+          '<h4>{{book_full_name}}, Chapter {{chapter_full_name}}</h4>',
+        '{{/isChapterBeginning}}',
         '<div class="form-item form-type-checkbox form-item-passage-row {{work_language}}">',
           // "Select passage" tickbox
           '<input type="checkbox" id="{{css_id}}" name="passage" value="{{osisID}}" class="form-checkbox"> ',
@@ -233,6 +337,58 @@ var NL = (function ($) {
       '{{/each}}',
     ].join('')
   };
+
+
+  $(function () {
+
+    /**
+     * Handlebars.js helper, detects first chapter and verse condition
+     */
+    Handlebars.registerHelper('isBookBeginning', function (passage, options) {
+      if (passage.chapter_name == 1) {
+        return options.fn(this);
+      }
+    });
+
+    /**
+     * Handlebars.js helper, detects first chapter and verse condition
+     */
+    Handlebars.registerHelper('isChapterBeginning', function (passage, options) {
+      if (passage.verse == 1) {
+        return options.fn(this);
+      }
+    });
+
+    /**
+     * Extension of the 'each' helper which marks each item as selected or not.
+     */
+    Handlebars.registerHelper('eachOption', function(context, selected, options) {
+      var fn = options.fn, inverse = options.inverse;
+      var ret = "", data;
+
+      if (options.data) {
+        data = Handlebars.createFrame(options.data);
+      }
+
+      if (context && context.length > 0) {
+        for (var i = 0, j = context.length; i < j; i++) {
+          if (data) { data.index = i; }
+          ret = ret + fn($.extend({ selected: (context[i].name == selected.name) }, context[i]), { data: data });
+        }
+      } else {
+        ret = inverse(this);
+      }
+
+      return ret;
+    });
+
+    /**
+     * Helps selecting <option></option> tags.
+     */
+    Handlebars.registerHelper('markSelected', function (context) {
+      return context.selected ? ' selected="selected"' : '';
+    });
+  });
 
   return {PickerUI: PickerUI};
 

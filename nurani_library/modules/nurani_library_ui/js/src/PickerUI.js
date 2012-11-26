@@ -20,21 +20,74 @@ PickerUI.prototype.init = function () {
   // Render the initial templates, empty
   this.templates = {};
   this.viewData = { works: [], passages: [] };
-  this.render();
+  this.renderViews();
 
   this.populateWorks(true);
 };
 
-PickerUI.prototype.render = function (to_render) {
+/**
+ * Initialize the elements in the toolbar. This is called dynamically when the
+ * toolbar view is loaded.
+ */
+PickerUI.prototype.initToolbar = function ($toolbar) {
+  var that = this;
+
+  $('#edit-search-submit', $toolbar)
+    .click(function () {
+      log($('#edit-search', $toolbar).val(), 'TODO: Search in passage box');
+      return false;
+    });
+
+  $('#edit-work-filter', $toolbar)
+    .change(function () {
+      that.viewData.selected_work = util.findByName(that.viewData.works, $(this).val());
+      that.setFilterOptions(['selected_book', 'selected_chapter']);
+      that.renderViews(['toolbar']);
+      that.populatePassages();
+    });
+  $('#edit-book-filter', $toolbar)
+    .change(function () {
+      var i = that.viewData.selected_work._key;
+      that.viewData.selected_book = util.findByName(that.viewData.works[i].books, $(this).val());
+      that.setFilterOptions(['selected_chapter']);
+      that.renderViews(['toolbar']);
+      that.populatePassages();
+    });
+  $('#edit-chapter-filter', $toolbar)
+    .change(function () {
+      var i = that.viewData.selected_work._key,
+          j = that.viewData.selected_book._key;
+      that.viewData.selected_chapter = util.findByName(that.viewData.works[i].books[j].chapters, $(this).val());
+      that.populatePassages();
+    });
+};
+
+/**
+ * Initialize the elements in the passages list. This is called dynamically
+ * when the passages view is loaded.
+ */
+PickerUI.prototype.initPassages = function ($passages) {
+
+};
+
+PickerUI.prototype.renderViews = function (to_render) {
+  var func, $el;
   to_render = to_render || ['toolbar', 'passages'];
 
   for (var i = to_render.length - 1; i >= 0; i--) {
+    $el = this.$element.find('.' + to_render[i]);
     // Compile handlebars.js templates as needed
     // @see: PickerUI.templates.js
     if (!this.templates[to_render[i]]) {
       this.templates[to_render[i]] = Handlebars.compile(PickerUI.templates[to_render[i]]);
     }
-    this.$element.find('.' + to_render[i]).html(this.templates[to_render[i]](this.viewData));
+    $el.html(this.templates[to_render[i]](this.viewData));
+
+    // Call the initializer for this view
+    func = 'init' + util.capitalize(to_render[i]);
+    if (typeof this[func] === 'function') {
+      this[func]($el);
+    }
   }
 };
 
@@ -47,14 +100,8 @@ PickerUI.prototype.populateWorks = function (and_passages) {
     success: function (data) {
       that.viewData.works = that.unpackWorkData(data);
 
-      if (!that.viewData.selected_work) {
-        that.viewData.selected_work = that.viewData.works[0];
-      }
-      if (!that.viewData.selected_book) {
-        that.viewData.selected_book = that.viewData.selected_work.books[0];
-      }
-
-      that.render(['toolbar']);
+      that.setFilterOptions(['selected_work', 'selected_book', 'selected_chapter']);
+      that.renderViews(['toolbar']);
 
       if (and_passages) {
         that.populatePassages();
@@ -64,13 +111,26 @@ PickerUI.prototype.populateWorks = function (and_passages) {
 };
 
 PickerUI.prototype.populatePassages = function () {
-  var that = this;
+  if (!this.viewData.page) {
+    this.viewData.page = 0;
+  }
+
+  var that  = this,
+      query = {
+        work_name: this.viewData.selected_work.name,
+        book:      this.viewData.selected_book.name,
+        chapter:   this.viewData.selected_chapter.name,
+        page:      this.viewData.page,
+        pagesize:  100,
+        format:    'jsonp',
+        callback:  '?'
+      };
 
   $.ajax({
     // TODO: Select the chosen work and pass it here.
     // TODO: Have filters for book / chapter.
     // TODO: Pagination??
-    url: Drupal.settings.nuraniLibrary.baseAPIUrl + '/passage?work_name=wlc_he&book=&chapter=&page=&pagesize=100&format=jsonp&callback=?',
+    url: Drupal.settings.nuraniLibrary.baseAPIUrl + '/passage?' + $.param(query),
     dataType: 'jsonp',
     success: function (data) {
       var i = 0,
@@ -87,7 +147,7 @@ PickerUI.prototype.populatePassages = function () {
       }
 
       that.viewData.passages = data;
-      that.render(['passages']);
+      that.renderViews(['passages']);
     }
   });
 };
@@ -133,6 +193,33 @@ PickerUI.prototype.unpackWorkData = function (data) {
 
   return data;
 };
+
+/**
+ * Sets the options available for a filter.
+ *
+ * @param "object" type
+ *  Array having values: 'work', 'book', or 'chapter'.
+ */
+PickerUI.prototype.setFilterOptions = function (to_clear) {
+  var i, len = to_clear.length;
+
+  for (i = 0; i < len; i++) {
+    this.viewData[to_clear[i]] = false;
+  }
+
+  if (!this.viewData.selected_work) {
+    this.viewData.selected_work = this.viewData.works[0];
+    this.viewData.selected_work._key = 0;
+  }
+  if (!this.viewData.selected_book) {
+    this.viewData.selected_book = this.viewData.selected_work.books[0];
+    this.viewData.selected_book._key = 0;
+  }
+  if (!this.viewData.selected_chapter) {
+    this.viewData.selected_chapter = this.viewData.selected_book.chapters[0];
+    this.viewData.selected_chapter._key = 0;
+  }
+}
 
 PickerUI.prototype.getSelectionOSIS = function () {
   // FIXME: Errors should be managed by the PickerUI object.

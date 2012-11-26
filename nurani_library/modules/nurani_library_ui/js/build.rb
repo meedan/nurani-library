@@ -17,8 +17,6 @@ require 'fileutils'
 @out_file = "nurani_library_ui.js"
 
 @prefix  = "var NL = (function ($) {\n\n"
-@prefix += "  // paulirish.com/2009/log-a-lightweight-wrapper-for-consolelog/\n"
-@prefix += "  var log = function f(){ log.history = log.history || []; log.history.push(arguments); if(this.console) { var args = arguments, newarr; args.callee = args.callee.caller; newarr = [].slice.call(args); if (typeof console.log === 'object') log.apply.call(console.log, console, newarr); else console.log.apply(console, newarr);}};\n\n";
 @suffix  = "  return {PickerUI: PickerUI};\n\n"
 @suffix += "})(jQuery);"
 

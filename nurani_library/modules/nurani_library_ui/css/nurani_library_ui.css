@@ -26,4 +26,5 @@
 /* line 26, scss/nurani_library_ui.scss */
 .passage-picker-ui .passages {
   overflow-y: auto;
+  padding-top: 75px;
 }
