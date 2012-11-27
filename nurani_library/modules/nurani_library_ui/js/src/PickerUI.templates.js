@@ -54,7 +54,7 @@ PickerUI.templates = {
       '{{/isChapterBeginning}}',
       '<div class="form-item form-type-checkbox form-item-passage-row {{work_language}}">',
         // "Select passage" tickbox
-        '<input type="checkbox" id="{{css_id}}" name="passage" value="{{osisID}}" class="form-checkbox"> ',
+        '<input type="checkbox" id="{{css_id}}" name="passage[]" value="{{osisID}}" class="form-checkbox form-item-passage"> ',
         // The verse and its number link
         '<label class="option" for="{{css_id}}">',
           '<span class="verse">',

@@ -67,7 +67,33 @@ PickerUI.prototype.initToolbar = function ($toolbar) {
  * when the passages view is loaded.
  */
 PickerUI.prototype.initPassages = function ($passages) {
+  var that = this;
 
+  $('.form-item-passage', $passages)
+    .click(function () {
+      var $this = $(this);
+
+      if (!$this.attr('checked')) {
+        return true;
+      }
+
+      // Determine the contiguous group this checkbox belongs to then remove
+      // all other ticked boxes
+      var $checkboxes = $('.form-item-passage', that.$element),
+          origin_i = $checkboxes.index(this),
+          first = that.contiguous($checkboxes, origin_i, -1),
+          last = that.contiguous($checkboxes, origin_i,  1),
+          first_verse = first.split('.')[2],
+          last_verse = last.split('.')[2];
+
+      $checkboxes.each(function () {
+        var parts = $(this).val().split('.');
+
+        if (parts[2] < first_verse || parts[2] > last_verse) {
+          $(this).removeAttr('checked');
+        }
+      });
+    });
 };
 
 PickerUI.prototype.renderViews = function (to_render) {
@@ -148,6 +174,8 @@ PickerUI.prototype.populatePassages = function () {
 
       that.viewData.passages = data;
       that.renderViews(['passages']);
+
+      that.$element.animate({ scrollTop: 0 });
     }
   });
 };
@@ -221,7 +249,41 @@ PickerUI.prototype.setFilterOptions = function (to_clear) {
   }
 }
 
-PickerUI.prototype.getSelectionOSIS = function () {
+PickerUI.prototype.getSelectionOSIS = function ($origin) {
+  $origin = $origin || $('.form-item-passage[checked]:first', this.$element);
+
+  var first = $origin.val(),
+      last = $origin.val(),
+      $checkboxes = $('.form-item-passage', this.$element),
+      length = $checkboxes.length,
+      origin_i = $checkboxes.index($origin),
+      first_parts, last_parts, osisID;
+
+  if (origin_i >= 0) {
+    // Iterate backwards and forwards to find boundaries of this contiguously
+    // checked group.
+    first = this.contiguous($checkboxes, origin_i, -1);
+    last  = this.contiguous($checkboxes, origin_i,  1);
+
+    first_parts = first.split('.');
+    last_parts = last.split('.');
+
+    osisID = [];
+    osisID.push(first_parts[0]);
+    osisID.push(first_parts[1]);
+
+    if (first_parts[2] != last_parts[2]) {
+      osisID.push(first_parts[2] + '-' + last_parts[2]);
+    } else {
+      osisID.push(first_parts[2]);
+    }
+
+    return {
+      osisIDWork: $('#edit-work-filter').val(),
+      osisID: osisID.join('.')
+    }
+  }
+
   // FIXME: Errors should be managed by the PickerUI object.
   // for (var key in data.errors) {
   //   if (data.errors.hasOwnProperty(key)) {
@@ -229,11 +291,22 @@ PickerUI.prototype.getSelectionOSIS = function () {
   //   }
   // }
 
-  // TODO: Un-stub this.
-  return {
-    osisIDWork: 'wlc_he',
-    osisID: 'Gen.1.1'
-  };
+  return false;
+};
+
+PickerUI.prototype.contiguous = function ($checkboxes, i, dir, bound) {
+  bound = $checkboxes[i].value;
+
+  // Failsafe
+  if (dir != -1 && dir != 1) {
+    return '';
+  }
+
+  if (i + dir >= 0 && i + dir < $checkboxes.length && $checkboxes[i + dir].checked) {
+    return this.contiguous($checkboxes, i + dir, dir, bound);
+  } else {
+    return bound;
+  }
 };
 
 PickerUI.prototype.didResize = function () {

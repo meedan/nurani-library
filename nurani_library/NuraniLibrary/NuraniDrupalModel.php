@@ -102,7 +102,7 @@ class NuraniDrupalModel extends NuraniModel {
       return $this->error(t("Could not establish connection to {nurani_library} database tables."), 0);
     }
 
-    $result = db_query("SELECT w.name, w.full_name, w.language,
+    $result = db_query("SELECT w.*,
                                b.name AS book_name, b.full_name AS book_full_name,
                                c.name AS chapter_name, c.full_name AS chapter_full_name
                           FROM {nurani_library} nl
@@ -124,9 +124,11 @@ class NuraniDrupalModel extends NuraniModel {
       // $work is created on processing the first record
       if (!isset($work)) {
         $work = (object) array(
+          'id'        => (int) $row->id,
           'name'      => $row->name,
           'full_name' => $row->full_name,
           'language'  => $row->language,
+          'weight'    => (int) $row->weight,
           'books'     => array(),
         );
       }
