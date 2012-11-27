@@ -106,9 +106,9 @@ class NuraniDrupalModel extends NuraniModel {
                                b.name AS book_name, b.full_name AS book_full_name,
                                c.name AS chapter_name, c.full_name AS chapter_full_name
                           FROM {nurani_library} nl
-                    INNER JOIN {nurani_library_chapters} c ON nl.chapter_id = c.id
-                    INNER JOIN {nurani_library_books} b ON nl.book_id = b.id
-                    INNER JOIN {nurani_library_works} w ON nl.work_id = w.id
+                    LEFT JOIN {nurani_library_chapters} c ON nl.chapter_id = c.id
+                    LEFT JOIN {nurani_library_books} b ON nl.book_id = b.id
+                    LEFT JOIN {nurani_library_works} w ON nl.work_id = w.id
                          WHERE w.name = :work_name
                       GROUP BY nl.work_id, nl.book_id, nl.chapter_id
                       ORDER BY nl.work_id, b.weight, c.weight", array(':work_name' => $work_name));
