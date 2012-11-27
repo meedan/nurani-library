@@ -105,10 +105,10 @@ class NuraniDrupalModel extends NuraniModel {
     $result = db_query("SELECT w.*,
                                b.name AS book_name, b.full_name AS book_full_name,
                                c.name AS chapter_name, c.full_name AS chapter_full_name
-                          FROM {nurani_library} nl
+                          FROM {nurani_library_works} w
+                    LEFT JOIN {nurani_library} nl ON w.id = nl.work_id
                     LEFT JOIN {nurani_library_chapters} c ON nl.chapter_id = c.id
                     LEFT JOIN {nurani_library_books} b ON nl.book_id = b.id
-                    LEFT JOIN {nurani_library_works} w ON nl.work_id = w.id
                          WHERE w.name = :work_name
                       GROUP BY nl.work_id, nl.book_id, nl.chapter_id
                       ORDER BY nl.work_id, b.weight, c.weight", array(':work_name' => $work_name));
@@ -124,16 +124,16 @@ class NuraniDrupalModel extends NuraniModel {
       // $work is created on processing the first record
       if (!isset($work)) {
         $work = (object) array(
-          'id'        => (int) $row->id,
-          'name'      => $row->name,
-          'full_name' => $row->full_name,
-          'language'  => $row->language,
-          'weight'    => (int) $row->weight,
-          'books'     => array(),
+          'id'           => (int) $row->id,
+          'name'         => $row->name,
+          'full_name'    => $row->full_name,
+          'language'     => $row->language,
+          'books'        => array(),
+          'num_passages' => db_query("SELECT COUNT(*) FROM {nurani_library} WHERE work_id = :work_id", array(':work_id' => $row->id))->fetchField(),
         );
       }
 
-      if (!isset($work->books[$book_key])) {
+      if ($book_key !== FALSE && !isset($work->books[$book_key])) {
         $work->books[$book_key] = (object) array(
           'name'      => $row->book_name,
           'full_name' => $row->book_full_name,
@@ -141,14 +141,16 @@ class NuraniDrupalModel extends NuraniModel {
         );
       }
 
-      if ($row->chapter_name == $row->chapter_full_name) {
-        $work->books[$book_key]->chapters[$chapter_key] = $row->chapter_name;
-      }
-      else {
-        $work->books[$book_key]->chapters[$chapter_key] = array(
-          $row->chapter_name,
-          $row->chapter_full_name,
-        );
+      if ($chapter_key !== FALSE) {
+        if ($row->chapter_name == $row->chapter_full_name) {
+          $work->books[$book_key]->chapters[$chapter_key] = $row->chapter_name;
+        }
+        else {
+          $work->books[$book_key]->chapters[$chapter_key] = array(
+            $row->chapter_name,
+            $row->chapter_full_name,
+          );
+        }
       }
     }
 
@@ -323,11 +325,16 @@ class NuraniDrupalModel extends NuraniModel {
    * 
    */
   private function keyForValueInUniqueMap($value, &$map) {
+    if (!$value) {
+      return FALSE;
+    }
+
     $key = array_search($value, $map);
     if ($key === FALSE) {
       $map[] = $value;
       $key = count($map) - 1;
     }
+
     return (int) $key;
   }
 

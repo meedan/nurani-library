@@ -72,6 +72,10 @@ function nurani_library_provider_works_form($form, &$form_state) {
           );
           break;
 
+        // Skip the books column
+        case 'books':
+          break;
+
         case 'num_passages':
         case 'name':
           if ($row !== 'new') {
@@ -162,7 +166,7 @@ function theme_nurani_library_provider_works_form_table(&$variables) {
 
   foreach (element_children($element) as $row) {
     foreach (element_children($element[$row]) as $col) {
-      if ($col == 'id') {
+      if ($col == 'id' || $col == 'books') {
         continue;
       }
       if ($first_row) {
@@ -256,6 +260,7 @@ function _nurani_library_provider_new_work($form_state) {
     'name'         => '',
     'full_name'    => '',
     'language'     => 'en',
+    'books'        => array(),
     'num_passages' => 0
   );
   return (object) array_merge($work, $edit);
@@ -288,7 +293,7 @@ function _nurani_library_provider_validate_work($work, $element, $validate_empty
 function _nurani_library_provider_save_work($work) {
   $record = (object) $work;
   $is_new = ($record->id === 'new');
-  unset($record->actions, $record->num_passages);
+  unset($record->actions, $record->num_passages, $record->books);
 
   if ($is_new) {
     unset($record->id);
