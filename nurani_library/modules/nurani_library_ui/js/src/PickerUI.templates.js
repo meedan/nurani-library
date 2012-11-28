@@ -43,9 +43,24 @@ PickerUI.templates = {
           '<option value="{{name}}"{{selected this "selected"}}>{{full_name}}</option>',
         '{{/eachOption}}',
       '</select>',
-    '</div>',
+    '</div>'
   ].join(''),
 
+  alternateWorks: [
+    '<div class="inner">',
+      '<label>',
+        'Additional translations to display ',
+      '</label>',
+      '{{#each alternate_works}}',
+        '<div class="form-item form-type-checkbox form-item-alternate-works">',
+          '<input type="checkbox" id="{{css_id}}" name="alternate_works[]" value="{{name}}" class="form-checkbox form-item-alternate-works"{{selected this "checked"}}> ',
+          '<label class="option" for="{{css_id}}">',
+            '{{full_name}}',
+          '</label>',
+        '</div>',
+      '{{/each}}',
+    '</div>'
+  ].join(''),
 
   passages: [
     '{{#each passages}}',
@@ -63,7 +78,7 @@ PickerUI.templates = {
           '{{text}}',
         '</label>',
       '</div>',
-    '{{/each}}',
+    '{{/each}}'
   ].join('')
 };
 

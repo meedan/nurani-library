@@ -1,29 +1,45 @@
-/* line 1, scss/nurani_library_ui.scss */
+/* line 3, scss/nurani_library_ui.scss */
 .ui-dialog .ui-dialog-content.passage-picker-ui {
   position: static;
 }
 
-/* line 5, scss/nurani_library_ui.scss */
-.passage-picker-ui .toolbar {
+/* line 7, scss/nurani_library_ui.scss */
+.passage-picker-ui .toolbar, .passage-picker-ui .alternateWorks {
   position: absolute;
+  overflow: hidden;
   top: 37px;
   left: 16px;
   height: 70px;
   background: #fff;
   border-bottom: 2px solid #E1E2DC;
 }
-/* line 15, scss/nurani_library_ui.scss */
-.passage-picker-ui .toolbar .form-item {
+/* line 18, scss/nurani_library_ui.scss */
+.passage-picker-ui .toolbar .form-item, .passage-picker-ui .alternateWorks .form-item {
   display: inline-block;
   margin: 0 1em 1em 0;
 }
-/* line 21, scss/nurani_library_ui.scss */
+/* line 24, scss/nurani_library_ui.scss */
 .passage-picker-ui .toolbar .form-item-work-filter,
 .passage-picker-ui .toolbar .form-item-book-filter,
-.passage-picker-ui .toolbar .form-item-chapter-filter {
+.passage-picker-ui .toolbar .form-item-chapter-filter, .passage-picker-ui .alternateWorks .form-item-work-filter,
+.passage-picker-ui .alternateWorks .form-item-book-filter,
+.passage-picker-ui .alternateWorks .form-item-chapter-filter {
   float: right;
 }
-/* line 26, scss/nurani_library_ui.scss */
+/* line 29, scss/nurani_library_ui.scss */
+.passage-picker-ui .alternateWorks {
+  top: 109px;
+  height: 0px;
+  /* Initially hidden, displayed on demand via PickerUI */
+  border-bottom: 0;
+}
+/* line 34, scss/nurani_library_ui.scss */
+.passage-picker-ui .alternateWorks .inner {
+  padding: 0.5em 1em;
+  background: #BDF;
+  border-bottom: 2px solid #E1E2DC;
+}
+/* line 41, scss/nurani_library_ui.scss */
 .passage-picker-ui .passages {
   overflow-y: auto;
   padding-top: 75px;

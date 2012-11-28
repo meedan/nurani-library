@@ -1,12 +1,15 @@
+$toolbar_height: 70px;
+
 .ui-dialog .ui-dialog-content.passage-picker-ui {
   position: static;
 }
 .passage-picker-ui {
-  .toolbar {
+  .toolbar,.alternateWorks {
     position: absolute;
+    overflow: hidden;
     top: 37px;
     left: 16px;
-    height: 70px;
+    height: $toolbar_height;
     // NOTE: The width of the toolbar is (unfortunately) set dynamically via Javascript
     //       @see: PickerUI.didResize()
     background: #fff;
@@ -23,8 +26,20 @@
     }
   }
 
+  .alternateWorks {
+    top: 109px;
+    height: 0px; /* Initially hidden, displayed on demand via PickerUI */
+    border-bottom: 0;
+
+    .inner {
+      padding: 0.5em 1em;
+      background: #BDF;
+      border-bottom: 2px solid #E1E2DC;
+    }
+  }
+
   .passages {
     overflow-y: auto;
-    padding-top: 75px;
+    padding-top: $toolbar_height + 5px;
   }
 }

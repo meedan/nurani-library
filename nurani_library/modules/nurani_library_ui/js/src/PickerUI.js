@@ -20,7 +20,7 @@ function PickerUI(opts) {
 
 PickerUI.prototype.init = function () {
   // Contents of div.toolbar and div.passages is populated via handlebars.js templates
-  this.$element = $('<div class="passage-picker-ui"><div class="toolbar"></div><div class="passages"></div></div>');
+  this.$element = $('<div class="passage-picker-ui"><div class="toolbar"></div><div class="alternateWorks"></div><div class="passages"></div></div>');
 
   // Render the initial templates, empty
   this.templates = {};
@@ -47,7 +47,7 @@ PickerUI.prototype.initToolbar = function ($toolbar) {
     .change(function () {
       that.viewData.selected_work = util.findByName(that.viewData.works, $(this).val());
       that.setFilterOptions(['book', 'chapter']);
-      that.renderViews(['toolbar']);
+      that.renderViews(['toolbar', 'alternateWorks']);
       that.populatePassages();
     });
   $('#edit-book-filter', $toolbar)
@@ -78,32 +78,33 @@ PickerUI.prototype.initPassages = function ($passages) {
     .click(function () {
       var $this = $(this);
 
-      if (!$this.attr('checked')) {
-        return true;
+      if ($this.attr('checked')) {
+        // Determine the contiguous group this checkbox belongs to then remove
+        // all other ticked boxes
+        var $checkboxes = $('.form-item-passage', that.$element),
+            origin_i = $checkboxes.index(this),
+            first = that.contiguous($checkboxes, origin_i, -1),
+            last = that.contiguous($checkboxes, origin_i,  1),
+            first_verse = first.split('.')[2],
+            last_verse = last.split('.')[2];
+
+        $checkboxes.each(function () {
+          var parts = $(this).val().split('.');
+
+          if (parts[2] < first_verse || parts[2] > last_verse) {
+            $(this).removeAttr('checked');
+          }
+        });
       }
 
-      // Determine the contiguous group this checkbox belongs to then remove
-      // all other ticked boxes
-      var $checkboxes = $('.form-item-passage', that.$element),
-          origin_i = $checkboxes.index(this),
-          first = that.contiguous($checkboxes, origin_i, -1),
-          last = that.contiguous($checkboxes, origin_i,  1),
-          first_verse = first.split('.')[2],
-          last_verse = last.split('.')[2];
-
-      $checkboxes.each(function () {
-        var parts = $(this).val().split('.');
-
-        if (parts[2] < first_verse || parts[2] > last_verse) {
-          $(this).removeAttr('checked');
-        }
-      });
+      // Display the additional works ribbon
+      // that.
     });
 };
 
 PickerUI.prototype.renderViews = function (to_render) {
   var func, $el;
-  to_render = to_render || ['toolbar', 'passages'];
+  to_render = to_render || ['toolbar', 'alternateWorks', 'passages'];
 
   for (var i = to_render.length - 1; i >= 0; i--) {
     $el = this.$element.find('.' + to_render[i]);
@@ -131,9 +132,12 @@ PickerUI.prototype.populateWorks = function (and_passages, set_default_state) {
     success: function (data) {
       that.viewData.works = that.unpackWorkData(data);
 
+      // TODO: Correctly set up the default state of alternate_works
+      that.viewData.alternate_works = that.viewData.works;
+
       that.setFilterOptions(['work', 'book', 'chapter'], set_default_state ? ['work', 'book', 'chapter'] : null);
 
-      that.renderViews(['toolbar']);
+      that.renderViews(['toolbar', 'alternateWorks']);
 
       if (and_passages) {
         that.populatePassages(set_default_state);
@@ -359,6 +363,6 @@ PickerUI.prototype.contiguous = function ($checkboxes, i, dir, bound) {
 };
 
 PickerUI.prototype.didResize = function () {
-  this.$element.find('.toolbar').css('width', this.$element.width());
+  this.$element.find('.toolbar,.alternateWorks').css('width', this.$element.width());
 };
 
