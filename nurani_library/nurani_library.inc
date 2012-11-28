@@ -60,7 +60,7 @@ function nurani_library_get_passages($osisIDWork, $osisID) {
 function nurani_library_get_passages_info($osisIDWork, $osisID) {
   $passages = nurani_library_get_passages($osisIDWork, $osisID);
 
-  if ($passages === FALSE) {
+  if ($passages === FALSE || count($passages) <= 0) {
     return FALSE;
   }
 

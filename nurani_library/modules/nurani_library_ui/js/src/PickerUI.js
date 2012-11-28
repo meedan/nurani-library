@@ -8,6 +8,11 @@ function PickerUI(opts) {
   };
 
   this.opts = $.extend(this.defaults, opts);
+
+  if (this.opts.osisID) {
+    this.opts.osisIDParts = this.opts.osisID.split('.');
+  }
+
   this.init();
 
   return this;
@@ -22,7 +27,7 @@ PickerUI.prototype.init = function () {
   this.viewData = { works: [], passages: [] };
   this.renderViews();
 
-  this.populateWorks(true);
+  this.populateWorks(true, true);
 };
 
 /**
@@ -41,7 +46,7 @@ PickerUI.prototype.initToolbar = function ($toolbar) {
   $('#edit-work-filter', $toolbar)
     .change(function () {
       that.viewData.selected_work = util.findByName(that.viewData.works, $(this).val());
-      that.setFilterOptions(['selected_book', 'selected_chapter']);
+      that.setFilterOptions(['book', 'chapter']);
       that.renderViews(['toolbar']);
       that.populatePassages();
     });
@@ -49,7 +54,7 @@ PickerUI.prototype.initToolbar = function ($toolbar) {
     .change(function () {
       var i = that.viewData.selected_work._key;
       that.viewData.selected_book = util.findByName(that.viewData.works[i].books, $(this).val());
-      that.setFilterOptions(['selected_chapter']);
+      that.setFilterOptions(['chapter']);
       that.renderViews(['toolbar']);
       that.populatePassages();
     });
@@ -117,7 +122,7 @@ PickerUI.prototype.renderViews = function (to_render) {
   }
 };
 
-PickerUI.prototype.populateWorks = function (and_passages) {
+PickerUI.prototype.populateWorks = function (and_passages, set_default_state) {
   var that = this;
 
   $.ajax({
@@ -126,17 +131,18 @@ PickerUI.prototype.populateWorks = function (and_passages) {
     success: function (data) {
       that.viewData.works = that.unpackWorkData(data);
 
-      that.setFilterOptions(['selected_work', 'selected_book', 'selected_chapter']);
+      that.setFilterOptions(['work', 'book', 'chapter'], set_default_state ? ['work', 'book', 'chapter'] : null);
+
       that.renderViews(['toolbar']);
 
       if (and_passages) {
-        that.populatePassages();
+        that.populatePassages(set_default_state);
       }
     }
   });
 };
 
-PickerUI.prototype.populatePassages = function () {
+PickerUI.prototype.populatePassages = function (set_default_state) {
   if (!this.viewData.page) {
     this.viewData.page = 0;
   }
@@ -161,13 +167,25 @@ PickerUI.prototype.populatePassages = function () {
     success: function (data) {
       var i = 0,
           len = data.length,
-          passage;
+          parts, first_verse, last_verse, passage;
+
+      if (set_default_state && that.opts.osisID && that.opts.osisIDParts[2]) {
+        parts = that.opts.osisIDParts[2].split('-');
+        first_verse = parts[0];
+        last_verse = parts.length == 2 ? parts[1] : parts[0];
+      } else {
+        set_default_state = false;
+      }
 
       for (i = 0; i < len; i++) {
         passage = data[i];
         passage.osisID    = [passage.book_name, passage.chapter_name, passage.verse].join('.');
         passage.css_id    = 'edit-passage-' + passage.osisID.replace(/\./g, '-');
         passage.verse_url = Drupal.settings.nuraniLibrary.baseUrl + '/passages/' + passage.work_name + '/' + passage.osisID;
+
+        if (set_default_state && passage.verse >= first_verse && passage.verse <= last_verse) {
+          passage.selected = true;
+        }
 
         data[i] = passage;
       }
@@ -225,14 +243,45 @@ PickerUI.prototype.unpackWorkData = function (data) {
 /**
  * Sets the options available for a filter.
  *
- * @param "object" type
+ * @param "object" to_clear
  *  Array having values: 'work', 'book', or 'chapter'.
  */
-PickerUI.prototype.setFilterOptions = function (to_clear) {
-  var i, len = to_clear.length;
+PickerUI.prototype.setFilterOptions = function (to_clear, to_default) {
+  var i, j, len, type, objects, defaults_map;
 
-  for (i = 0; i < len; i++) {
-    this.viewData[to_clear[i]] = false;
+  to_clear   = to_clear   || [];
+  to_default = to_default || [];
+
+  for (i = to_clear.length - 1; i >= 0; i--) {
+    this.viewData['selected_' + to_clear[i]] = false;
+  }
+
+  // Only set defaults if:
+  // (a) There are defaults to set and
+  // (b) It was requested (ie: if to_default empty the loop won't run)
+  if (this.opts.osisIDWork && this.opts.osisID) {
+    defaults_map = {
+      work:    this.opts.osisIDWork,
+      book:    this.opts.osisIDParts[0],
+      chapter: this.opts.osisIDParts[1]
+    };
+
+    for (i = 0, len = to_default.length; i < len; i++) {
+      type = to_default[i];
+
+      switch (type) {
+        case 'work':    objects = this.viewData.works; break;
+        case 'book':    objects = this.viewData.selected_work.books; break;
+        case 'chapter': objects = this.viewData.selected_book.chapters; break;
+      }
+
+      for (j = objects.length - 1; j >= 0; j--) {
+        if (objects[j].name == defaults_map[type]) {
+          this.viewData['selected_' + type] = objects[j];
+          this.viewData['selected_' + type]._key = j;
+        }
+      }
+    }
   }
 
   if (!this.viewData.selected_work) {

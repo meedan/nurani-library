@@ -17,7 +17,7 @@ PickerUI.templates = {
       '</label>',
       '<select id="edit-chapter-filter" name="chapter_filter" class="form-select">',
         '{{#eachOption selected_book.chapters selected_chapter}}',
-          '<option value="{{name}}"{{markSelected this}}>{{full_name}}</option>',
+          '<option value="{{name}}"{{selected this "selected"}}>{{full_name}}</option>',
         '{{/eachOption}}',
       '</select>',
     '</div>',
@@ -28,7 +28,7 @@ PickerUI.templates = {
       '</label>',
       '<select id="edit-book-filter" name="book_filter" class="form-select">',
         '{{#eachOption selected_work.books selected_book}}',
-          '<option value="{{name}}"{{markSelected this}}>{{full_name}}</option>',
+          '<option value="{{name}}"{{selected this "selected"}}>{{full_name}}</option>',
         '{{/eachOption}}',
       '</select>',
     '</div>',
@@ -40,7 +40,7 @@ PickerUI.templates = {
       '</label>',
       '<select id="edit-work-filter" name="work_filter" class="form-select required">',
         '{{#eachOption works selected_work}}',
-          '<option value="{{name}}"{{markSelected this}}>{{full_name}}</option>',
+          '<option value="{{name}}"{{selected this "selected"}}>{{full_name}}</option>',
         '{{/eachOption}}',
       '</select>',
     '</div>',
@@ -54,7 +54,7 @@ PickerUI.templates = {
       '{{/isChapterBeginning}}',
       '<div class="form-item form-type-checkbox form-item-passage-row {{work_language}}">',
         // "Select passage" tickbox
-        '<input type="checkbox" id="{{css_id}}" name="passage[]" value="{{osisID}}" class="form-checkbox form-item-passage"> ',
+        '<input type="checkbox" id="{{css_id}}" name="passage[]" value="{{osisID}}" class="form-checkbox form-item-passage"{{selected this "checked"}}> ',
         // The verse and its number link
         '<label class="option" for="{{css_id}}">',
           '<span class="verse">',
@@ -112,9 +112,11 @@ $(function () {
   });
 
   /**
-   * Helps selecting <option></option> tags.
+   * Helps selecting / checking <option></option> and <input> tags.
    */
-  Handlebars.registerHelper('markSelected', function (context) {
-    return context.selected ? ' selected="selected"' : '';
+  Handlebars.registerHelper('selected', function (context, label) {
+    label = label || 'selected';
+    return context.selected ? ' ' + label + '="' + label + '"' : '';
   });
+
 });

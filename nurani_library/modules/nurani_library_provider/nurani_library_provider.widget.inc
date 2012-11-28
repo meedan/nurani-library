@@ -22,9 +22,14 @@ function theme_nurani_library_provider_passage_widget(&$variables) {
 
   $output  = '';
   $output .= '<div class="passage-widget">';
-  $output .=   '<h3>' . nurani_library_format_passage_string_from_passages($passages) . '</h3>';
-  $output .=   '<h4>' . $first->work_full_name . '</h4>';
-  $output .=   $passage_output;
+  if ($passage_output) {
+    $output .= '<h3>' . nurani_library_format_passage_string_from_passages($passages) . '</h3>';
+    $output .= '<h4>' . $first->work_full_name . '</h4>';
+    $output .= $passage_output;
+  }
+  else {
+    $output .= '<div class="message error">' . t('We are sorry. An error has occurred and this passage cannot be displayed. Please try again or contact the @site team.', array('@site' => variable_get('site_name', 'Nurani'))) . '</div>';
+  }
   $output .= '</div>';
 
   return $output;
