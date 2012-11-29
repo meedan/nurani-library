@@ -139,16 +139,23 @@ function nurani_library_provider_passages_provider($provider, $url, $matches) {
   $result = FALSE;
 
   $scrubbed_url = preg_replace('/#.*$/', '', $matches[1]);
-  list($osisIDWork, $osisID) = explode('/', $scrubbed_url);
+  list($osisIDWorks, $osisID) = explode('/', $scrubbed_url);
 
-  $info = nurani_library_get_passages_info($osisIDWork, $osisID);
+  $output = '';
+  foreach (explode(',', $osisIDWorks) as $osisIDWork) {
+    $info = nurani_library_get_passages_info($osisIDWork, $osisID);
 
-  if ($info === FALSE) {
+    if ($info !== FALSE) {
+      $output .= theme('nurani_library_provider_passage_widget', array('osisIDWork' => $osisIDWork, 'osisID' => $osisID, 'passages' => $info['passages']));
+    }
+  }
+
+  if (!$output) {
     return FALSE;
   }
 
   $result = _oembedprovider_result('rich', array(
-    'html' => theme('nurani_library_provider_passage_widget', array('osisIDWork' => $osisIDWork, 'osisID' => $osisID, 'passages' => $info['passages'])),
+    'html' => $output,
     'title' => $info['passage_human'],
     'author_name' => variable_get('site_name', 'Nurani Library'),
     'author_url' => url('', array('absolute' => TRUE)),

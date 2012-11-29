@@ -9,6 +9,11 @@ function PickerUI(opts) {
 
   this.opts = $.extend(this.defaults, opts);
 
+  // The alternateWorks system appends the selected works together. The first
+  // is the original text chosen and the subsequent works are the alternates.
+  if (this.opts.osisIDWork) {
+    this.opts.osisIDWorkParts = this.opts.osisIDWork.split(',');
+  }
   if (this.opts.osisID) {
     this.opts.osisIDParts = this.opts.osisID.split('.');
   }
@@ -27,6 +32,16 @@ PickerUI.prototype.init = function () {
   this.viewData = { works: [], passages: [] };
   this.renderViews();
 
+  if (typeof bcv_parser === 'function') {
+    this.bcv = new bcv_parser;
+    this.bcv.set_options({
+      book_alone_strategy: 'include',
+      book_sequence_strategy: 'include'
+    });
+  } else {
+    this.bcv = false;
+  }
+
   this.populateWorks(true, true);
 };
 
@@ -39,7 +54,38 @@ PickerUI.prototype.initToolbar = function ($toolbar) {
 
   $('#edit-search-submit', $toolbar)
     .click(function () {
-      log($('#edit-search', $toolbar).val(), 'TODO: Search in passage box');
+      var search = $('#edit-search', $toolbar).val(),
+          osises = that.bcv.parse(search).osis_and_indices(),
+          did_search = search.length > 0 ? false : true,
+          parts, endParts,
+          book, chapter, verse;
+
+      if (osises.length > 0) {
+        parts = osises[0].osis.split('.');
+
+        book = util.findByName(that.viewData.selectedWork.books, parts[0]);
+
+        if (book) {
+          that.viewData.selectedBook = book;
+
+          chapter = util.findByName(that.viewData.selectedBook.chapters, parts[1]);
+
+          if (chapter) {
+            that.viewData.selectedChapter = chapter;
+
+            // TODO: Highlight the matched verses and scroll to that point.
+          }
+
+          that.renderViews(['toolbar']);
+          that.populatePassages();
+          did_search = true;
+        }
+      }
+
+      if (!did_search) {
+        that.setMessage(Drupal.t('Could not find any passages matching "@search". Try using the format "Book chapter:verse", eg: "John 3:16".', { '@search': search }), 'warning');
+      }
+
       return false;
     });
 
@@ -157,7 +203,7 @@ PickerUI.prototype.populatePassages = function (setDefaultState) {
         book:      this.viewData.selectedBook.name,
         chapter:   this.viewData.selectedChapter.name,
         page:      this.viewData.page,
-        pagesize:  100,
+        pagesize:  500, // FIXME: Fixed page size will cause any really long chapters to be chopped off.
         format:    'jsonp',
         callback:  '?'
       };
@@ -175,8 +221,8 @@ PickerUI.prototype.populatePassages = function (setDefaultState) {
 
       if (setDefaultState && that.opts.osisID && that.opts.osisIDParts[2]) {
         parts = that.opts.osisIDParts[2].split('-');
-        firstVerse = parts[0];
-        lastVerse = parts.length == 2 ? parts[1] : parts[0];
+        firstVerse = parseInt(parts[0], 10);
+        lastVerse = parts.length == 2 ? parseInt(parts[1], 10) : firstVerse;
       } else {
         setDefaultState = false;
       }
@@ -265,7 +311,7 @@ PickerUI.prototype.setFilterOptions = function (toClear, toDefault) {
   // (b) It was requested (ie: if toDefault empty the loop won't run)
   if (this.opts.osisIDWork && this.opts.osisID) {
     defaultsMap = {
-      work:    this.opts.osisIDWork,
+      work:    this.opts.osisIDWorkParts[0],
       book:    this.opts.osisIDParts[0],
       chapter: this.opts.osisIDParts[1]
     };
@@ -273,6 +319,8 @@ PickerUI.prototype.setFilterOptions = function (toClear, toDefault) {
     for (i = 0, len = toDefault.length; i < len; i++) {
       type = toDefault[i];
 
+      // Skip unknown types
+      objects = [];
       switch (type) {
         case 'work':    objects = this.viewData.works; break;
         case 'book':    objects = this.viewData.selectedWork.books; break;
@@ -288,6 +336,7 @@ PickerUI.prototype.setFilterOptions = function (toClear, toDefault) {
     }
   }
 
+
   if (!this.viewData.selectedWork) {
     this.viewData.selectedWork = this.viewData.works[0];
     this.viewData.selectedWork._key = 0;
@@ -301,12 +350,14 @@ PickerUI.prototype.setFilterOptions = function (toClear, toDefault) {
     this.viewData.selectedChapter._key = 0;
   }
 
-  this.setAlternateWorks(this.viewData.selectedWork, this.viewData.selectedBook, this.viewData.selectedChapter);
+  this.setAlternateWorks(this.viewData.selectedWork, this.viewData.selectedBook, this.viewData.selectedChapter, toDefault.indexOf('work') != -1);
 }
 
-PickerUI.prototype.setAlternateWorks = function (originWork, originBook, originChapter) {
+PickerUI.prototype.setAlternateWorks = function (originWork, originBook, originChapter, setDefaults) {
   var i, j, k,
       work, book, chapter;
+
+  setDefaults = typeof setDefaults !== 'undefined' ? setDefaults : false;
 
   this.viewData.alternateWorks = [];
   for (i = this.viewData.works.length - 1; i >=0; i--) {
@@ -329,7 +380,9 @@ PickerUI.prototype.setAlternateWorks = function (originWork, originBook, originC
           // This work contains the same book and chapter as the origin
           // that means that almost certainly it is a valid alternate work
           if (chapter.name == originChapter.name) {
-            this.viewData.alternateWorks.push(work);
+            // Need to make a deep copy here, else alternateWorks stae will be
+            // bound to works!
+            this.viewData.alternateWorks.push($.extend(true, {}, work));
             break; // Successful match found, quit searching chapters
           }
         }
@@ -340,6 +393,21 @@ PickerUI.prototype.setAlternateWorks = function (originWork, originBook, originC
 
   if (this.viewData.alternateWorks.length == 0) {
     this.hideAlternateWorks(false);
+  } else {
+    if (setDefaults && this.opts.osisIDWorkParts.length > 1) {
+      var alternate,
+          alternates = this.opts.osisIDWorkParts.slice(1);
+
+      for (i = this.viewData.alternateWorks.length - 1; i >= 0; i--) {
+        alternate = this.viewData.alternateWorks[i];
+
+        if (alternates.indexOf(alternate.name) != -1) {
+          this.viewData.alternateWorks[i].selected = true;
+        }
+      }
+    }
+
+    this.showAlternateWorks(false);
   }
 };
 
@@ -347,8 +415,9 @@ PickerUI.prototype.showAlternateWorks = function (animated) {
   var that = this,
       selector, css,
       ops  = {
-        '.alternateWorks': { height: 70 },
-        '.passages': { paddingTop: 70 * 2 + 5 }
+        // FIXME: This hardcoded height will break if too many alternate works are listed
+        '.alternateWorks': { height: 36 },
+        '.passages': { paddingTop: 70 + 36 + 5 }
       };
 
   animated = typeof animated !== 'undefined' ? animated : true;
@@ -431,7 +500,7 @@ PickerUI.prototype.getSelectionOSIS = function ($origin) {
     }
   }
 
-  util.setMessage($('.passages', this.$element), Drupal.t('A passage must be selected.'), 'error');
+  this.setMessage(Drupal.t('A passage must be selected.'), 'error');
   return false;
 };
 
@@ -454,3 +523,7 @@ PickerUI.prototype.didResize = function () {
   this.$element.find('.toolbar,.alternateWorks').css('width', this.$element.width());
 };
 
+PickerUI.prototype.setMessage = function (message, type, hide_after) {
+  hide_after = hide_after || null;
+  util.setMessage($('.passages', this.$element), message, type, hide_after);
+};

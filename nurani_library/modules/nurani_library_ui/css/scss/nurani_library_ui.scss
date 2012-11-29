@@ -35,6 +35,16 @@ $toolbar_height: 70px;
       padding: 0.5em 1em;
       background: #BDF;
       border-bottom: 2px solid #444;
+
+      & > label {
+        float: left;
+        width: 30%;
+      }
+    }
+
+    div.form-item-alternate-works {
+      float: right;
+      margin-bottom: 0;
     }
   }
 

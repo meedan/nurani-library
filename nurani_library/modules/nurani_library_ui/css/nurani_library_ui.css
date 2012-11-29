@@ -39,7 +39,17 @@
   background: #BDF;
   border-bottom: 2px solid #444;
 }
-/* line 41, scss/nurani_library_ui.scss */
+/* line 39, scss/nurani_library_ui.scss */
+.passage-picker-ui .alternateWorks .inner > label {
+  float: left;
+  width: 30%;
+}
+/* line 45, scss/nurani_library_ui.scss */
+.passage-picker-ui .alternateWorks div.form-item-alternate-works {
+  float: right;
+  margin-bottom: 0;
+}
+/* line 51, scss/nurani_library_ui.scss */
 .passage-picker-ui .passages {
   overflow-y: auto;
   padding-top: 75px;

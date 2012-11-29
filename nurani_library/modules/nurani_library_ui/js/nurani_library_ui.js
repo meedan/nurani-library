@@ -1,12 +1,12 @@
 var NL = (function ($) {
 
   /**
-   * Corebox util library.
+   * Util library.
    */
   function Util() {
   }
 
-  // Globally available CB.Util
+  // Globally available Util
   var util = new Util();
 
   // paulirish.com/2009/log-a-lightweight-wrapper-for-consolelog/
@@ -62,6 +62,11 @@ var NL = (function ($) {
 
     this.opts = $.extend(this.defaults, opts);
 
+    // The alternateWorks system appends the selected works together. The first
+    // is the original text chosen and the subsequent works are the alternates.
+    if (this.opts.osisIDWork) {
+      this.opts.osisIDWorkParts = this.opts.osisIDWork.split(',');
+    }
     if (this.opts.osisID) {
       this.opts.osisIDParts = this.opts.osisID.split('.');
     }
@@ -80,6 +85,16 @@ var NL = (function ($) {
     this.viewData = { works: [], passages: [] };
     this.renderViews();
 
+    if (typeof bcv_parser === 'function') {
+      this.bcv = new bcv_parser;
+      this.bcv.set_options({
+        book_alone_strategy: 'include',
+        book_sequence_strategy: 'include'
+      });
+    } else {
+      this.bcv = false;
+    }
+
     this.populateWorks(true, true);
   };
 
@@ -92,7 +107,38 @@ var NL = (function ($) {
 
     $('#edit-search-submit', $toolbar)
       .click(function () {
-        log($('#edit-search', $toolbar).val(), 'TODO: Search in passage box');
+        var search = $('#edit-search', $toolbar).val(),
+            osises = that.bcv.parse(search).osis_and_indices(),
+            did_search = search.length > 0 ? false : true,
+            parts, endParts,
+            book, chapter, verse;
+
+        if (osises.length > 0) {
+          parts = osises[0].osis.split('.');
+
+          book = util.findByName(that.viewData.selectedWork.books, parts[0]);
+
+          if (book) {
+            that.viewData.selectedBook = book;
+
+            chapter = util.findByName(that.viewData.selectedBook.chapters, parts[1]);
+
+            if (chapter) {
+              that.viewData.selectedChapter = chapter;
+
+              // TODO: Highlight the matched verses and scroll to that point.
+            }
+
+            that.renderViews(['toolbar']);
+            that.populatePassages();
+            did_search = true;
+          }
+        }
+
+        if (!did_search) {
+          that.setMessage(Drupal.t('Could not find any passages matching "@search". Try using the format "Book chapter:verse", eg: "John 3:16".', { '@search': search }), 'warning');
+        }
+
         return false;
       });
 
@@ -210,7 +256,7 @@ var NL = (function ($) {
           book:      this.viewData.selectedBook.name,
           chapter:   this.viewData.selectedChapter.name,
           page:      this.viewData.page,
-          pagesize:  100,
+          pagesize:  500, // FIXME: Fixed page size will cause any really long chapters to be chopped off.
           format:    'jsonp',
           callback:  '?'
         };
@@ -228,8 +274,8 @@ var NL = (function ($) {
 
         if (setDefaultState && that.opts.osisID && that.opts.osisIDParts[2]) {
           parts = that.opts.osisIDParts[2].split('-');
-          firstVerse = parts[0];
-          lastVerse = parts.length == 2 ? parts[1] : parts[0];
+          firstVerse = parseInt(parts[0], 10);
+          lastVerse = parts.length == 2 ? parseInt(parts[1], 10) : firstVerse;
         } else {
           setDefaultState = false;
         }
@@ -318,7 +364,7 @@ var NL = (function ($) {
     // (b) It was requested (ie: if toDefault empty the loop won't run)
     if (this.opts.osisIDWork && this.opts.osisID) {
       defaultsMap = {
-        work:    this.opts.osisIDWork,
+        work:    this.opts.osisIDWorkParts[0],
         book:    this.opts.osisIDParts[0],
         chapter: this.opts.osisIDParts[1]
       };
@@ -326,6 +372,8 @@ var NL = (function ($) {
       for (i = 0, len = toDefault.length; i < len; i++) {
         type = toDefault[i];
 
+        // Skip unknown types
+        objects = [];
         switch (type) {
           case 'work':    objects = this.viewData.works; break;
           case 'book':    objects = this.viewData.selectedWork.books; break;
@@ -341,6 +389,7 @@ var NL = (function ($) {
       }
     }
 
+
     if (!this.viewData.selectedWork) {
       this.viewData.selectedWork = this.viewData.works[0];
       this.viewData.selectedWork._key = 0;
@@ -354,12 +403,14 @@ var NL = (function ($) {
       this.viewData.selectedChapter._key = 0;
     }
 
-    this.setAlternateWorks(this.viewData.selectedWork, this.viewData.selectedBook, this.viewData.selectedChapter);
+    this.setAlternateWorks(this.viewData.selectedWork, this.viewData.selectedBook, this.viewData.selectedChapter, toDefault.indexOf('work') != -1);
   }
 
-  PickerUI.prototype.setAlternateWorks = function (originWork, originBook, originChapter) {
+  PickerUI.prototype.setAlternateWorks = function (originWork, originBook, originChapter, setDefaults) {
     var i, j, k,
         work, book, chapter;
+
+    setDefaults = typeof setDefaults !== 'undefined' ? setDefaults : false;
 
     this.viewData.alternateWorks = [];
     for (i = this.viewData.works.length - 1; i >=0; i--) {
@@ -382,7 +433,9 @@ var NL = (function ($) {
             // This work contains the same book and chapter as the origin
             // that means that almost certainly it is a valid alternate work
             if (chapter.name == originChapter.name) {
-              this.viewData.alternateWorks.push(work);
+              // Need to make a deep copy here, else alternateWorks stae will be
+              // bound to works!
+              this.viewData.alternateWorks.push($.extend(true, {}, work));
               break; // Successful match found, quit searching chapters
             }
           }
@@ -393,6 +446,21 @@ var NL = (function ($) {
 
     if (this.viewData.alternateWorks.length == 0) {
       this.hideAlternateWorks(false);
+    } else {
+      if (setDefaults && this.opts.osisIDWorkParts.length > 1) {
+        var alternate,
+            alternates = this.opts.osisIDWorkParts.slice(1);
+
+        for (i = this.viewData.alternateWorks.length - 1; i >= 0; i--) {
+          alternate = this.viewData.alternateWorks[i];
+
+          if (alternates.indexOf(alternate.name) != -1) {
+            this.viewData.alternateWorks[i].selected = true;
+          }
+        }
+      }
+
+      this.showAlternateWorks(false);
     }
   };
 
@@ -400,8 +468,9 @@ var NL = (function ($) {
     var that = this,
         selector, css,
         ops  = {
-          '.alternateWorks': { height: 70 },
-          '.passages': { paddingTop: 70 * 2 + 5 }
+          // FIXME: This hardcoded height will break if too many alternate works are listed
+          '.alternateWorks': { height: 36 },
+          '.passages': { paddingTop: 70 + 36 + 5 }
         };
 
     animated = typeof animated !== 'undefined' ? animated : true;
@@ -484,7 +553,7 @@ var NL = (function ($) {
       }
     }
 
-    util.setMessage($('.passages', this.$element), Drupal.t('A passage must be selected.'), 'error');
+    this.setMessage(Drupal.t('A passage must be selected.'), 'error');
     return false;
   };
 
@@ -507,6 +576,10 @@ var NL = (function ($) {
     this.$element.find('.toolbar,.alternateWorks').css('width', this.$element.width());
   };
 
+  PickerUI.prototype.setMessage = function (message, type, hide_after) {
+    hide_after = hide_after || null;
+    util.setMessage($('.passages', this.$element), message, type, hide_after);
+  };
 
   // Static template for the picker UI. Handlebars compiles this shared template
   // into a specific HTML blob for each PickerUI instance.
@@ -557,7 +630,7 @@ var NL = (function ($) {
     ].join(''),
 
     alternateWorks: [
-      '<div class="inner">',
+      '<div class="inner clearfix">',
         '<label>',
           'Additional translations to display ',
         '</label>',
@@ -583,7 +656,9 @@ var NL = (function ($) {
           // The verse and its number link
           '<label class="option" for="{{cssId}}">',
             '<span class="verse">',
-              '<a href="{{verseUrl}}">{{verse}}</a>',
+              // TODO: When ready, link to verses in the Nurani Library.
+              // '<a href="{{verseUrl}}">{{verse}}</a>',
+              '<strong>{{verse}}</strong>',
             '</span> ',
             '{{text}}',
           '</label>',
@@ -641,7 +716,7 @@ var NL = (function ($) {
      */
     Handlebars.registerHelper('selected', function (context, label) {
       label = label || 'selected';
-      return context.selected ? ' ' + label + '="' + label + '"' : '';
+      return new Handlebars.SafeString(context.selected ? ' ' + label + '="' + label + '"' : '');
     });
 
   });

@@ -1,10 +1,10 @@
 /**
- * Corebox util library.
+ * Util library.
  */
 function Util() {
 }
 
-// Globally available CB.Util
+// Globally available Util
 var util = new Util();
 
 // paulirish.com/2009/log-a-lightweight-wrapper-for-consolelog/

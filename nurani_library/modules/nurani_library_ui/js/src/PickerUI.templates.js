@@ -47,7 +47,7 @@ PickerUI.templates = {
   ].join(''),
 
   alternateWorks: [
-    '<div class="inner">',
+    '<div class="inner clearfix">',
       '<label>',
         'Additional translations to display ',
       '</label>',
@@ -73,7 +73,9 @@ PickerUI.templates = {
         // The verse and its number link
         '<label class="option" for="{{cssId}}">',
           '<span class="verse">',
-            '<a href="{{verseUrl}}">{{verse}}</a>',
+            // TODO: When ready, link to verses in the Nurani Library.
+            // '<a href="{{verseUrl}}">{{verse}}</a>',
+            '<strong>{{verse}}</strong>',
           '</span> ',
           '{{text}}',
         '</label>',
@@ -131,7 +133,7 @@ $(function () {
    */
   Handlebars.registerHelper('selected', function (context, label) {
     label = label || 'selected';
-    return context.selected ? ' ' + label + '="' + label + '"' : '';
+    return new Handlebars.SafeString(context.selected ? ' ' + label + '="' + label + '"' : '');
   });
 
 });

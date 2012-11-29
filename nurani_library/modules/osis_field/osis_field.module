@@ -176,7 +176,9 @@ function osis_field_validate(&$item, $delta, $field, $node, $instance) {
 
   $errors = array();
 
-  $work = $nl->getWork($item['osisIDWork']);
+  $origin_work = explode(',', $item['osisIDWork']);
+
+  $work = $nl->getWork($origin_work[0]);
   if (!$work || !isset($work->id)) {
     $errors[$work_key] = t("Invalid work selected.");
     return $errors;
@@ -197,7 +199,7 @@ function osis_field_validate(&$item, $delta, $field, $node, $instance) {
     foreach ($verse as $verse_number) {
       $test = $nl->search($work->name, $osis[0], $osis[1], $verse_number);
       if (empty($test)) {
-        $errors[$osis_key] = t("Invalid OSIS identifier, could not locate the passage %work : %osis.", array('%work' => $item['osisIDWork'], '%osis' => $item['osisID']));
+        $errors[$osis_key] = t("Invalid OSIS identifier, could not locate the passage %work : %osis.", array('%work' => $origin_work[0], '%osis' => $item['osisID']));
         return $errors;
       }
     }
