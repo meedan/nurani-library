@@ -24,3 +24,27 @@ Util.prototype.findByName = function (array, name) {
   search = $.grep(array, function (o, i) { return o.name == name; });
   return search.length > 0 ? $.extend({ _key: array.indexOf(search[0]) }, search[0]) : false;
 };
+
+/**
+ * Helper method, set informational messages which disappear after a set amount
+ * of time.
+ */
+Util.prototype.setMessage = function (prepend_to, message, type, hide_after) {
+  type       = type || 'ok';
+  hide_after = hide_after || 4000;
+
+  classes = ['messages'];
+  if (type) {
+    classes.push(type);
+  }
+
+  var message = $('<div class="' + classes.join(' ') + '" style="display: none;">' + message + '</div>');
+  prepend_to.prepend(message);
+  message.slideDown();
+
+  setTimeout(function () {
+    message.slideUp(function () {
+      $(this).remove();
+    });
+  }, hide_after);
+}

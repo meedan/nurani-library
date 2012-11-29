@@ -26,6 +26,31 @@ var NL = (function ($) {
     search = $.grep(array, function (o, i) { return o.name == name; });
     return search.length > 0 ? $.extend({ _key: array.indexOf(search[0]) }, search[0]) : false;
   };
+
+  /**
+   * Helper method, set informational messages which disappear after a set amount
+   * of time.
+   */
+  Util.prototype.setMessage = function (prepend_to, message, type, hide_after) {
+    type       = type || 'ok';
+    hide_after = hide_after || 4000;
+
+    classes = ['messages'];
+    if (type) {
+      classes.push(type);
+    }
+
+    var message = $('<div class="' + classes.join(' ') + '" style="display: none;">' + message + '</div>');
+    prepend_to.prepend(message);
+    message.slideDown();
+
+    setTimeout(function () {
+      message.slideUp(function () {
+        $(this).remove();
+      });
+    }, hide_after);
+  }
+
   /**
    * Main controller object for the bundle UI.
    */
@@ -74,7 +99,6 @@ var NL = (function ($) {
     $('#edit-work-filter', $toolbar)
       .change(function () {
         that.viewData.selectedWork = util.findByName(that.viewData.works, $(this).val());
-        that.setAlternateWorks();
         that.setFilterOptions(['book', 'chapter']);
         that.renderViews(['toolbar', 'alternateWorks']);
         that.populatePassages();
@@ -105,14 +129,14 @@ var NL = (function ($) {
 
     $('.form-item-passage', $passages)
       .click(function () {
-        var $this = $(this);
+        var $this = $(this),
+            $checkboxes = $('.form-item-passage', that.$element),
+            originI = $checkboxes.index(this);
 
         if ($this.attr('checked')) {
           // Determine the contiguous group this checkbox belongs to then remove
           // all other ticked boxes
-          var $checkboxes = $('.form-item-passage', that.$element),
-              originI = $checkboxes.index(this),
-              first = that.contiguous($checkboxes, originI, -1),
+          var first = that.contiguous($checkboxes, originI, -1),
               last = that.contiguous($checkboxes, originI,  1),
               firstVerse = first.split('.')[2],
               lastVerse = last.split('.')[2];
@@ -124,10 +148,13 @@ var NL = (function ($) {
               $(this).removeAttr('checked');
             }
           });
-        }
 
-        // Display the additional works ribbon
-        // that.
+          if (that.viewData.alternateWorks.length > 0) {
+            that.showAlternateWorks();
+          }
+        } else if ($checkboxes.filter('[checked]').length == 0) {
+          that.hideAlternateWorks();
+        }
       });
   };
 
@@ -327,11 +354,92 @@ var NL = (function ($) {
       this.viewData.selectedChapter._key = 0;
     }
 
-    this.setAlternateWorks();
+    this.setAlternateWorks(this.viewData.selectedWork, this.viewData.selectedBook, this.viewData.selectedChapter);
   }
 
-  PickerUI.prototype.setAlternateWorks = function (originWork) {
-    this.viewData.alternateWorks = this.viewData.works;
+  PickerUI.prototype.setAlternateWorks = function (originWork, originBook, originChapter) {
+    var i, j, k,
+        work, book, chapter;
+
+    this.viewData.alternateWorks = [];
+    for (i = this.viewData.works.length - 1; i >=0; i--) {
+      work = this.viewData.works[i];
+
+      // Don't also add the origin work as an alternate work
+      if (work.name == originWork.name) {
+        continue;
+      }
+
+      for (j = work.books.length - 1; j >= 0; j--) {
+        book = work.books[j];
+
+        // This work contains the same book as the origin, next check if has
+        // the same chapter too
+        if (book.name == originBook.name) {
+          for (k = book.chapters.length - 1; k >= 0; k--) {
+            chapter = book.chapters[k];
+
+            // This work contains the same book and chapter as the origin
+            // that means that almost certainly it is a valid alternate work
+            if (chapter.name == originChapter.name) {
+              this.viewData.alternateWorks.push(work);
+              break; // Successful match found, quit searching chapters
+            }
+          }
+          break; // Matched book, quit searching books
+        }
+      }
+    }
+
+    if (this.viewData.alternateWorks.length == 0) {
+      this.hideAlternateWorks(false);
+    }
+  };
+
+  PickerUI.prototype.showAlternateWorks = function (animated) {
+    var that = this,
+        selector, css,
+        ops  = {
+          '.alternateWorks': { height: 70 },
+          '.passages': { paddingTop: 70 * 2 + 5 }
+        };
+
+    animated = typeof animated !== 'undefined' ? animated : true;
+
+    for (selector in ops) {
+      if (ops.hasOwnProperty(selector)) {
+        css = ops[selector];
+
+        if (animated) {
+          $(selector, this.$element).animate(css, 'fast');
+        } else {
+          $(selector, this.$element).css(css);
+        }
+      }
+    }
+  };
+
+  PickerUI.prototype.hideAlternateWorks = function (animated) {
+    var that = this,
+        selector, css,
+        ops  = {
+          '.alternateWorks': { height: 0 },
+          '.passages': { paddingTop: 70 + 5 }
+        };
+
+    animated = typeof animated !== 'undefined' ? animated : true;
+
+    for (selector in ops) {
+      if (ops.hasOwnProperty(selector)) {
+        css = ops[selector];
+
+        if (animated) {
+          $(selector, this.$element).animate(css, 'fast');
+        } else {
+          $(selector, this.$element).css(css);
+        }
+      }
+    }
   };
 
   PickerUI.prototype.getSelectionOSIS = function ($origin) {
@@ -342,7 +450,7 @@ var NL = (function ($) {
         $checkboxes = $('.form-item-passage', this.$element),
         length = $checkboxes.length,
         originI = $checkboxes.index($origin),
-        firstParts, lastParts, osisID;
+        firstParts, lastParts, osisID, osisIDWork;
 
     if (originI >= 0) {
       // Iterate backwards and forwards to find boundaries of this contiguously
@@ -363,19 +471,20 @@ var NL = (function ($) {
         osisID.push(firstParts[2]);
       }
 
+      osisIDWork = [$('#edit-work-filter', this.$element).val()];
+      $('input.form-item-alternate-works', this.$element).each(function () {
+        if (this.checked) {
+          osisIDWork.push($(this).val());
+        }
+      })
+
       return {
-        osisIDWork: $('#edit-work-filter').val(),
+        osisIDWork: osisIDWork.join(','),
         osisID: osisID.join('.')
       }
     }
 
-    // FIXME: Errors should be managed by the PickerUI object.
-    // for (var key in data.errors) {
-    //   if (data.errors.hasOwnProperty(key)) {
-    //     util.setMessage(that.$dialog, data.errors[key], 'error');
-    //   }
-    // }
-
+    util.setMessage($('.passages', this.$element), Drupal.t('A passage must be selected.'), 'error');
     return false;
   };
 

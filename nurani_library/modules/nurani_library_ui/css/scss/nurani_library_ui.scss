@@ -13,7 +13,7 @@ $toolbar_height: 70px;
     // NOTE: The width of the toolbar is (unfortunately) set dynamically via Javascript
     //       @see: PickerUI.didResize()
     background: #fff;
-    border-bottom: 2px solid #E1E2DC;
+    border-bottom: 2px solid #444;
 
     .form-item {
       display: inline-block;
@@ -34,7 +34,7 @@ $toolbar_height: 70px;
     .inner {
       padding: 0.5em 1em;
       background: #BDF;
-      border-bottom: 2px solid #E1E2DC;
+      border-bottom: 2px solid #444;
     }
   }
 
