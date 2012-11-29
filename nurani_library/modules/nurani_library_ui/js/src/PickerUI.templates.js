@@ -15,8 +15,8 @@ PickerUI.templates = {
       '<label for="edit-chapter-filter">',
         'Chapter ',
       '</label>',
-      '<select id="edit-chapter-filter" name="chapter_filter" class="form-select">',
-        '{{#eachOption selected_book.chapters selected_chapter}}',
+      '<select id="edit-chapter-filter" name="chapterFilter" class="form-select">',
+        '{{#eachOption selectedBook.chapters selectedChapter}}',
           '<option value="{{name}}"{{selected this "selected"}}>{{full_name}}</option>',
         '{{/eachOption}}',
       '</select>',
@@ -26,8 +26,8 @@ PickerUI.templates = {
       '<label for="edit-book-filter">',
         'Book ',
       '</label>',
-      '<select id="edit-book-filter" name="book_filter" class="form-select">',
-        '{{#eachOption selected_work.books selected_book}}',
+      '<select id="edit-book-filter" name="bookFilter" class="form-select">',
+        '{{#eachOption selectedWork.books selectedBook}}',
           '<option value="{{name}}"{{selected this "selected"}}>{{full_name}}</option>',
         '{{/eachOption}}',
       '</select>',
@@ -38,8 +38,8 @@ PickerUI.templates = {
         'Text ',
         '<span class="form-required" title="This field is required.">*</span>',
       '</label>',
-      '<select id="edit-work-filter" name="work_filter" class="form-select required">',
-        '{{#eachOption works selected_work}}',
+      '<select id="edit-work-filter" name="workFilter" class="form-select required">',
+        '{{#eachOption works selectedWork}}',
           '<option value="{{name}}"{{selected this "selected"}}>{{full_name}}</option>',
         '{{/eachOption}}',
       '</select>',
@@ -51,10 +51,10 @@ PickerUI.templates = {
       '<label>',
         'Additional translations to display ',
       '</label>',
-      '{{#each alternate_works}}',
+      '{{#each alternateWorks}}',
         '<div class="form-item form-type-checkbox form-item-alternate-works">',
-          '<input type="checkbox" id="{{css_id}}" name="alternate_works[]" value="{{name}}" class="form-checkbox form-item-alternate-works"{{selected this "checked"}}> ',
-          '<label class="option" for="{{css_id}}">',
+          '<input type="checkbox" id="{{cssId}}" name="alternateWorks[]" value="{{name}}" class="form-checkbox form-item-alternate-works"{{selected this "checked"}}> ',
+          '<label class="option" for="{{cssId}}">',
             '{{full_name}}',
           '</label>',
         '</div>',
@@ -69,11 +69,11 @@ PickerUI.templates = {
       '{{/isChapterBeginning}}',
       '<div class="form-item form-type-checkbox form-item-passage-row {{work_language}}">',
         // "Select passage" tickbox
-        '<input type="checkbox" id="{{css_id}}" name="passage[]" value="{{osisID}}" class="form-checkbox form-item-passage"{{selected this "checked"}}> ',
+        '<input type="checkbox" id="{{cssId}}" name="passage[]" value="{{osisID}}" class="form-checkbox form-item-passage"{{selected this "checked"}}> ',
         // The verse and its number link
-        '<label class="option" for="{{css_id}}">',
+        '<label class="option" for="{{cssId}}">',
           '<span class="verse">',
-            '<a href="{{verse_url}}">{{verse}}</a>',
+            '<a href="{{verseUrl}}">{{verse}}</a>',
           '</span> ',
           '{{text}}',
         '</label>',
@@ -89,7 +89,7 @@ $(function () {
    * Handlebars.js helper, detects first chapter and verse condition
    */
   Handlebars.registerHelper('isBookBeginning', function (passage, options) {
-    if (passage.chapter_name == 1) {
+    if (passage.chapterName == 1) {
       return options.fn(this);
     }
   });

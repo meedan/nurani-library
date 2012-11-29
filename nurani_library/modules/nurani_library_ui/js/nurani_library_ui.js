@@ -73,24 +73,25 @@ var NL = (function ($) {
 
     $('#edit-work-filter', $toolbar)
       .change(function () {
-        that.viewData.selected_work = util.findByName(that.viewData.works, $(this).val());
+        that.viewData.selectedWork = util.findByName(that.viewData.works, $(this).val());
+        that.setAlternateWorks();
         that.setFilterOptions(['book', 'chapter']);
         that.renderViews(['toolbar', 'alternateWorks']);
         that.populatePassages();
       });
     $('#edit-book-filter', $toolbar)
       .change(function () {
-        var i = that.viewData.selected_work._key;
-        that.viewData.selected_book = util.findByName(that.viewData.works[i].books, $(this).val());
+        var i = that.viewData.selectedWork._key;
+        that.viewData.selectedBook = util.findByName(that.viewData.works[i].books, $(this).val());
         that.setFilterOptions(['chapter']);
         that.renderViews(['toolbar']);
         that.populatePassages();
       });
     $('#edit-chapter-filter', $toolbar)
       .change(function () {
-        var i = that.viewData.selected_work._key,
-            j = that.viewData.selected_book._key;
-        that.viewData.selected_chapter = util.findByName(that.viewData.works[i].books[j].chapters, $(this).val());
+        var i = that.viewData.selectedWork._key,
+            j = that.viewData.selectedBook._key;
+        that.viewData.selectedChapter = util.findByName(that.viewData.works[i].books[j].chapters, $(this).val());
         that.populatePassages();
       });
   };
@@ -110,16 +111,16 @@ var NL = (function ($) {
           // Determine the contiguous group this checkbox belongs to then remove
           // all other ticked boxes
           var $checkboxes = $('.form-item-passage', that.$element),
-              origin_i = $checkboxes.index(this),
-              first = that.contiguous($checkboxes, origin_i, -1),
-              last = that.contiguous($checkboxes, origin_i,  1),
-              first_verse = first.split('.')[2],
-              last_verse = last.split('.')[2];
+              originI = $checkboxes.index(this),
+              first = that.contiguous($checkboxes, originI, -1),
+              last = that.contiguous($checkboxes, originI,  1),
+              firstVerse = first.split('.')[2],
+              lastVerse = last.split('.')[2];
 
           $checkboxes.each(function () {
             var parts = $(this).val().split('.');
 
-            if (parts[2] < first_verse || parts[2] > last_verse) {
+            if (parts[2] < firstVerse || parts[2] > lastVerse) {
               $(this).removeAttr('checked');
             }
           });
@@ -130,28 +131,28 @@ var NL = (function ($) {
       });
   };
 
-  PickerUI.prototype.renderViews = function (to_render) {
+  PickerUI.prototype.renderViews = function (toRender) {
     var func, $el;
-    to_render = to_render || ['toolbar', 'alternateWorks', 'passages'];
+    toRender = toRender || ['toolbar', 'alternateWorks', 'passages'];
 
-    for (var i = to_render.length - 1; i >= 0; i--) {
-      $el = this.$element.find('.' + to_render[i]);
+    for (var i = toRender.length - 1; i >= 0; i--) {
+      $el = this.$element.find('.' + toRender[i]);
       // Compile handlebars.js templates as needed
       // @see: PickerUI.templates.js
-      if (!this.templates[to_render[i]]) {
-        this.templates[to_render[i]] = Handlebars.compile(PickerUI.templates[to_render[i]]);
+      if (!this.templates[toRender[i]]) {
+        this.templates[toRender[i]] = Handlebars.compile(PickerUI.templates[toRender[i]]);
       }
-      $el.html(this.templates[to_render[i]](this.viewData));
+      $el.html(this.templates[toRender[i]](this.viewData));
 
       // Call the initializer for this view
-      func = 'init' + util.capitalize(to_render[i]);
+      func = 'init' + util.capitalize(toRender[i]);
       if (typeof this[func] === 'function') {
         this[func]($el);
       }
     }
   };
 
-  PickerUI.prototype.populateWorks = function (and_passages, set_default_state) {
+  PickerUI.prototype.populateWorks = function (andPassages, setDefaultState) {
     var that = this;
 
     $.ajax({
@@ -160,30 +161,27 @@ var NL = (function ($) {
       success: function (data) {
         that.viewData.works = that.unpackWorkData(data);
 
-        // TODO: Correctly set up the default state of alternate_works
-        that.viewData.alternate_works = that.viewData.works;
-
-        that.setFilterOptions(['work', 'book', 'chapter'], set_default_state ? ['work', 'book', 'chapter'] : null);
+        that.setFilterOptions(['work', 'book', 'chapter'], setDefaultState ? ['work', 'book', 'chapter'] : null);
 
         that.renderViews(['toolbar', 'alternateWorks']);
 
-        if (and_passages) {
-          that.populatePassages(set_default_state);
+        if (andPassages) {
+          that.populatePassages(setDefaultState);
         }
       }
     });
   };
 
-  PickerUI.prototype.populatePassages = function (set_default_state) {
+  PickerUI.prototype.populatePassages = function (setDefaultState) {
     if (!this.viewData.page) {
       this.viewData.page = 0;
     }
 
     var that  = this,
         query = {
-          work_name: this.viewData.selected_work.name,
-          book:      this.viewData.selected_book.name,
-          chapter:   this.viewData.selected_chapter.name,
+          work_name: this.viewData.selectedWork.name,
+          book:      this.viewData.selectedBook.name,
+          chapter:   this.viewData.selectedChapter.name,
           page:      this.viewData.page,
           pagesize:  100,
           format:    'jsonp',
@@ -199,23 +197,23 @@ var NL = (function ($) {
       success: function (data) {
         var i = 0,
             len = data.length,
-            parts, first_verse, last_verse, passage;
+            parts, firstVerse, lastVerse, passage;
 
-        if (set_default_state && that.opts.osisID && that.opts.osisIDParts[2]) {
+        if (setDefaultState && that.opts.osisID && that.opts.osisIDParts[2]) {
           parts = that.opts.osisIDParts[2].split('-');
-          first_verse = parts[0];
-          last_verse = parts.length == 2 ? parts[1] : parts[0];
+          firstVerse = parts[0];
+          lastVerse = parts.length == 2 ? parts[1] : parts[0];
         } else {
-          set_default_state = false;
+          setDefaultState = false;
         }
 
         for (i = 0; i < len; i++) {
           passage = data[i];
           passage.osisID    = [passage.book_name, passage.chapter_name, passage.verse].join('.');
-          passage.css_id    = 'edit-passage-' + passage.osisID.replace(/\./g, '-');
-          passage.verse_url = Drupal.settings.nuraniLibrary.baseUrl + '/passages/' + passage.work_name + '/' + passage.osisID;
+          passage.cssId    = 'edit-passage-' + passage.osisID.replace(/\./g, '-');
+          passage.verseUrl = Drupal.settings.nuraniLibrary.baseUrl + '/passages/' + passage.work_name + '/' + passage.osisID;
 
-          if (set_default_state && passage.verse >= first_verse && passage.verse <= last_verse) {
+          if (setDefaultState && passage.verse >= firstVerse && passage.verse <= lastVerse) {
             passage.selected = true;
           }
 
@@ -275,60 +273,66 @@ var NL = (function ($) {
   /**
    * Sets the options available for a filter.
    *
-   * @param "object" to_clear
+   * @param "object" toClear
    *  Array having values: 'work', 'book', or 'chapter'.
    */
-  PickerUI.prototype.setFilterOptions = function (to_clear, to_default) {
-    var i, j, len, type, objects, defaults_map;
+  PickerUI.prototype.setFilterOptions = function (toClear, toDefault) {
+    var i, j, len, type, objects, defaultsMap;
 
-    to_clear   = to_clear   || [];
-    to_default = to_default || [];
+    toClear   = toClear   || [];
+    toDefault = toDefault || [];
 
-    for (i = to_clear.length - 1; i >= 0; i--) {
-      this.viewData['selected_' + to_clear[i]] = false;
+    for (i = toClear.length - 1; i >= 0; i--) {
+      this.viewData['selected' + util.capitalize(toClear[i])] = false;
     }
 
     // Only set defaults if:
     // (a) There are defaults to set and
-    // (b) It was requested (ie: if to_default empty the loop won't run)
+    // (b) It was requested (ie: if toDefault empty the loop won't run)
     if (this.opts.osisIDWork && this.opts.osisID) {
-      defaults_map = {
+      defaultsMap = {
         work:    this.opts.osisIDWork,
         book:    this.opts.osisIDParts[0],
         chapter: this.opts.osisIDParts[1]
       };
 
-      for (i = 0, len = to_default.length; i < len; i++) {
-        type = to_default[i];
+      for (i = 0, len = toDefault.length; i < len; i++) {
+        type = toDefault[i];
 
         switch (type) {
           case 'work':    objects = this.viewData.works; break;
-          case 'book':    objects = this.viewData.selected_work.books; break;
-          case 'chapter': objects = this.viewData.selected_book.chapters; break;
+          case 'book':    objects = this.viewData.selectedWork.books; break;
+          case 'chapter': objects = this.viewData.selectedBook.chapters; break;
         }
 
         for (j = objects.length - 1; j >= 0; j--) {
-          if (objects[j].name == defaults_map[type]) {
-            this.viewData['selected_' + type] = objects[j];
-            this.viewData['selected_' + type]._key = j;
+          if (objects[j].name == defaultsMap[type]) {
+            this.viewData['selected' + util.capitalize(type)] = objects[j];
+            this.viewData['selected' + util.capitalize(type)]._key = j;
           }
         }
       }
     }
 
-    if (!this.viewData.selected_work) {
-      this.viewData.selected_work = this.viewData.works[0];
-      this.viewData.selected_work._key = 0;
+    if (!this.viewData.selectedWork) {
+      this.viewData.selectedWork = this.viewData.works[0];
+      this.viewData.selectedWork._key = 0;
     }
-    if (!this.viewData.selected_book) {
-      this.viewData.selected_book = this.viewData.selected_work.books[0];
-      this.viewData.selected_book._key = 0;
+    if (!this.viewData.selectedBook) {
+      this.viewData.selectedBook = this.viewData.selectedWork.books[0];
+      this.viewData.selectedBook._key = 0;
     }
-    if (!this.viewData.selected_chapter) {
-      this.viewData.selected_chapter = this.viewData.selected_book.chapters[0];
-      this.viewData.selected_chapter._key = 0;
+    if (!this.viewData.selectedChapter) {
+      this.viewData.selectedChapter = this.viewData.selectedBook.chapters[0];
+      this.viewData.selectedChapter._key = 0;
     }
+
+    this.setAlternateWorks();
   }
+
+  PickerUI.prototype.setAlternateWorks = function (originWork) {
+    this.viewData.alternateWorks = this.viewData.works;
+  };
 
   PickerUI.prototype.getSelectionOSIS = function ($origin) {
     $origin = $origin || $('.form-item-passage[checked]:first', this.$element);
@@ -337,26 +341,26 @@ var NL = (function ($) {
         last = $origin.val(),
         $checkboxes = $('.form-item-passage', this.$element),
         length = $checkboxes.length,
-        origin_i = $checkboxes.index($origin),
-        first_parts, last_parts, osisID;
+        originI = $checkboxes.index($origin),
+        firstParts, lastParts, osisID;
 
-    if (origin_i >= 0) {
+    if (originI >= 0) {
       // Iterate backwards and forwards to find boundaries of this contiguously
       // checked group.
-      first = this.contiguous($checkboxes, origin_i, -1);
-      last  = this.contiguous($checkboxes, origin_i,  1);
+      first = this.contiguous($checkboxes, originI, -1);
+      last  = this.contiguous($checkboxes, originI,  1);
 
-      first_parts = first.split('.');
-      last_parts = last.split('.');
+      firstParts = first.split('.');
+      lastParts = last.split('.');
 
       osisID = [];
-      osisID.push(first_parts[0]);
-      osisID.push(first_parts[1]);
+      osisID.push(firstParts[0]);
+      osisID.push(firstParts[1]);
 
-      if (first_parts[2] != last_parts[2]) {
-        osisID.push(first_parts[2] + '-' + last_parts[2]);
+      if (firstParts[2] != lastParts[2]) {
+        osisID.push(firstParts[2] + '-' + lastParts[2]);
       } else {
-        osisID.push(first_parts[2]);
+        osisID.push(firstParts[2]);
       }
 
       return {
@@ -412,8 +416,8 @@ var NL = (function ($) {
         '<label for="edit-chapter-filter">',
           'Chapter ',
         '</label>',
-        '<select id="edit-chapter-filter" name="chapter_filter" class="form-select">',
-          '{{#eachOption selected_book.chapters selected_chapter}}',
+        '<select id="edit-chapter-filter" name="chapterFilter" class="form-select">',
+          '{{#eachOption selectedBook.chapters selectedChapter}}',
             '<option value="{{name}}"{{selected this "selected"}}>{{full_name}}</option>',
           '{{/eachOption}}',
         '</select>',
@@ -423,8 +427,8 @@ var NL = (function ($) {
         '<label for="edit-book-filter">',
           'Book ',
         '</label>',
-        '<select id="edit-book-filter" name="book_filter" class="form-select">',
-          '{{#eachOption selected_work.books selected_book}}',
+        '<select id="edit-book-filter" name="bookFilter" class="form-select">',
+          '{{#eachOption selectedWork.books selectedBook}}',
             '<option value="{{name}}"{{selected this "selected"}}>{{full_name}}</option>',
           '{{/eachOption}}',
         '</select>',
@@ -435,8 +439,8 @@ var NL = (function ($) {
           'Text ',
           '<span class="form-required" title="This field is required.">*</span>',
         '</label>',
-        '<select id="edit-work-filter" name="work_filter" class="form-select required">',
-          '{{#eachOption works selected_work}}',
+        '<select id="edit-work-filter" name="workFilter" class="form-select required">',
+          '{{#eachOption works selectedWork}}',
             '<option value="{{name}}"{{selected this "selected"}}>{{full_name}}</option>',
           '{{/eachOption}}',
         '</select>',
@@ -448,10 +452,10 @@ var NL = (function ($) {
         '<label>',
           'Additional translations to display ',
         '</label>',
-        '{{#each alternate_works}}',
+        '{{#each alternateWorks}}',
           '<div class="form-item form-type-checkbox form-item-alternate-works">',
-            '<input type="checkbox" id="{{css_id}}" name="alternate_works[]" value="{{name}}" class="form-checkbox form-item-alternate-works"{{selected this "checked"}}> ',
-            '<label class="option" for="{{css_id}}">',
+            '<input type="checkbox" id="{{cssId}}" name="alternateWorks[]" value="{{name}}" class="form-checkbox form-item-alternate-works"{{selected this "checked"}}> ',
+            '<label class="option" for="{{cssId}}">',
               '{{full_name}}',
             '</label>',
           '</div>',
@@ -466,11 +470,11 @@ var NL = (function ($) {
         '{{/isChapterBeginning}}',
         '<div class="form-item form-type-checkbox form-item-passage-row {{work_language}}">',
           // "Select passage" tickbox
-          '<input type="checkbox" id="{{css_id}}" name="passage[]" value="{{osisID}}" class="form-checkbox form-item-passage"{{selected this "checked"}}> ',
+          '<input type="checkbox" id="{{cssId}}" name="passage[]" value="{{osisID}}" class="form-checkbox form-item-passage"{{selected this "checked"}}> ',
           // The verse and its number link
-          '<label class="option" for="{{css_id}}">',
+          '<label class="option" for="{{cssId}}">',
             '<span class="verse">',
-              '<a href="{{verse_url}}">{{verse}}</a>',
+              '<a href="{{verseUrl}}">{{verse}}</a>',
             '</span> ',
             '{{text}}',
           '</label>',
@@ -486,7 +490,7 @@ var NL = (function ($) {
      * Handlebars.js helper, detects first chapter and verse condition
      */
     Handlebars.registerHelper('isBookBeginning', function (passage, options) {
-      if (passage.chapter_name == 1) {
+      if (passage.chapterName == 1) {
         return options.fn(this);
       }
     });
