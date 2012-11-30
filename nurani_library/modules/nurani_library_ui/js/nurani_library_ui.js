@@ -77,6 +77,9 @@ var NL = (function ($) {
     return this;
   }
 
+  /**
+   * Main initialization routine which kicks off subsequent initializations.
+   */
   PickerUI.prototype.init = function () {
     // Contents of div.toolbar and div.passages is populated via handlebars.js templates
     this.$element = $('<div class="passage-picker-ui"><div class="toolbar"></div><div class="alternateWorks"></div><div class="passages"></div></div>');
@@ -86,6 +89,7 @@ var NL = (function ($) {
     this.viewData = { works: [], passages: [] };
     this.renderViews();
 
+    // Use the Bible-Passage-Reference-Parser, if available
     if (typeof bcv_parser === 'function') {
       this.bcv = new bcv_parser;
       this.bcv.set_options({
@@ -96,6 +100,8 @@ var NL = (function ($) {
       this.bcv = false;
     }
 
+    // Kick off data loading for the app. This will load works and passage data
+    // for the default selected work.
     this.populateWorks(true, true);
   };
 
@@ -106,6 +112,7 @@ var NL = (function ($) {
   PickerUI.prototype.initToolbar = function ($toolbar) {
     var that = this;
 
+    // Bind search box actions
     $('#edit-search-submit', $toolbar).click(function () { that.searchAction(null, this); return false; });
     $('#edit-search', $toolbar)
       .keydown(function (e) {
@@ -117,6 +124,7 @@ var NL = (function ($) {
         }
       });
 
+    // Bind select box switching actions
     $('#edit-work-filter', $toolbar).change(function () {    that.chooseWorkAction($(this).val(), this); });
     $('#edit-book-filter', $toolbar).change(function () {    that.chooseBookAction($(this).val(), this); });
     $('#edit-chapter-filter', $toolbar).change(function () { that.chooseChapterAction($(this).val(), this); });
@@ -128,9 +136,14 @@ var NL = (function ($) {
    */
   PickerUI.prototype.initPassages = function ($passages) {
     var that = this;
+    // Bind passage selection tickboxes to their action
     $('.form-item-passage', $passages).click(function () { that.pickPassageAction($(this).val(), this); });
   };
 
+  /**
+   * (Re)renders app views selectively. If the views do not exist yet, they will
+   * be loaded from templates.
+   */
   PickerUI.prototype.renderViews = function (toRender) {
     var func, $el;
     toRender = toRender || ['toolbar', 'alternateWorks', 'passages'];
@@ -152,6 +165,10 @@ var NL = (function ($) {
     }
   };
 
+  /**
+   * Fetches works from the Nurani Library using the JSON API. When fetched the
+   * appropriate views are updated.
+   */
   PickerUI.prototype.populateWorks = function (andPassages, setDefaultState) {
     var that = this;
 
@@ -172,6 +189,11 @@ var NL = (function ($) {
     });
   };
 
+  /**
+   * Fetches passages, corresponding to the current selected work, book and
+   * chapter, from the Nurani Library using the JSON API. When fetched the
+   * appropriate views are updated.
+   */
   PickerUI.prototype.populatePassages = function (setDefaultState) {
     if (!this.viewData.page) {
       this.viewData.page = 0;
@@ -182,16 +204,13 @@ var NL = (function ($) {
           work_name: this.viewData.selectedWork.name,
           book:      this.viewData.selectedBook.name,
           chapter:   this.viewData.selectedChapter.name,
-          page:      this.viewData.page,
+          page:      this.viewData.page, // TODO: Pagination??
           pagesize:  500, // FIXME: Fixed page size will cause any really long chapters to be chopped off.
           format:    'jsonp',
           callback:  '?'
         };
 
     $.ajax({
-      // TODO: Select the chosen work and pass it here.
-      // TODO: Have filters for book / chapter.
-      // TODO: Pagination??
       url: Drupal.settings.nuraniLibrary.baseAPIUrl + '/passage?' + $.param(query),
       dataType: 'jsonp',
       success: function (data) {
@@ -233,6 +252,11 @@ var NL = (function ($) {
     });
   };
 
+
+  /**
+   * Responds to the user interaction to perform a search. Uses the
+   * Bible-Passage-Reference-Parser to turn the search query into OSIS format.
+   */
   PickerUI.prototype.searchAction = function () {
     var search = $('#edit-search', this.$element).val(),
         osises = this.bcv.parse(search).osis_and_indices(),
@@ -273,6 +297,9 @@ var NL = (function ($) {
     }
   };
 
+  /**
+   * Responds to the user changing the work <select> field.
+   */
   PickerUI.prototype.chooseWorkAction = function (chosenWork) {
     this.viewData.selectedWork = util.findByName(this.viewData.works, chosenWork);
     this.setFilterOptions(['book', 'chapter']);
@@ -280,6 +307,9 @@ var NL = (function ($) {
     this.populatePassages();
   };
 
+  /**
+   * Responds to the user changing the book <select> field.
+   */
   PickerUI.prototype.chooseBookAction = function (chosenBook) {
     this.viewData.selectedBook = util.findByName(this.viewData.selectedWork.books, chosenBook);
     this.setFilterOptions(['chapter']);
@@ -287,11 +317,17 @@ var NL = (function ($) {
     this.populatePassages();
   };
 
+  /**
+   * Responds to the user changing the chapter <select> field.
+   */
   PickerUI.prototype.chooseChapterAction = function (chosenChapter) {
     this.viewData.selectedChapter = util.findByName(this.viewData.selectedBook.chapters, chosenChapter);
     this.populatePassages();
   };
 
+  /**
+   * Response to the user clicking on a passage checkbox.
+   */
   PickerUI.prototype.pickPassageAction = function (osisID, el) {
     var $el = $(el),
         $checkboxes = $('.form-item-passage', this.$element),
@@ -321,6 +357,10 @@ var NL = (function ($) {
     }
   }
 
+
+  /**
+   * Expands compressed / encoded JSON data returned by the Nurani Library API.
+   */
   PickerUI.prototype.unpackWorkData = function (data) {
     var i,  j,  k,
         books, chapters,
@@ -364,7 +404,8 @@ var NL = (function ($) {
   };
 
   /**
-   * Sets the options available for a filter.
+   * Sets the options available for a filter. Used to set up state of the toolbar
+   * view.
    *
    * @param "object" toClear
    *  Array having values: 'work', 'book', or 'chapter'.
@@ -426,6 +467,9 @@ var NL = (function ($) {
     this.setAlternateWorks(this.viewData.selectedWork, this.viewData.selectedBook, this.viewData.selectedChapter, toDefault.indexOf('work') != -1);
   }
 
+  /**
+   * Similar to setFilterOptions, this sets the state of the alternateWorks view.
+   */
   PickerUI.prototype.setAlternateWorks = function (originWork, originBook, originChapter, setDefaults) {
     var i, j, k,
         work, book, chapter;
@@ -484,6 +528,9 @@ var NL = (function ($) {
     }
   };
 
+  /**
+   * Displays the alternateWorks view.
+   */
   PickerUI.prototype.showAlternateWorks = function (animated) {
     var that = this,
         selector, css,
@@ -508,6 +555,9 @@ var NL = (function ($) {
     }
   };
 
+  /**
+   * Hides the alternateWorks view.
+   */
   PickerUI.prototype.hideAlternateWorks = function (animated) {
     var that = this,
         selector, css,
@@ -531,6 +581,9 @@ var NL = (function ($) {
     }
   };
 
+  /**
+   * Highlights a group of verses and scrolls the view such that they are visible.
+   */
   PickerUI.prototype.highlightVerses = function(verses, hideAfter) {
     var i, offset, $passageRow;
 
@@ -556,6 +609,9 @@ var NL = (function ($) {
     };
   };
 
+  /**
+   * Returns the current OSIS range as defined by the picked passages.
+   */
   PickerUI.prototype.getSelectionOSIS = function ($origin) {
     $origin = $origin || $('.form-item-passage[checked]:first', this.$element);
 
@@ -602,6 +658,10 @@ var NL = (function ($) {
     return false;
   };
 
+  /**
+   * Returns the contiguous range of ticked checkboxes when traversing in
+   * a specific direction.
+   */
   PickerUI.prototype.contiguous = function ($checkboxes, i, dir, bound) {
     bound = $checkboxes[i].value;
 
@@ -617,10 +677,17 @@ var NL = (function ($) {
     }
   };
 
+  /**
+   * Integration with the Picker jQuery UI dialog. Resize this interface when
+   * the jQuery UI dialog is resized.
+   */
   PickerUI.prototype.didResize = function () {
     this.$element.find('.toolbar,.alternateWorks').css('width', this.$element.width());
   };
 
+  /**
+   * Renders an error/warning message for the user to see.
+   */
   PickerUI.prototype.setMessage = function (message, type, hideAfter) {
     hideAfter = hideAfter || null;
     util.setMessage($('.passages', this.$element), message, type, hideAfter);

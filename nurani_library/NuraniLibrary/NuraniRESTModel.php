@@ -151,14 +151,20 @@ class NuraniRESTModel extends NuraniModel {
       if ($max_retries > 0 && !$this->testConnection()) {
         $this->destroyConnection();
 
-        if ($this->establishConnection()) {
+        if ($this->establishConnection(0)) {
           $this->resetErrorState();
           return $this->restRequest($method, $resource, $form_data, $headers, $max_redirects, $timeout, $max_retries - 1);
         }
       }
 
-      $message = "Error: " . $response->status_message;
-      if ($response->data) {
+      $message = "Error: ";
+      if (isset($response->status_message)) {
+        $message .= $response->status_message;
+      }
+      else if (isset($response->error)) {
+        $message .= $response->error;
+      }
+      if (isset($response->data)) {
         $message .= "; Data: " . $response->data;
       }
       return $this->error($message, $response->code);
@@ -187,7 +193,7 @@ class NuraniRESTModel extends NuraniModel {
   /**
    * Makes a connection with the 
    */
-  private function establishConnection() {
+  private function establishConnection($max_retries = 3) {
     // Attempt to bind to the existing session
     if (isset($_SESSION['nurani_rest_session']) && isset($_SESSION['nurani_rest_session']['id']) && isset($_SESSION['nurani_rest_session']['name'])) {
       $this->session = $_SESSION['nurani_rest_session'];
@@ -198,7 +204,7 @@ class NuraniRESTModel extends NuraniModel {
     // cleaned up first.
     $this->destroyConnection();
 
-    $login = $this->restRequest('POST', 'user/login', array('username' => $this->connection['user'], 'password' => $this->connection['pass']));
+    $login = $this->restRequest('POST', 'user/login', array('username' => $this->connection['user'], 'password' => $this->connection['pass']), array(), 3, 30.0, $max_retries);
     if ($this->getError() || !$login['sessid'] || !$login['session_name']) {
       $this->destroyConnection();
       return FALSE;
