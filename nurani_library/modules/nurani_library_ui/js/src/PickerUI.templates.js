@@ -7,9 +7,10 @@ PickerUI.templates = {
       '<label for="edit-search">',
         'Search for a passage ',
       '</label>',
-      '<input type="text" id="edit-search" name="search" value="" size="60" maxlength="1024" class="form-text required">',
+      '<input type="text" id="edit-search" name="search" value="{{currentSearch}}" size="60" maxlength="1024" class="form-text required">',
     '</div>',
     '<input class="search-action form-submit" type="submit" id="edit-search-submit" name="op" value="Search">',
+
     // Chapter filter
     '<div class="form-item form-type-select form-item-chapter-filter">',
       '<label for="edit-chapter-filter">',
@@ -67,7 +68,7 @@ PickerUI.templates = {
       '{{#isChapterBeginning this}}',
         '<h4>{{book_full_name}}, Chapter {{chapter_full_name}}</h4>',
       '{{/isChapterBeginning}}',
-      '<div class="form-item form-type-checkbox form-item-passage-row {{work_language}}">',
+      '<div class="form-item form-type-checkbox form-item-passage-row form-item-passage-row-{{verse}} {{work_language}}">',
         // "Select passage" tickbox
         '<input type="checkbox" id="{{cssId}}" name="passage[]" value="{{osisID}}" class="form-checkbox form-item-passage"{{selected this "checked"}}> ',
         // The verse and its number link

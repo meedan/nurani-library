@@ -60,7 +60,8 @@ var NL = (function ($) {
       osisID:     '',
     };
 
-    this.opts = $.extend(this.defaults, opts);
+    this.opts  = $.extend(this.defaults, opts);
+    this.state = {};
 
     // The alternateWorks system appends the selected works together. The first
     // is the original text chosen and the subsequent works are the alternates.
@@ -105,65 +106,20 @@ var NL = (function ($) {
   PickerUI.prototype.initToolbar = function ($toolbar) {
     var that = this;
 
-    $('#edit-search-submit', $toolbar)
-      .click(function () {
-        var search = $('#edit-search', $toolbar).val(),
-            osises = that.bcv.parse(search).osis_and_indices(),
-            did_search = search.length > 0 ? false : true,
-            parts, endParts,
-            book, chapter, verse;
-
-        if (osises.length > 0) {
-          parts = osises[0].osis.split('.');
-
-          book = util.findByName(that.viewData.selectedWork.books, parts[0]);
-
-          if (book) {
-            that.viewData.selectedBook = book;
-
-            chapter = util.findByName(that.viewData.selectedBook.chapters, parts[1]);
-
-            if (chapter) {
-              that.viewData.selectedChapter = chapter;
-
-              // TODO: Highlight the matched verses and scroll to that point.
-            }
-
-            that.renderViews(['toolbar']);
-            that.populatePassages();
-            did_search = true;
-          }
+    $('#edit-search-submit', $toolbar).click(function () { that.searchAction(null, this); return false; });
+    $('#edit-search', $toolbar)
+      .keydown(function (e) {
+        var keyCode = e.keyCode || e.which;
+        // <Enter> and <Tab> are valid ways to search
+        if (keyCode == 13 || keyCode == 9) {
+          e.preventDefault();
+          that.searchAction(null, this);
         }
-
-        if (!did_search) {
-          that.setMessage(Drupal.t('Could not find any passages matching "@search". Try using the format "Book chapter:verse", eg: "John 3:16".', { '@search': search }), 'warning');
-        }
-
-        return false;
       });
 
-    $('#edit-work-filter', $toolbar)
-      .change(function () {
-        that.viewData.selectedWork = util.findByName(that.viewData.works, $(this).val());
-        that.setFilterOptions(['book', 'chapter']);
-        that.renderViews(['toolbar', 'alternateWorks']);
-        that.populatePassages();
-      });
-    $('#edit-book-filter', $toolbar)
-      .change(function () {
-        var i = that.viewData.selectedWork._key;
-        that.viewData.selectedBook = util.findByName(that.viewData.works[i].books, $(this).val());
-        that.setFilterOptions(['chapter']);
-        that.renderViews(['toolbar']);
-        that.populatePassages();
-      });
-    $('#edit-chapter-filter', $toolbar)
-      .change(function () {
-        var i = that.viewData.selectedWork._key,
-            j = that.viewData.selectedBook._key;
-        that.viewData.selectedChapter = util.findByName(that.viewData.works[i].books[j].chapters, $(this).val());
-        that.populatePassages();
-      });
+    $('#edit-work-filter', $toolbar).change(function () {    that.chooseWorkAction($(this).val(), this); });
+    $('#edit-book-filter', $toolbar).change(function () {    that.chooseBookAction($(this).val(), this); });
+    $('#edit-chapter-filter', $toolbar).change(function () { that.chooseChapterAction($(this).val(), this); });
   };
 
   /**
@@ -172,36 +128,7 @@ var NL = (function ($) {
    */
   PickerUI.prototype.initPassages = function ($passages) {
     var that = this;
-
-    $('.form-item-passage', $passages)
-      .click(function () {
-        var $this = $(this),
-            $checkboxes = $('.form-item-passage', that.$element),
-            originI = $checkboxes.index(this);
-
-        if ($this.attr('checked')) {
-          // Determine the contiguous group this checkbox belongs to then remove
-          // all other ticked boxes
-          var first = that.contiguous($checkboxes, originI, -1),
-              last = that.contiguous($checkboxes, originI,  1),
-              firstVerse = first.split('.')[2],
-              lastVerse = last.split('.')[2];
-
-          $checkboxes.each(function () {
-            var parts = $(this).val().split('.');
-
-            if (parts[2] < firstVerse || parts[2] > lastVerse) {
-              $(this).removeAttr('checked');
-            }
-          });
-
-          if (that.viewData.alternateWorks.length > 0) {
-            that.showAlternateWorks();
-          }
-        } else if ($checkboxes.filter('[checked]').length == 0) {
-          that.hideAlternateWorks();
-        }
-      });
+    $('.form-item-passage', $passages).click(function () { that.pickPassageAction($(this).val(), this); });
   };
 
   PickerUI.prototype.renderViews = function (toRender) {
@@ -296,10 +223,103 @@ var NL = (function ($) {
         that.viewData.passages = data;
         that.renderViews(['passages']);
 
-        that.$element.animate({ scrollTop: 0 });
+        if (that.state.highlightVerses) {
+          that.highlightVerses(that.state.highlightVerses);
+          that.state.highlightVerses = false;
+        } else {
+          that.$element.animate({ scrollTop: 0 });
+        }
       }
     });
   };
+
+  PickerUI.prototype.searchAction = function () {
+    var search = $('#edit-search', this.$element).val(),
+        osises = this.bcv.parse(search).osis_and_indices(),
+        did_search = search.length > 0 ? false : true,
+        osisParts,
+        book, chapter, verse;
+
+    this.viewData.currentSearch = search;
+
+    if (osises.length > 0) {
+      osisParts = osises[0].osis.split('.');
+      book = util.findByName(this.viewData.selectedWork.books, osisParts[0]);
+
+      // Matched book
+      if (book) {
+        this.viewData.selectedBook = book;
+        chapter = util.findByName(this.viewData.selectedBook.chapters, osisParts[1]);
+
+        // Matched chapter
+        if (chapter) {
+          this.viewData.selectedChapter = chapter;
+          verse = osisParts[2];
+        }
+
+        this.renderViews(['toolbar']);
+        this.populatePassages();
+        did_search = true;
+
+        // Matched verse, attempt to highlight it when view is loaded
+        if (verse) {
+          this.state.highlightVerses = [verse];
+        }
+      }
+    }
+
+    if (!did_search) {
+      this.setMessage(Drupal.t('Could not find any passages matching "@search". Try using the format "Book chapter:verse", eg: "John 3:16".', { '@search': search }), 'warning');
+    }
+  };
+
+  PickerUI.prototype.chooseWorkAction = function (chosenWork) {
+    this.viewData.selectedWork = util.findByName(this.viewData.works, chosenWork);
+    this.setFilterOptions(['book', 'chapter']);
+    this.renderViews(['toolbar', 'alternateWorks']);
+    this.populatePassages();
+  };
+
+  PickerUI.prototype.chooseBookAction = function (chosenBook) {
+    this.viewData.selectedBook = util.findByName(this.viewData.selectedWork.books, chosenBook);
+    this.setFilterOptions(['chapter']);
+    this.renderViews(['toolbar']);
+    this.populatePassages();
+  };
+
+  PickerUI.prototype.chooseChapterAction = function (chosenChapter) {
+    this.viewData.selectedChapter = util.findByName(this.viewData.selectedBook.chapters, chosenChapter);
+    this.populatePassages();
+  };
+
+  PickerUI.prototype.pickPassageAction = function (osisID, el) {
+    var $el = $(el),
+        $checkboxes = $('.form-item-passage', this.$element),
+        originI = $checkboxes.index(el);
+
+    if ($el.attr('checked')) {
+      // Determine the contiguous group el checkbox belongs to then remove
+      // all other ticked boxes
+      var first = this.contiguous($checkboxes, originI, -1),
+          last = this.contiguous($checkboxes, originI,  1),
+          firstVerse = first.split('.')[2],
+          lastVerse = last.split('.')[2];
+
+      $checkboxes.each(function () {
+        var parts = osisID.split('.');
+
+        if (parts[2] < firstVerse || parts[2] > lastVerse) {
+          $el.removeAttr('checked');
+        }
+      });
+
+      if (this.viewData.alternateWorks.length > 0) {
+        this.showAlternateWorks();
+      }
+    } else if ($checkboxes.filter('[checked]').length == 0) {
+      this.hideAlternateWorks();
+    }
+  }
 
   PickerUI.prototype.unpackWorkData = function (data) {
     var i,  j,  k,
@@ -447,7 +467,7 @@ var NL = (function ($) {
     if (this.viewData.alternateWorks.length == 0) {
       this.hideAlternateWorks(false);
     } else {
-      if (setDefaults && this.opts.osisIDWorkParts.length > 1) {
+      if (setDefaults && this.opts.osisIDWork && this.opts.osisIDWorkParts.length > 1) {
         var alternate,
             alternates = this.opts.osisIDWorkParts.slice(1);
 
@@ -509,6 +529,31 @@ var NL = (function ($) {
         }
       }
     }
+  };
+
+  PickerUI.prototype.highlightVerses = function(verses, hideAfter) {
+    var i, offset, $passageRow;
+
+    hideAfter = hideAfter || 3000;
+
+    for (var i = verses.length - 1; i >= 0; i--) {
+      $passageRow = $('.form-item-passage-row-' + verses[i], this.$element);
+
+      // Scroll down to the first passage
+      if (i == 0) {
+        this.$element.animate({ scrollTop: this.$element.scrollTop() + $passageRow.position().top - this.$element.height()/2 });
+      }
+      // Fade the background colour into yellow
+      $passageRow.animate({ backgroundColor: '#ffff66' });
+
+      // After pausing, fade the background colour back to white, then remove
+      // the background color.
+      setTimeout(function () {
+        $passageRow.animate({ backgroundColor: '#fff' }, 'slow', function () {
+          $(this).css('backgroundColor', null);
+        });
+      }, hideAfter);
+    };
   };
 
   PickerUI.prototype.getSelectionOSIS = function ($origin) {
@@ -576,9 +621,9 @@ var NL = (function ($) {
     this.$element.find('.toolbar,.alternateWorks').css('width', this.$element.width());
   };
 
-  PickerUI.prototype.setMessage = function (message, type, hide_after) {
-    hide_after = hide_after || null;
-    util.setMessage($('.passages', this.$element), message, type, hide_after);
+  PickerUI.prototype.setMessage = function (message, type, hideAfter) {
+    hideAfter = hideAfter || null;
+    util.setMessage($('.passages', this.$element), message, type, hideAfter);
   };
 
   // Static template for the picker UI. Handlebars compiles this shared template
@@ -590,9 +635,10 @@ var NL = (function ($) {
         '<label for="edit-search">',
           'Search for a passage ',
         '</label>',
-        '<input type="text" id="edit-search" name="search" value="" size="60" maxlength="1024" class="form-text required">',
+        '<input type="text" id="edit-search" name="search" value="{{currentSearch}}" size="60" maxlength="1024" class="form-text required">',
       '</div>',
       '<input class="search-action form-submit" type="submit" id="edit-search-submit" name="op" value="Search">',
+
       // Chapter filter
       '<div class="form-item form-type-select form-item-chapter-filter">',
         '<label for="edit-chapter-filter">',
@@ -650,7 +696,7 @@ var NL = (function ($) {
         '{{#isChapterBeginning this}}',
           '<h4>{{book_full_name}}, Chapter {{chapter_full_name}}</h4>',
         '{{/isChapterBeginning}}',
-        '<div class="form-item form-type-checkbox form-item-passage-row {{work_language}}">',
+        '<div class="form-item form-type-checkbox form-item-passage-row form-item-passage-row-{{verse}} {{work_language}}">',
           // "Select passage" tickbox
           '<input type="checkbox" id="{{cssId}}" name="passage[]" value="{{osisID}}" class="form-checkbox form-item-passage"{{selected this "checked"}}> ',
           // The verse and its number link
