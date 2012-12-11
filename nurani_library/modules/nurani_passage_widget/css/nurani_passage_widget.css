@@ -21,3 +21,7 @@
   max-height: 40em;
   overflow-y: auto;
 }
+/* line 27, scss/nurani_passage_widget.scss */
+.passage-widget-wrapper .tab-bar {
+  clear: both;
+}

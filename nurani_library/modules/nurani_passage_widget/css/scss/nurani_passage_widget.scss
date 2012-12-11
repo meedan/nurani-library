@@ -23,4 +23,8 @@
 .passage-widget-wrapper {
   max-height: 40em;
   overflow-y: auto;
+
+  .tab-bar {
+    clear: both;
+  }
 }
