@@ -35,7 +35,7 @@ class NuraniTanzilXMLDocument extends NuraniDocument {
           // Room for future expansion, interpretation
         );
 
-        $this->contents['quran'][$suraNumber][$ayaNumber] = $verse;
+        $this->contents['Quran'][$suraNumber][$ayaNumber] = $verse;
       }
     }
   }
@@ -47,7 +47,7 @@ class NuraniTanzilXMLDocument extends NuraniDocument {
 
 
   public function bookFullName($book) {
-    return 'quran';
+    return 'Quran';
   }
 
 
