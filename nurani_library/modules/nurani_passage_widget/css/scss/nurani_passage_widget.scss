@@ -21,9 +21,10 @@
 // Colours and visual styles, separated for easy removal
 //
 .passage-widget-wrapper {
-  max-height: 40em;
-  overflow-y: auto;
-
+  .passages{
+    max-height: 40em;
+    overflow-y: auto;
+  }
   .tab-bar {
     clear: both;
   }
