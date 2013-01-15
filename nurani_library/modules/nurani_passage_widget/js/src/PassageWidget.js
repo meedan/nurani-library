@@ -19,7 +19,9 @@ PassageWidget.prototype.init = function (widget) {
   this.$element = matches[0] ? $(matches[0]) : false;
 
   if (this.$element) {
-    this.addWidget(widget.html)
+    if (widget.html) {
+      this.addWidget(widget.html)
+    }
     this.addWidgetTabBar();
   }
 };

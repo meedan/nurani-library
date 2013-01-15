@@ -17,7 +17,7 @@
 }
 
 /* line 23, scss/nurani_passage_widget.scss */
-.passage-widget-wrapper {
+.passage-widget-wrapper .passages {
   max-height: 40em;
   overflow-y: auto;
 }
