@@ -48,12 +48,17 @@ PassageWidget.prototype.addWidgetTabBar = function() {
         title = $this.find('h4').text(),
         $tab  = $('<a href="#" class="button">' + title + '</a>');
 
-    if (!first) {
+    if (first) {
+      $tab.addClass('active');
+    } else {
       $this.hide();
     }
 
     $tab.data('passage-widget', $this);
-    $tab.click(function () { that.tabSwitchAction(this); });
+    $tab.click(function () {
+      that.tabSwitchAction(this);
+      return false;
+    });
 
     that.$tabBar.append($tab);
 
@@ -65,4 +70,6 @@ PassageWidget.prototype.addWidgetTabBar = function() {
 PassageWidget.prototype.tabSwitchAction = function (tab) {
   $('.passage-widget', this.$element).hide();
   $(tab).data('passage-widget').show();
+  $('.button', this.$tabBar).removeClass('active');
+  $(tab).addClass('active');
 };
