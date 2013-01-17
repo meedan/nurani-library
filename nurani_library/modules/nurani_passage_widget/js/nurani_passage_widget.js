@@ -23,6 +23,27 @@ var PassageWidget = (function ($) {
     return new PassageWidget(widget);
   };
 
+  /**
+   * Static method for building an oEmbed URL.
+   */
+  PassageWidget.oEmbedURL = function (osisIDWork, osisID, hash, format, callback) {
+    hash     = hash ? '#' + hash : '';
+    format   = format ? format : 'jsonp';
+    callback = callback ? callback : 'PassageWidget.JSONP';
+
+    var nl    = Drupal.settings.nuraniLibrary,
+        query = [
+          'url=' + encodeURIComponent(nl.baseUrl + '/passages/' + osisIDWork + '/' + osisID + hash),
+          'format=' + encodeURIComponent(format)
+        ];
+
+    if (format === 'jsonp') {
+      query.push('callback=' + callback);
+    }
+
+    return nl.baseUrl + '/oembed/endpoint' + '?' + query.join('&');
+  };
+
   PassageWidget.prototype.init = function (widget) {
     var matches, id;
 
