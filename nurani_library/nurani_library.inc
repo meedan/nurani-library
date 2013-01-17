@@ -127,7 +127,7 @@ function nurani_library_l() {
   return call_user_func_array('l', $args);
 }
 
-function nurani_library_base_url($no_authentication = FALSE, $add_path = FALSE) {
+function nurani_library_base_url($no_authentication = FALSE, $add_path = FALSE, $force_absolute = FALSE) {
   $backend = nurani_library_backend();
 
   if ($backend == 'REST') {
@@ -141,7 +141,7 @@ function nurani_library_base_url($no_authentication = FALSE, $add_path = FALSE) 
     $url .= $settings['port'] != 80 ? ':' . $settings['port'] : '';
   }
   else {
-    $url = preg_replace('@[/]*$@', '', url(''));
+    $url = preg_replace('@[/]*$@', '', url('', array('absolute' => $force_absolute)));
   }
 
   if ($add_path) {
