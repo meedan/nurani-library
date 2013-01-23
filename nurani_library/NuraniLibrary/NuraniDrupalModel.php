@@ -223,16 +223,6 @@ class NuraniDrupalModel extends NuraniModel {
         continue; // TODO: Log error for broken book ID.
       }
 
-      $existing_ids = array();
-      $query = db_insert('nurani_library')
-                 ->fields(array(
-                     'work_id',
-                     'book_id',
-                     'chapter_id',
-                     'verse',
-                     'text',
-                   ));
-
       foreach ($book as $chapterKey => $chapter) {
         $chapter_id = $this->getChapterID($chapterKey,
                                           array('weight'    => $chapterKey,
@@ -241,6 +231,17 @@ class NuraniDrupalModel extends NuraniModel {
         if ($chapter_id === FALSE) {
           continue; // TODO: Log error for broken chapter ID.
         }
+
+        // This uses a multi-value insert query. The multi-value approach is
+        // much faster than individual inserts.
+        $query = db_insert('nurani_library')
+                   ->fields(array(
+                       'work_id',
+                       'book_id',
+                       'chapter_id',
+                       'verse',
+                       'text',
+                     ));
 
         foreach ($chapter as $verseKey => $verse) {
           $query
@@ -251,26 +252,16 @@ class NuraniDrupalModel extends NuraniModel {
                 'verse' => $verseKey,
                 'text' => $verse->text,
               ));
-
-          $existing_ids[] = db_select('nurani_library', 'nl')
-                              ->fields('nl', array('id'))
-                              ->condition('work_id', $work_id)
-                              ->condition('book_id', $book_id)
-                              ->condition('chapter_id', $chapter_id)
-                              ->condition('verse', $verseKey)
-                              ->execute()
-                              ->fetchField();
         }
-      }
 
-      $existing_ids = array_unique(array_diff($existing_ids, array(NULL, 0, '')));
-      if (count($existing_ids) > 0) {
         db_delete('nurani_library')
-          ->condition('id', $existing_ids, 'IN')
+          ->condition('work_id', $work_id)
+          ->condition('book_id', $book_id)
+          ->condition('chapter_id', $chapter_id)
           ->execute();
-      }
 
-      $query->execute();
+        $query->execute();
+      }
     }
   }
 
