@@ -223,6 +223,16 @@ class NuraniDrupalModel extends NuraniModel {
         continue; // TODO: Log error for broken book ID.
       }
 
+      $existing_ids = array();
+      $query = db_insert('nurani_library')
+                 ->fields(array(
+                     'work_id',
+                     'book_id',
+                     'chapter_id',
+                     'verse',
+                     'text',
+                   ));
+
       foreach ($book as $chapterKey => $chapter) {
         $chapter_id = $this->getChapterID($chapterKey,
                                           array('weight'    => $chapterKey,
@@ -233,33 +243,34 @@ class NuraniDrupalModel extends NuraniModel {
         }
 
         foreach ($chapter as $verseKey => $verse) {
-          $record = db_query("SELECT *
-                                FROM {nurani_library}
-                               WHERE work_id  = :work_id
-                                 AND book_id    = :book_id
-                                 AND chapter_id = :chapter_id
-                                 AND verse      = :verse",
-                             array(
-                               ":work_id"  => $work_id,
-                               ":book_id"    => $book_id,
-                               ":chapter_id" => $chapter_id,
-                               ":verse"      => $verseKey
-                             ))
-                             ->fetchObject();
+          $query
+            ->values(array(
+                'work_id' => $work_id,
+                'book_id' => $book_id,
+                'chapter_id' => $chapter_id,
+                'verse' => $verseKey,
+                'text' => $verse->text,
+              ));
 
-          if (!$record) {
-            $record = (object) array();
-          }
-
-          $record->work_id    = $work_id;
-          $record->book_id    = $book_id;
-          $record->chapter_id = $chapter_id;
-          $record->verse      = $verseKey;
-          $record->text       = $verse->text;
-
-          drupal_write_record('nurani_library', $record, isset($record->id) ? array('id') : array());
+          $existing_ids[] = db_select('nurani_library', 'nl')
+                              ->fields('nl', array('id'))
+                              ->condition('work_id', $work_id)
+                              ->condition('book_id', $book_id)
+                              ->condition('chapter_id', $chapter_id)
+                              ->condition('verse', $verseKey)
+                              ->execute()
+                              ->fetchField();
         }
       }
+
+      $existing_ids = array_unique(array_diff($existing_ids, array(NULL, 0, '')));
+      if (count($existing_ids) > 0) {
+        db_delete('nurani_library')
+          ->condition('id', $existing_ids, 'IN')
+          ->execute();
+      }
+
+      $query->execute();
     }
   }
 
