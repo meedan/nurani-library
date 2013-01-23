@@ -178,6 +178,7 @@ function nurani_library_create_api_account_form($form, &$form_state) {
  * Submission callback for Nurani Library API account creation confirm form.
  */
 function nurani_library_create_api_account_form_submit($form, &$form_state) {
+  module_load_install('nurani_library');
   nurani_library_create_API_account();
   $form_state['redirect'] = 'admin/structure/nurani-library';
 }
