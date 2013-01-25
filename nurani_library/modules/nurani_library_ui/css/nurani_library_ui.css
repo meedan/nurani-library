@@ -54,3 +54,7 @@
   overflow-y: auto;
   padding-top: 75px;
 }
+/* line 55, scss/nurani_library_ui.scss */
+.passage-picker-ui .passages span.note {
+  display: none;
+}

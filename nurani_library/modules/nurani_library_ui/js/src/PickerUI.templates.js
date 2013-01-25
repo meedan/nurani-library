@@ -78,7 +78,9 @@ PickerUI.templates = {
             // '<a href="{{verseUrl}}">{{verse}}</a>',
             '<strong>{{verse}}</strong>',
           '</span> ',
-          '{{text}}',
+          // Note, triple '{{{.}}}' for RAW output. This is coming direct from
+          // the Nurani Library server and should not be an XSS vector.
+          '{{{text}}}',
         '</label>',
       '</div>',
     '{{/each}}'
