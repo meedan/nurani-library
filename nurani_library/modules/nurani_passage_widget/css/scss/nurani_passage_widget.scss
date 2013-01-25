@@ -15,6 +15,15 @@
     direction: ltr !important;
     text-align: left !important;
   }
+
+  sup.note-marker {
+    display: inline-block;
+  }
+  span.note {
+    position: absolute;
+    z-index: 1000;
+    display: none;
+  }
 }
 
 //
@@ -27,5 +36,19 @@
   }
   .tab-bar {
     clear: both;
+  }
+  sup.note-marker {
+    font-weight: bold;
+    font-size: 110%;
+    margin-left: 0.1em;
+    color: #005eae;
+    cursor: help;
+  }
+  span.note {
+    width: 10em;
+    background: #fff;
+    border-radius: 0.5em;
+    box-shadow: 0 0.2em 1em rgba(0, 0, 0, 0.5);
+    padding: 1em;
   }
 }

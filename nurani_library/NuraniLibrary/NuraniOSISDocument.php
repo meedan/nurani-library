@@ -79,7 +79,7 @@ class NuraniOSISDocument extends NuraniDocument {
 
   /**
    * Turns an OSIS <verse></verse> SimpleXML object into a PHP object.
-   * 
+   *
    * NOTE: Currently only the verse text is extracted.
    */
   public function createVerse($verseXML) {
@@ -88,20 +88,13 @@ class NuraniOSISDocument extends NuraniDocument {
       // Room for future expansion, interpretation
     );
 
-    if (isset($verseXML->w) || isset($verseXML->seg)) {
-      $words = array();
-      foreach ($verseXML->xpath('w|seg') as $part) {
-        $words[] = trim((string) $part);
-      }
-      $verse->text = implode(' ', $words);
-    }
-    else {
-      $verse->text = (string) $verseXML;
-    }
+    // Remove all unparsables
+    $verse->text = strip_tags($verseXML->asXML(), '<note>');
+    // Clean up white space issues
+    $verse->text = preg_replace('@[\s]+@m', ' ', $verse->text);
+    // Turn notes into spans
+    $verse->text = preg_replace_callback('@<note([^>]*)>([^<]*)</note>@U', array($this, 'note_to_span'), $verse->text);
 
-    if ($this->conf['stripMarkup']) {
-      $verse->text = strip_tags($verse->text);
-    }
     if ($this->conf['stripChars']) {
       $verse->text = str_replace($this->conf['stripChars'], '', $verse->text);
     }
@@ -128,6 +121,24 @@ class NuraniOSISDocument extends NuraniDocument {
 
   public function chapterFullName($chapter) {
     return $chapter;
+  }
+
+
+  protected function note_to_span($matches) {
+    $classes = array('note');
+
+    if ($matches[1]) {
+      $parts = array_diff(array_map('trim', explode(' ', $matches[1])), array(''));
+
+      foreach ($parts as $part) {
+        $pieces    = explode('=', $part);
+        $key       = $pieces[0];
+        $val       = trim($pieces[1], '"');
+        $classes[] = "$key-$val";
+      }
+    }
+
+    return '<span class="' . implode(' ', $classes) . '">' . $matches[2] . '</span>';
   }
 
 

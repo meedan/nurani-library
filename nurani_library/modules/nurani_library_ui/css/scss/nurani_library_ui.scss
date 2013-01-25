@@ -51,5 +51,9 @@ $toolbar_height: 70px;
   .passages {
     overflow-y: auto;
     padding-top: $toolbar_height + 5px;
+
+    span.note {
+      display: none;
+    }
   }
 }

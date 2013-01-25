@@ -452,7 +452,6 @@ function nurani_library_provider_import_form_submit($form, &$form_state) {
     'language'      => $work->language,
     // TODO: textDirection should not be hard-coded.
     'textDirection' => in_array($work->language, array('he', 'ar')) ? 'rtl' : 'ltr',
-    'stripMarkup'   => TRUE,
     // NOTE: Character stripping should not be hard-coded.
     'stripChars'    => $work->language == 'he' ? '/' : '',
     'files' => array(),

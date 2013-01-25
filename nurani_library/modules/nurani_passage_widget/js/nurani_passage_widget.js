@@ -63,6 +63,28 @@ var PassageWidget = (function ($) {
 
   PassageWidget.prototype.addWidget = function(html) {
     this.$element.html(html);
+    this.initNotes();
+  };
+
+  PassageWidget.prototype.initNotes = function () {
+    var that = this;
+
+    $('span.note', this.$element).each(function () {
+      var $note  = $(this),
+          $nm    = $('<sup class="note-marker">*</sup>'),
+          pos    = $note.position();
+
+      $note.before($nm);
+
+      $note.css({
+        top:      pos.top - $note.outerHeight(),
+        left:     pos.left
+      })
+      $note.hide();
+
+      $nm.hover(function () { that.noteDisplayAction($note); },
+                function () { that.noteHideAction($note); });
+    });
   };
 
   PassageWidget.prototype.addWidgetTabBar = function() {
@@ -110,6 +132,15 @@ var PassageWidget = (function ($) {
     $('.button', this.$tabBar).removeClass('active');
     $(tab).addClass('active');
   };
+
+  PassageWidget.prototype.noteDisplayAction = function ($note) {
+    $note.show();
+  };
+
+  PassageWidget.prototype.noteHideAction = function ($note) {
+    $note.hide();
+  };
+
 
   return PassageWidget;
 
