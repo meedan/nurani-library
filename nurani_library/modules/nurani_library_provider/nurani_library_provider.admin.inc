@@ -27,7 +27,6 @@ function nurani_library_provider_admin_form($form, &$form_state) {
  * Nurani Library administrative form for managing works.
  */
 function nurani_library_provider_works_form($form, &$form_state) {
-  $nw = new NuraniWork();
   $nl = nurani_library();
 
   $form['works'] = array(
@@ -43,7 +42,13 @@ function nurani_library_provider_works_form($form, &$form_state) {
 
   $select_col_options = array(
     // TODO: The list of languages should not be hard-coded.
-    'language' => $nw->workLanguageOptions,
+    'language' => array(
+      'ar' => t("Arabic (ar)"),
+      'en' => t("English (en)"),
+      'el' => t("Greek (el)"),
+      'fr' => t("French (fr)"),
+      'he' => t("Hebrew (he)"),
+    ),
   );
   $descriptions = array(
     'name'      => t('A unique machine-readable name. Can only contain lowercase letters, numbers, and underscores.'),

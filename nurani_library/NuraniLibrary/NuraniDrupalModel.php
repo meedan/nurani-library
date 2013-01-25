@@ -232,33 +232,35 @@ class NuraniDrupalModel extends NuraniModel {
           continue; // TODO: Log error for broken chapter ID.
         }
 
+        // This uses a multi-value insert query. The multi-value approach is
+        // much faster than individual inserts.
+        $query = db_insert('nurani_library')
+                   ->fields(array(
+                       'work_id',
+                       'book_id',
+                       'chapter_id',
+                       'verse',
+                       'text',
+                     ));
+
         foreach ($chapter as $verseKey => $verse) {
-          $record = db_query("SELECT *
-                                FROM {nurani_library}
-                               WHERE work_id  = :work_id
-                                 AND book_id    = :book_id
-                                 AND chapter_id = :chapter_id
-                                 AND verse      = :verse",
-                             array(
-                               ":work_id"  => $work_id,
-                               ":book_id"    => $book_id,
-                               ":chapter_id" => $chapter_id,
-                               ":verse"      => $verseKey
-                             ))
-                             ->fetchObject();
-
-          if (!$record) {
-            $record = (object) array();
-          }
-
-          $record->work_id    = $work_id;
-          $record->book_id    = $book_id;
-          $record->chapter_id = $chapter_id;
-          $record->verse      = $verseKey;
-          $record->text       = $verse->text;
-
-          drupal_write_record('nurani_library', $record, isset($record->id) ? array('id') : array());
+          $query
+            ->values(array(
+                'work_id' => $work_id,
+                'book_id' => $book_id,
+                'chapter_id' => $chapter_id,
+                'verse' => $verseKey,
+                'text' => $verse->text,
+              ));
         }
+
+        db_delete('nurani_library')
+          ->condition('work_id', $work_id)
+          ->condition('book_id', $book_id)
+          ->condition('chapter_id', $chapter_id)
+          ->execute();
+
+        $query->execute();
       }
     }
   }
