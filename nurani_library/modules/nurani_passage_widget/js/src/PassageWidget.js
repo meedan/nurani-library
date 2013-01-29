@@ -117,7 +117,7 @@ PassageWidget.prototype.noteDisplayAction = function ($nm, $note) {
   var pos = $nm.position();
 
   $note.css({
-    top:  pos.top - $note.outerHeight(),
+    top:  pos.top - $note.outerHeight() - 10,
     left: pos.left
   })
 
