@@ -106,7 +106,6 @@ class NuraniOSISDocument extends NuraniDocument {
       $words = preg_split('/[\pZ\pC]+/u', $newText);
 
       $verse->notes[] = (object) array(
-        'type' => 'note',
         'position' => count($words),
         'length' => 0,
         'value' => $matches[2][$i][0],

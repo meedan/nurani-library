@@ -236,28 +236,25 @@ class NuraniDrupalModel extends NuraniModel {
           continue; // TODO: Log error for broken chapter ID.
         }
 
-        // This uses a multi-value insert query. The multi-value approach is
-        // much faster than individual inserts.
-        $query = db_insert('nurani_library')
-                   ->fields(array(
-                       'work_id',
-                       'book_id',
-                       'chapter_id',
-                       'verse',
-                       'text',
-                     ));
-        $ids = array();
-
         foreach ($chapter as $verseKey => $verse) {
-          // Any verse with notes must be inserted directly
-          if ($this->hasAnnotationsSupport && isset($verse->notes) && count($verse->notes) > 0) {
-            db_delete('nurani_library')
-              ->condition('work_id', $work_id)
-              ->condition('book_id', $book_id)
-              ->condition('chapter_id', $chapter_id)
-              ->condition('verse', $verseKey)
-              ->execute();
+          $id = db_select('nurani_library')
+                  ->fields('nurani_library', array('id'))
+                  ->condition('work_id', $work_id)
+                  ->condition('book_id', $book_id)
+                  ->condition('chapter_id', $chapter_id)
+                  ->condition('verse', $verseKey)
+                  ->execute()
+                  ->fetchField();
 
+          if ($id) {
+            db_update('nurani_library')
+              ->fields(array(
+                 'text' => $verse->text,
+                ))
+              ->condition('id', $id)
+              ->execute();
+          }
+          else {
             $id = db_insert('nurani_library')
                     ->fields(array(
                        'work_id' => $work_id,
@@ -267,47 +264,35 @@ class NuraniDrupalModel extends NuraniModel {
                        'text' => $verse->text,
                       ))
                     ->execute();
-            $ids[$id] = $id;
+          }
 
-            foreach ($verse->notes as $note) {
-              db_insert('nurani_library_annotations')
-                ->fields(array(
-                    'nurani_library_id' => $id,
-                    'uid' => 1,
-                    'type' => $note->type,
-                    'position' => $note->position,
-                    'length' => $note->length,
-                    'value' => $note->value,
-                  ))
-                ->execute();
+          // Any verse with notes must be inserted directly
+          if ($this->hasAnnotationsSupport) {
+            // Remove all 'note' annotations, but preserve annotations made by
+            // users.
+            db_delete('nurani_library_annotations')
+              ->condition('nurani_library_id', $id)
+              ->condition('type', 'note')
+              ->execute();
+
+            if (isset($verse->notes) && count($verse->notes) > 0) {
+              foreach ($verse->notes as $note) {
+                db_insert('nurani_library_annotations')
+                  ->fields(array(
+                      'nurani_library_id' => $id,
+                      'uid' => 1,
+                      'type' => 'note',
+                      'position' => $note->position,
+                      'length' => $note->length,
+                      'value' => $note->value,
+                    ))
+                  ->execute();
+              }
             }
-          }
-          // Verses without notes can be bulk inserted
-          else {
-            $query
-              ->values(array(
-                  'work_id' => $work_id,
-                  'book_id' => $book_id,
-                  'chapter_id' => $chapter_id,
-                  'verse' => $verseKey,
-                  'text' => $verse->text,
-                ));
+
+            // TODO: Gracefully reposition notes created by other users, handle orphans, etc.
           }
         }
-
-        $delete = db_delete('nurani_library')
-                    ->condition('work_id', $work_id)
-                    ->condition('book_id', $book_id)
-                    ->condition('chapter_id', $chapter_id);
-        if (count($ids) > 1) {
-          $delete->condition('id', $ids, 'NOT IN');
-        }
-        else if (count($ids) == 1) {
-          $delete->condition('id', current($ids), '<>');
-        }
-        $delete->execute();
-
-        $query->execute();
       }
     }
   }
