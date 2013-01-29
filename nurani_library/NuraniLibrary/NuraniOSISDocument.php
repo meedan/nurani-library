@@ -103,7 +103,7 @@ class NuraniOSISDocument extends NuraniDocument {
       $newText .= substr($verse->text, $splitIndex, $match[1] - $splitIndex);
       $splitIndex = $match[1] + strlen($match[0]);
 
-      $words = preg_split('/[\pZ\pC]+/u', $newText);
+      $words = NuraniLibrary::passageTextWords($newText);
 
       $verse->notes[] = (object) array(
         'position' => count($words),

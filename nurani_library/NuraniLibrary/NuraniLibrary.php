@@ -71,4 +71,13 @@ class NuraniLibrary {
   }
 
 
+  /**
+   * NuraniLibrary::passageWords()
+   *
+   * UTF8 safe word splitter.
+   */
+  static function passageTextWords($text) {
+    return preg_split('/[\pZ\pC]+/u', $text);
+  }
+
 }
