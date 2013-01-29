@@ -18,9 +18,6 @@ class NuraniDrupalModel extends NuraniModel {
       && db_table_exists('nurani_library_works')
       && db_table_exists('nurani_library_books')
       && db_table_exists('nurani_library_chapters')
-    );
-    $this->hasAnnotationsSupport = (
-         module_exists('nurani_library_annotations')
       && db_table_exists('nurani_library_annotations')
     );
   }
@@ -32,12 +29,10 @@ class NuraniDrupalModel extends NuraniModel {
     }
 
     $select = db_select('nurani_library', 'l');
-
-    // TODO: Simplify the NuraniDrupalModel::search() "SQL".  Using DBTNG makes a mess of it.
-    $select->join('nurani_library_works',  'w', 'l.work_id = w.id');
+    $select->join('nurani_library_works',    'w', 'l.work_id = w.id');
     $select->join('nurani_library_books',    'b',  'l.book_id = b.id');
     $select->join('nurani_library_chapters', 'ch', 'l.chapter_id = ch.id');
-    $select->fields('l',  array('id',   'verse',    'text'));
+    $select->fields('l',  array('id', 'verse', 'text'));
     $select->addField('w', 'name', 'work_name');
     $select->addField('w', 'full_name', 'work_full_name');
     $select->addField('w', 'language', 'work_language');
@@ -78,10 +73,44 @@ class NuraniDrupalModel extends NuraniModel {
 
     $search = count($result) ? array() : FALSE;
     foreach ($result as $row) {
+      $notes = $this->getNotes($row->id);
+
+      if (!empty($notes)) {
+        $row->notes = $notes;
+      }
+
       $search[] = $row;
     }
 
     return $search;
+  }
+
+
+  public function getNotes($passage_id, $page = 0, $pagesize = 100) {
+    if (!$this->connected) {
+      return $this->error(t("Could not establish connection to {nurani_library} database tables."), 0);
+    }
+
+    $select = db_select('nurani_library_annotations', 'a');
+    $select->fields('a');
+    if (is_numeric($passage_id) && $passage_id > 0) {
+      $select->condition('a.nurani_library_id', $passage_id);
+    }
+    $select->orderBy('a.nurani_library_id');
+    $select->orderBy('a.position');
+
+    if ($pagesize > 0) {
+      $select->range($page * $pagesize, $pagesize);
+    }
+
+    $result = $select->execute();
+
+    $notes = array();
+    foreach ($result as $row) {
+      $notes[] = $row;
+    }
+
+    return $notes;
   }
 
 
@@ -266,32 +295,29 @@ class NuraniDrupalModel extends NuraniModel {
                     ->execute();
           }
 
-          // Any verse with notes must be inserted directly
-          if ($this->hasAnnotationsSupport) {
-            // Remove all 'note' annotations, but preserve annotations made by
-            // users.
-            db_delete('nurani_library_annotations')
-              ->condition('nurani_library_id', $id)
-              ->condition('type', 'note')
-              ->execute();
+          // Remove all 'note' annotations, but preserve annotations made by
+          // users.
+          db_delete('nurani_library_annotations')
+            ->condition('nurani_library_id', $id)
+            ->condition('type', 'note')
+            ->execute();
 
-            if (isset($verse->notes) && count($verse->notes) > 0) {
-              foreach ($verse->notes as $note) {
-                db_insert('nurani_library_annotations')
-                  ->fields(array(
-                      'nurani_library_id' => $id,
-                      'uid' => 1,
-                      'type' => 'note',
-                      'position' => $note->position,
-                      'length' => $note->length,
-                      'value' => $note->value,
-                    ))
-                  ->execute();
-              }
+          if (isset($verse->notes) && count($verse->notes) > 0) {
+            foreach ($verse->notes as $note) {
+              db_insert('nurani_library_annotations')
+                ->fields(array(
+                    'nurani_library_id' => $id,
+                    'uid' => 1,
+                    'type' => 'note',
+                    'position' => $note->position,
+                    'length' => $note->length,
+                    'value' => $note->value,
+                  ))
+                ->execute();
             }
-
-            // TODO: Gracefully reposition notes created by other users, handle orphans, etc.
           }
+
+          // TODO: Gracefully reposition notes created by other users, handle orphans, etc.
         }
       }
     }

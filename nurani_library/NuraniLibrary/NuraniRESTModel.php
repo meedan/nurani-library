@@ -50,6 +50,18 @@ class NuraniRESTModel extends NuraniModel {
   }
 
 
+  public function getNotes($passage_id, $page = 0, $pagesize = 100) {
+    $this->resetErrorState();
+    $query = array('page' => $page, 'pagesize' => $pagesize);
+    $path = 'note';
+    if (is_numeric($passage_id) && $passage_id > 0) {
+      $path .= '/' . $passage_id;
+    }
+    $notes = $this->restRequest('GET', $path . $this->queryString($query));
+    return $notes;
+  }
+
+
   /**
    * Fetches all works in a remote Nurani Library Provider instance.
    */
