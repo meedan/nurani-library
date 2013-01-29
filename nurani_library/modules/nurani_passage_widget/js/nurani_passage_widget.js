@@ -72,18 +72,12 @@ var PassageWidget = (function ($) {
     $('span.note', this.$element).each(function () {
       var $note  = $(this),
           $nm    = $('<sup class="note-marker">*</sup>'),
-          pos    = $note.position();
+          pos;
 
       $note.before($nm);
 
-      $note.css({
-        top:      pos.top - $note.outerHeight(),
-        left:     pos.left
-      })
-      $note.hide();
-
-      $nm.hover(function () { that.noteDisplayAction($note); },
-                function () { that.noteHideAction($note); });
+      $nm.hover(function () { that.noteDisplayAction($nm, $note); },
+                function () { that.noteHideAction($nm, $note); });
     });
   };
 
@@ -133,11 +127,18 @@ var PassageWidget = (function ($) {
     $(tab).addClass('active');
   };
 
-  PassageWidget.prototype.noteDisplayAction = function ($note) {
+  PassageWidget.prototype.noteDisplayAction = function ($nm, $note) {
+    var pos = $nm.position();
+
+    $note.css({
+      top:  pos.top - $note.outerHeight(),
+      left: pos.left
+    })
+
     $note.show();
   };
 
-  PassageWidget.prototype.noteHideAction = function ($note) {
+  PassageWidget.prototype.noteHideAction = function ($nm, $note) {
     $note.hide();
   };
 

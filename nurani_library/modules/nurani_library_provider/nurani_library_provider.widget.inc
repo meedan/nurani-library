@@ -51,7 +51,7 @@ function theme_nurani_library_provider_passage_text(&$variables) {
   $words = NuraniLibrary::passageTextWords($passage->text);
 
   foreach ($passage->notes as $note) {
-    $index = $note->position + $note->length;
+    $index = $note->position + $note->length - 1;
 
     if (isset($words[$index])) {
       $classes = array('note');
