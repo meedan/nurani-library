@@ -1,0 +1,64 @@
+<?php
+
+/**
+ * Implements hook_schema().
+ */
+function nurani_library_annotations_schema() {
+  $schema = array();
+
+  $schema['nurani_library_annotations'] = array(
+    'description' => 'Nurani library annotations of passages.',
+    'fields' => array(
+      'id' => array(
+        'description' => 'The primary identifier for an annotation.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE
+      ),
+      'nurani_library_id' => array(
+        'description' => 'The {nurani_library}.id this annotation refers to.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'description' => 'The {users}.uid of the author of this annotation.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'type' => array(
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => FALSE,
+        'description' => 'The type of annotation.',
+      ),
+      'position' => array(
+        'description' => 'The number of words into the passage this annotation refers to (eg: 9 = 9th word).',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'length' => array(
+        'description' => 'Optional, the number of words being annotated.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'value' => array(
+        'description' => 'The annotation value.',
+        'type' => 'text',
+        'not null' => TRUE,
+      ),
+    ),
+    'indexes' => array(
+      'nurani_library_id' => array('nurani_library_id'),
+      'uid' => array('uid'),
+      'type' => array('type'),
+    ),
+    'primary key' => array('id'),
+  );
+
+  return $schema;
+}

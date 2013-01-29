@@ -91,9 +91,30 @@ class NuraniOSISDocument extends NuraniDocument {
     // Remove all unparsables
     $verse->text = strip_tags($verseXML->asXML(), '<note>');
     // Clean up white space issues
-    $verse->text = preg_replace('@[\s]+@m', ' ', $verse->text);
-    // Turn notes into spans
-    $verse->text = preg_replace_callback('@<note([^>]*)>([^<]*)</note>@U', array($this, 'note_to_span'), $verse->text);
+    $verse->text = trim(preg_replace('/[\pZ\pC]+/mu', ' ', $verse->text));
+    // Removes notes from the text and stores them in a separate array
+    $matches = array();
+    $notes = preg_match_all('@<note([^>]*)>([^<]*)</note>@U', $verse->text, $matches, PREG_OFFSET_CAPTURE);
+
+    $newText = '';
+    $splitIndex = 0;
+
+    foreach ($matches[0] as $i => $match) {
+      $newText .= substr($verse->text, $splitIndex, $match[1] - $splitIndex);
+      $splitIndex = $match[1] + strlen($match[0]);
+
+      $words = preg_split('/[\pZ\pC]+/u', $newText);
+
+      $verse->notes[] = (object) array(
+        'type' => 'note',
+        'position' => count($words),
+        'length' => 0,
+        'value' => $matches[2][$i][0],
+      );
+    }
+
+    $newText .= substr($verse->text, $splitIndex, strlen($verse->text) - $splitIndex);
+    $verse->text = $newText;
 
     if ($this->conf['stripChars']) {
       $verse->text = str_replace($this->conf['stripChars'], '', $verse->text);

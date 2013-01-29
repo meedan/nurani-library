@@ -1,0 +1,6 @@
+name = Nurani Library Annotations
+description = Annotations support for the Nurani Library.
+core = 7.x
+version = 7.x-1.0
+package = Nurani
+dependencies[] = nurani_library_provider

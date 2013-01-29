@@ -19,6 +19,10 @@ class NuraniDrupalModel extends NuraniModel {
       && db_table_exists('nurani_library_books')
       && db_table_exists('nurani_library_chapters')
     );
+    $this->hasAnnotationsSupport = (
+         module_exists('nurani_library_annotations')
+      && db_table_exists('nurani_library_annotations')
+    );
   }
 
 
@@ -242,23 +246,66 @@ class NuraniDrupalModel extends NuraniModel {
                        'verse',
                        'text',
                      ));
+        $ids = array();
 
         foreach ($chapter as $verseKey => $verse) {
-          $query
-            ->values(array(
-                'work_id' => $work_id,
-                'book_id' => $book_id,
-                'chapter_id' => $chapter_id,
-                'verse' => $verseKey,
-                'text' => $verse->text,
-              ));
+          // Any verse with notes must be inserted directly
+          if ($this->hasAnnotationsSupport && isset($verse->notes) && count($verse->notes) > 0) {
+            db_delete('nurani_library')
+              ->condition('work_id', $work_id)
+              ->condition('book_id', $book_id)
+              ->condition('chapter_id', $chapter_id)
+              ->condition('verse', $verseKey)
+              ->execute();
+
+            $id = db_insert('nurani_library')
+                    ->fields(array(
+                       'work_id' => $work_id,
+                       'book_id' => $book_id,
+                       'chapter_id' => $chapter_id,
+                       'verse' => $verseKey,
+                       'text' => $verse->text,
+                      ))
+                    ->execute();
+            $ids[$id] = $id;
+
+            foreach ($verse->notes as $note) {
+              db_insert('nurani_library_annotations')
+                ->fields(array(
+                    'nurani_library_id' => $id,
+                    'uid' => 1,
+                    'type' => $note->type,
+                    'position' => $note->position,
+                    'length' => $note->length,
+                    'value' => $note->value,
+                  ))
+                ->execute();
+            }
+          }
+          // Verses without notes can be bulk inserted
+          else {
+            $query
+              ->values(array(
+                  'work_id' => $work_id,
+                  'book_id' => $book_id,
+                  'chapter_id' => $chapter_id,
+                  'verse' => $verseKey,
+                  'text' => $verse->text,
+                ));
+          }
         }
 
-        db_delete('nurani_library')
-          ->condition('work_id', $work_id)
-          ->condition('book_id', $book_id)
-          ->condition('chapter_id', $chapter_id)
-          ->execute();
+        $delete = db_delete('nurani_library')
+                    ->condition('work_id', $work_id)
+                    ->condition('book_id', $book_id)
+                    ->condition('chapter_id', $chapter_id);
+        if (count($ids) > 1) {
+          $delete->condition('id', $ids, 'NOT IN');
+        }
+        else if (count($ids) == 1) {
+          $delete->condition('id', current($ids), '<>');
+        }
+        $delete->execute();
 
         $query->execute();
       }
