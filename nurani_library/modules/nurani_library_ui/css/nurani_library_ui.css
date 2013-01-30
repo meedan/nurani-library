@@ -58,3 +58,7 @@
 .passage-picker-ui .passages span.note {
   display: none;
 }
+/* line 59, scss/nurani_library_ui.scss */
+.passage-picker-ui .passages .form-item-passage-row {
+  margin: 0;
+}

@@ -285,14 +285,16 @@ PickerUI.prototype.pickPassageAction = function (osisID, el) {
     // all other ticked boxes
     var first = this.contiguous($checkboxes, originI, -1),
         last = this.contiguous($checkboxes, originI,  1),
-        firstVerse = first.split('.')[2],
-        lastVerse = last.split('.')[2];
+        firstVerse = parseInt(first.split('.')[2], 10),
+        lastVerse = parseInt(last.split('.')[2], 10);
 
     $checkboxes.each(function () {
-      var parts = osisID.split('.');
+      var $this = $(this),
+          parts = $this.val().split('.'),
+          verse = parseInt(parts[2], 10);
 
-      if (parts[2] < firstVerse || parts[2] > lastVerse) {
-        $el.removeAttr('checked');
+      if (verse < firstVerse || verse > lastVerse) {
+        $this.removeAttr('checked');
       }
     });
 
