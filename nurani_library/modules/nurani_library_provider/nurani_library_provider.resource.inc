@@ -104,6 +104,46 @@ function _nurani_library_provider_services_resources() {
       ),
     ),
 
+    'note' => array(
+      'retrieve' => array(
+        'file' => array('type' => 'inc', 'module' => 'nurani_library_provider', 'name' => 'nurani_library_provider.resource'),
+        'callback' => '_nurani_library_provider_api_note_retrieve',
+        'args' => array(
+          array(
+            'name' => 'passage_id',
+            'optional' => FALSE,
+            'type' => 'int',
+            'description' => 'The id of a Nurani Library passage.',
+            'source' => array('path' => 0),
+          ),
+        ),
+        'access arguments' => array('access nurani library'), // TODO: Take private notes into account
+      ),
+      'index' => array(
+        'file' => array('type' => 'inc', 'module' => 'nurani_library_provider', 'name' => 'nurani_library_provider.resource'),
+        'callback' => '_nurani_library_provider_api_note_index',
+        'args' => array(
+          array(
+            'name' => 'page',
+            'optional' => TRUE,
+            'type' => 'int',
+            'description' => 'The zero-based index of the page to get, defaults to 0.',
+            'default value' => 0,
+            'source' => array('param' => 'page'),
+          ),
+          array(
+            'name' => 'pagesize',
+            'optional' => TRUE,
+            'type' => 'int',
+            'description' => 'Number of records to get per page.',
+            'default value' => variable_get('nurani_library_provider_api_pagesize', 20),
+            'source' => array('param' => 'pagesize'),
+          ),
+        ),
+        'access arguments' => array('access nurani library'), // TODO: Take private notes into account
+      ),
+    ),
+
     'work' => array(
       'retrieve' => array(
         'file' => array('type' => 'inc', 'module' => 'nurani_library_provider', 'name' => 'nurani_library_provider.resource'),
@@ -156,9 +196,7 @@ function _nurani_library_provider_api_passage_retrieve($work_name, $osisID) {
  */
 function _nurani_library_provider_api_passage_index($work_name, $book, $chapter, $verse, $page, $pagesize) {
   $nl = nurani_library();
-  $verses = $nl->search($work_name, $book, $chapter, $verse, $page, $pagesize);
-
-  return $verses;
+  return $nl->search($work_name, $book, $chapter, $verse, $page, $pagesize);
 }
 
 /**
@@ -171,6 +209,22 @@ function _nurani_library_provider_api_passage_validate($work_name, $osisID) {
   // TODO: Handle errors.
 
   return (count($verses) > 0);
+}
+
+/**
+ * 
+ */
+function _nurani_library_provider_api_note_retrieve($passage_id) {
+  $nl = nurani_library();
+  return $nl->getNotes($passage_id);
+}
+
+/**
+ * 
+ */
+function _nurani_library_provider_api_note_index($page, $pagesize) {
+  $nl = nurani_library();
+  return $nl->getNotes(NULL, $page, $pagesize);
 }
 
 /**

@@ -10,7 +10,6 @@ PickerUI.templates = {
       '<input type="text" id="edit-search" name="search" value="{{currentSearch}}" size="60" maxlength="1024" class="form-text required">',
     '</div>',
     '<input class="search-action form-submit" type="submit" id="edit-search-submit" name="op" value="Search">',
-
     // Chapter filter
     '<div class="form-item form-type-select form-item-chapter-filter">',
       '<label for="edit-chapter-filter">',
@@ -64,31 +63,92 @@ PickerUI.templates = {
   ].join(''),
 
   passages: [
-    '{{#each passages}}',
-      '{{#isChapterBeginning this}}',
-        '<h4>{{book_full_name}}, Chapter {{chapter_full_name}}</h4>',
-      '{{/isChapterBeginning}}',
-      '<div class="form-item form-type-checkbox form-item-passage-row form-item-passage-row-{{verse}} {{work_language}}">',
-        // "Select passage" tickbox
-        '<input type="checkbox" id="{{cssId}}" name="passage[]" value="{{osisID}}" class="form-checkbox form-item-passage"{{selected this "checked"}}> ',
-        // The verse and its number link
-        '<label class="option" for="{{cssId}}">',
-          '<span class="verse">',
-            // TODO: When ready, link to verses in the Nurani Library.
-            // '<a href="{{verseUrl}}">{{verse}}</a>',
-            '<strong>{{verse}}</strong>',
-          '</span> ',
-          // Note, triple '{{{.}}}' for RAW output. This is coming direct from
-          // the Nurani Library server and should not be an XSS vector.
-          '{{{text}}}',
-        '</label>',
-      '</div>',
-    '{{/each}}'
+    '<table>',
+      '<tbody>',
+        '{{#each passages}}',
+          '{{#isChapterBeginning this}}',
+            '<tr class="heading">',
+              '<td class="passage">',
+                '<h4>{{book_full_name}}, Chapter {{chapter_full_name}}</h4>',
+              '</td>',
+              '<td class="annotations">',
+              '<h4>Annotations</h4>',
+              '</td>',
+            '</tr>',
+          '{{else}}',
+            '<tr class="{{oddOrEven verse}}">',
+              '<td class="passage">',
+                '<div class="form-item form-type-checkbox form-item-passage-row form-item-passage-row-{{verse}} {{work_language}}">',
+                  // "Select passage" tickbox
+                  '<input type="checkbox" id="{{cssId}}" name="passage[]" value="{{osisID}}" class="form-checkbox form-item-passage"{{selected this "checked"}}> ',
+                  // The verse and its number link
+                  '<label class="option" for="{{cssId}}">',
+                    '<span class="verse">',
+                      // TODO: When ready, link to verses in the Nurani Library.
+                      // '<a href="{{verseUrl}}">{{verse}}</a>',
+                      '<strong>{{verse}}</strong>',
+                    '</span> ',
+                    // Note, triple '{{{.}}}' for RAW output. This is coming direct from
+                    // the Nurani Library server and should not be an XSS vector.
+                    '{{{text}}}',
+                  '</label>',
+                '</div>',
+              '</td>',
+              '<td class="annotations">',
+                '{{#each notes}}',
+                  '{{> annotation}}',
+                '{{/each}}',
+              '</td>',
+            '</tr>',
+          '{{/isChapterBeginning}}',
+        '{{/each}}',
+      '</tbody>',
+    '</table>',
   ].join('')
 };
 
+PickerUI.partials = {
+  annotation: [
+    '<div class="annotation {{type}}">',
+      '<div class="arrow">◀</div>',
+      '<div class="inner">',
+        '<span>{{truncate value 120}}</span>',
+        '{{#if editable}}',
+          '<input class="annotate-action form-submit" type="submit" id="edit-annotate-{{verse}}-submit" name="op" value="{{ternary new "New annotation" "Edit annotation"}}">',
+          '<input type="hidden" name="id" value="{{id}}">',
+          '<input type="hidden" name="nurani_library_id" value="{{nurani_library_id}}">',
+          '<input type="hidden" name="position" value="{{position}}">',
+          '<input type="hidden" name="length" value="{{length}}">',
+          '<input type="hidden" name="value" value="{{value}}">',
+        '{{/if}}',
+      '</div>',
+    '</div>'
+  ].join(''),
+
+  annotationForm: [
+    '<div class="annotation-form">',
+      '<div class="form-item form-type-textarea form-item-value">',
+        '<label for="edit-value">Annotate {{book_full_name}} {{chapter_full_name}}:{{verse}}</label>',
+        '<div class="form-textarea-wrapper">',
+          '<textarea id="edit-value" name="value" cols="10" rows="5" class="form-textarea">{{value}}</textarea>',
+        '</div>',
+      '</div>',
+      '<div class="actions">',
+        '<a href="#">Cancel</a>',
+        '<input class="save-annotation-action form-submit" type="submit" id="edit-save-annotation-submit" name="op" value="Save">',
+      '</div>',
+    '</div>',
+  ].join('')
+}
 
 $(function () {
+
+  // Register all partials
+  for (var key in PickerUI.partials) {
+    if (PickerUI.partials.hasOwnProperty(key)) {
+      Handlebars.registerPartial(key, PickerUI.partials[key]);
+    }
+  }
 
   /**
    * Handlebars.js helper, detects first chapter and verse condition
@@ -105,6 +165,8 @@ $(function () {
   Handlebars.registerHelper('isChapterBeginning', function (passage, options) {
     if (passage.verse == 1) {
       return options.fn(this);
+    } else {
+      return options.inverse(this);
     }
   });
 
@@ -137,6 +199,38 @@ $(function () {
   Handlebars.registerHelper('selected', function (context, label) {
     label = label || 'selected';
     return new Handlebars.SafeString(context.selected ? ' ' + label + '="' + label + '"' : '');
+  });
+
+  /**
+   * Helps truncating strings of text.
+   */
+  Handlebars.registerHelper('truncate', function (string, length) {
+    length = length || 120;
+
+    if (string.length > length) {
+      // TODO: More/less for truncated text
+      string = [
+        // '<span class="short">',
+          string.substr(0, length) + '&hellip;',
+          // '<a href="" onclick="jQuery(this).parent(\'\').siblings(\'\')">[more]</a>',
+        // '</span>'
+      ].join('');
+    }
+    return new Handlebars.SafeString(string);
+  });
+
+  /**
+   * Helps adding odd or even classes
+   */
+  Handlebars.registerHelper('oddOrEven', function (row) {
+    return new Handlebars.SafeString(row % 2 == 0 ? 'even' : 'odd');
+  });
+
+  /**
+   * A ternary operator
+   */
+  Handlebars.registerHelper('ternary', function (context, ifTrue, ifFalse) {
+    return new Handlebars.SafeString(context ? ifTrue : ifFalse);
   });
 
 });

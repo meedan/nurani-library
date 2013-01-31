@@ -1,0 +1,22 @@
+@mixin arrow-box($color: #eee, $size: 24px) {
+  & {
+    position: relative;
+    background: $color;
+  }
+  &:after {
+    right: 100%;
+    border: solid transparent;
+    content: " ";
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+  }
+  &:after {
+    border-color: rgba(238, 238, 238, 0);
+    border-right-color: $color;
+    border-width: $size;
+    top: 50%;
+    margin-top: -$size;
+  }
+}

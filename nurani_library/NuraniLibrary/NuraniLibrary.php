@@ -10,7 +10,7 @@ class NuraniLibrary {
   public $model;
 
 
-  function __construct($config = array()) {
+  public function __construct($config = array()) {
     $model = 'Nurani' . $config['backend'] . 'Model';
 
     require_once $model . '.php';
@@ -20,17 +20,17 @@ class NuraniLibrary {
   }
 
 
-  function getWorks() {
+  public function getWorks() {
     return $this->model->getWorks();
   }
 
 
-  function getWork($work_name) {
+  public function getWork($work_name) {
     return $this->model->getWork($work_name);
   }
 
 
-  function isDuplicateWork($test_work) {
+  public function isDuplicateWork($test_work) {
     $works = $this->getWorks();
     foreach ($works as $work) {
       if ($work->name == $test_work->name && $work->id == $test_work->id) {
@@ -41,12 +41,17 @@ class NuraniLibrary {
   }
 
 
-  function search($work_name, $book = NULL, $chapter = NULL, $verse = NULL, $page = 0, $pagesize = 100) {
+  public function search($work_name, $book = NULL, $chapter = NULL, $verse = NULL, $page = 0, $pagesize = 100) {
     return $this->model->search($work_name, $book, $chapter, $verse, $page, $pagesize);
   }
 
 
-  function import($import) {
+  public function getNotes($passage_id, $page = 0, $pagesize = 100) {
+    return $this->model->getNotes($passage_id, $page, $pagesize);
+  }
+
+
+  public function import($import) {
     foreach ($import as $work => $info) {
       if (!isset($info['format']) || !$info['format']) {
         continue;
@@ -65,5 +70,14 @@ class NuraniLibrary {
     }
   }
 
+
+  /**
+   * NuraniLibrary::passageWords()
+   *
+   * UTF8 safe word splitter.
+   */
+  static function passageTextWords($text) {
+    return preg_split('/[\pZ\pC]+/u', $text);
+  }
 
 }

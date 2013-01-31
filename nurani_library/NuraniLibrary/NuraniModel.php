@@ -41,6 +41,7 @@ abstract class NuraniModel {
 
 
   abstract public function search($work_name, $book = NULL, $chapter = NULL, $verse = NULL, $page = 0, $pagesize = 100);
+  abstract public function getNotes($passage_id, $page = 0, $pagesize = 100);
   abstract public function getWorks();
   abstract public function getWork($work_name);
   abstract public function deleteWork($work_id);

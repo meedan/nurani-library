@@ -43,6 +43,10 @@ function nurani_library_provider_theme($existing, $type, $theme, $path) {
       'variables' => array('osisIDWork' => NULL, 'osisID' => NULL, 'passages' => NULL),
       'file' => 'nurani_library_provider.widget.inc',
     ),
+    'nurani_library_provider_passage_text' => array(
+      'variables' => array('passage' => NULL),
+      'file' => 'nurani_library_provider.widget.inc',
+    ),
   );
 }
 
