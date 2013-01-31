@@ -486,7 +486,7 @@ PickerUI.prototype.showAlternateWorks = function (animated) {
       ops  = {
         // FIXME: This hardcoded height will break if too many alternate works are listed
         '.alternateWorks': { height: 36 },
-        '.passages': { paddingTop: 70 + 36 + 5 }
+        '.passages': { paddingTop: 70 + 2 + 36 - 6 }
       };
 
   animated = typeof animated !== 'undefined' ? animated : true;

@@ -1,3 +1,5 @@
+@import 'arrow_box';
+
 $toolbar_height: 70px;
 
 .ui-dialog .ui-dialog-content.passage-picker-ui {
@@ -50,14 +52,68 @@ $toolbar_height: 70px;
 
   .passages {
     overflow-y: auto;
-    padding-top: $toolbar_height + 5px;
+    padding-top: $toolbar_height;
 
-    span.note {
-      display: none;
+    & > table {
+      border: none;
+      margin: 0;
+
+      tr {
+        border: none;
+      }
+    }
+
+    .passage {
+      vertical-align: top;
+      width: 75%;
     }
 
     .form-item-passage-row {
       margin: 0;
+      white-space: normal;
+
+      .form-checkbox {
+        display: block;
+        float: left;
+        margin-top: 0.3em;
+      }
+      label {
+        display: block;
+        margin-left: 2em;
+      }
     }
+  }
+
+  .annotations {
+    // float: right;
+    width: 22%;
+    // padding-right: 1em;
+    background: #aaa;
+    box-shadow: inset 1em 0px 1em -1em rgba(0, 0, 0, 0.5);
+    // box-shadow: inset 0 0.2em 1em rgba(0, 0, 0, 0.5);
+
+    .annotation {
+      display: block;
+      margin: 0.25em 0;
+
+      .inner {
+        border-radius: 0.5em;
+        padding: 1em;
+      }
+
+      &.note {
+        background: url(annotation-arrow-note.png) left center no-repeat;
+        padding-left: 10px;
+        .inner {
+          background: #eee;
+        }
+      }
+
+      .value {
+        display: none;
+      }
+    }
+
+
   }
 }
