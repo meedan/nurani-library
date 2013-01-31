@@ -81,6 +81,15 @@ function nurani_library_menu() {
     'access arguments' => array('administer users'),
     'file' => 'nurani_library.admin.inc',
   );
+
+  // Passthru endpoint to enable Nurani clients to securely (for us, not
+  // necessarily them) connect to the Nurani Library server.
+  $items['nurani-library/annotations'] = array(
+    'title' => 'Nurani Library Annotations',
+    'page callback' => 'nurani_library_annotations',
+    'access arguments' => array('create nurani library annotations'),
+    'file' => 'nurani_library.pages.inc',
+  );
   return $items;
 }
 
@@ -99,3 +108,15 @@ function nurani_library_nurani_library_backend() {
     )
   );
 }
+
+/**
+ * Implements hook_permission().
+ */
+function nurani_library_permission() {
+  return array(
+    'create nurani library annotations' =>  array(
+      'title' => t('Create Nurani Library Annotations'),
+    ),
+  );
+}
+

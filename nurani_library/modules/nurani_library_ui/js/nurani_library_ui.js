@@ -139,9 +139,19 @@ var NL = (function ($) {
     // Bind passage selection tickboxes to their action
     $('.form-item-passage', $passages).click(function () { that.pickPassageAction($(this).val(), this); });
     // Bind passage hover action to display button for creating new annotation
-    $('td.annotations', $passages).mouseenter(function () { that.annotationsHoverInAction(this); });
-    $('td.annotations', $passages).mouseleave(function () { that.annotationsHoverOutAction(this); });
+    $('tr.passage-row td.annotations', $passages).click(function () { that.annotationsHoverInAction(this); });
+    $('tr.passage-row td.annotations', $passages).mouseenter(function () { that.annotationsHoverInAction(this); });
+    $('tr.passage-row td.annotations', $passages).mouseleave(function () { that.annotationsHoverOutAction(this); });
+  };
 
+  /**
+   * Initialize the annotations on passages. This is called dynamically
+   * when the passages view is loaded or a new annotation is added.
+   */
+  PickerUI.prototype.initAnnotations = function ($annotations) {
+    var that = this;
+    $('.save-annotation-action', $annotations).click(function () { that.annotationSaveAction($(this).parents('.annotation'), this); return false; });
+    $('.cancel-annotation-action', $annotations).click(function () { that.annotationCancelAction($(this).parents('.annotation'), this); return false; });
   };
 
   /**
@@ -218,9 +228,10 @@ var NL = (function ($) {
       url: Drupal.settings.nuraniLibrary.baseAPIUrl + '/passage?' + $.param(query),
       dataType: 'jsonp',
       success: function (data) {
-        var i = 0,
-            len = data.length,
-            parts, firstVerse, lastVerse, passage;
+        var i, iLen = data.length,
+            j, jLen,
+            parts, firstVerse, lastVerse, passage,
+            note;
 
         if (setDefaultState && that.opts.osisID && that.opts.osisIDParts[2]) {
           parts = that.opts.osisIDParts[2].split('-');
@@ -230,7 +241,7 @@ var NL = (function ($) {
           setDefaultState = false;
         }
 
-        for (i = 0; i < len; i++) {
+        for (i = 0; i < iLen; i++) {
           passage = data[i];
           passage.osisID    = [passage.book_name, passage.chapter_name, passage.verse].join('.');
           passage.cssId    = 'edit-passage-' + passage.osisID.replace(/\./g, '-');
@@ -238,6 +249,14 @@ var NL = (function ($) {
 
           if (setDefaultState && passage.verse >= firstVerse && passage.verse <= lastVerse) {
             passage.selected = true;
+          }
+
+          jLen = passage.notes ? passage.notes.length : 0;
+          for (j = 0; j < jLen; j++) {
+            note = passage.notes[j];
+            note.title = that.passageTitle(passage);
+
+            passage.notes[j] = note;
           }
 
           data[i] = passage;
@@ -367,29 +386,73 @@ var NL = (function ($) {
    * Handles adding the 'new annotation' bubble.
    */
   PickerUI.prototype.annotationsHoverInAction = function (el) {
-    // console.log($(el).siblings('td.passage'));
-    // console.log(this.viewData.passages);
+    // If another new annotation is already in progress
+    if ($('.annotation.new', el).length > 0) {
+      return;
+    }
+
     // FIXME: It's expensive to compile handlebars this often.
-    var t = Handlebars.compile('{{> annotation}}'),
-        newAnnotation = {
-          editable: true,
-          new: true,
-          id: '',
-          nurani_library_id: '123',
-          type: 'annotation new',
-          value: 'Annotate ',
-          verse: '456',
-          position: 10,
-          length: 0,
-        };
-    $(el).append(t(newAnnotation));
+    var that     = this,
+        $el      = $(el),
+        template = Handlebars.compile('{{> annotation}}'),
+        i        = $el.siblings('td.passage').find('input.form-item-passage').data('index'),
+        passage  = this.viewData.passages[i],
+        $annotation;
+
+    // Creates a new blank annotation with the form displayed
+    $annotation = $(template({
+      editing:           true,
+      new:               true,
+      id:                '',
+      nurani_library_id: passage.id,
+      type:              'annotation new',
+      value:             '',
+      title:             'Note on ' + this.passageTitle(passage),
+      verse:             passage.verse,
+      position:          passage.text.split(' ').length, // Last word
+      length:            0,
+    }));
+    this.initAnnotations($annotation);
+    $el.append($annotation);
+
+    $('#edit-value', $el).focusout(function (e) {
+      // FIXME: The hover out action should not fire when focus is off but mouse
+      //        is still inside the annotation box.
+      that.annotationsHoverOutAction($(this).parents('td')[0]);
+    });
   };
 
   /**
    * Handles removing the 'new annotation' bubble.
    */
   PickerUI.prototype.annotationsHoverOutAction = function (el) {
-    $('.annotation.new', el).remove();
+    $('.annotation.new', this.$passages).each(function () {
+      var $this = $(this),
+          $value = $this.find('#edit-value');
+
+      if ($value.val() == '' && !$value.is(':focus')) {
+        $this.remove();
+      }
+    });
+  };
+
+  PickerUI.prototype.annotationSaveAction = function ($annotation, el) {
+    console.log([$annotation, $('.annotation-form', $annotation).serialize()]);
+    $.ajax({
+      url: Drupal.settings.basePath + 'nurani-library/annotations',
+      type: 'POST',
+      data: $('.annotation-form', $annotation).serialize(),
+      success: function (data) {
+        console.log(data);
+      },
+      error: function (xhr, textStatus, error) {
+        console.log({'xhr': xhr, 'textStatus': textStatus, 'error': error});
+      }
+    });
+  };
+
+  PickerUI.prototype.annotationCancelAction = function ($annotation, el) {
+    console.log($annotation, 'cancel');
   };
 
 
@@ -728,6 +791,10 @@ var NL = (function ($) {
     util.setMessage($('.passages', this.$element), message, type, hideAfter);
   };
 
+  PickerUI.prototype.passageTitle = function (passage) {
+    return passage.book_full_name + ' ' + passage.chapter_full_name + ':' + passage.verse;
+  };
+
   // Static template for the picker UI. Handlebars compiles this shared template
   // into a specific HTML blob for each PickerUI instance.
   PickerUI.templates = {
@@ -805,32 +872,31 @@ var NL = (function ($) {
                 '<h4>Annotations</h4>',
                 '</td>',
               '</tr>',
-            '{{else}}',
-              '<tr class="{{oddOrEven verse}}">',
-                '<td class="passage">',
-                  '<div class="form-item form-type-checkbox form-item-passage-row form-item-passage-row-{{verse}} {{work_language}}">',
-                    // "Select passage" tickbox
-                    '<input type="checkbox" id="{{cssId}}" name="passage[]" value="{{osisID}}" class="form-checkbox form-item-passage"{{selected this "checked"}}> ',
-                    // The verse and its number link
-                    '<label class="option" for="{{cssId}}">',
-                      '<span class="verse">',
-                        // TODO: When ready, link to verses in the Nurani Library.
-                        // '<a href="{{verseUrl}}">{{verse}}</a>',
-                        '<strong>{{verse}}</strong>',
-                      '</span> ',
-                      // Note, triple '{{{.}}}' for RAW output. This is coming direct from
-                      // the Nurani Library server and should not be an XSS vector.
-                      '{{{text}}}',
-                    '</label>',
-                  '</div>',
-                '</td>',
-                '<td class="annotations">',
-                  '{{#each notes}}',
-                    '{{> annotation}}',
-                  '{{/each}}',
-                '</td>',
-              '</tr>',
             '{{/isChapterBeginning}}',
+            '<tr class="passage-row {{oddOrEven verse}}">',
+              '<td class="passage">',
+                '<div class="form-item form-type-checkbox form-item-passage-row form-item-passage-row-{{verse}} {{work_language}}">',
+                  // "Select passage" tickbox
+                  '<input type="checkbox" id="{{cssId}}" name="passage[]" value="{{osisID}}" data-index="{{@index}}" class="form-checkbox form-item-passage"{{selected this "checked"}}> ',
+                  // The verse and its number link
+                  '<label class="option" for="{{cssId}}">',
+                    '<span class="verse">',
+                      // TODO: When ready, link to verses in the Nurani Library.
+                      // '<a href="{{verseUrl}}">{{verse}}</a>',
+                      '<strong>{{verse}}</strong>',
+                    '</span> ',
+                    // Note, triple '{{{.}}}' for RAW output. This is coming direct from
+                    // the Nurani Library server and should not be an XSS vector.
+                    '{{{text}}}',
+                  '</label>',
+                '</div>',
+              '</td>',
+              '<td class="annotations">',
+                '{{#each notes}}',
+                  '{{> annotation}}',
+                '{{/each}}',
+              '</td>',
+            '</tr>',
           '{{/each}}',
         '</tbody>',
       '</table>',
@@ -839,17 +905,28 @@ var NL = (function ($) {
 
   PickerUI.partials = {
     annotation: [
-      '<div class="annotation {{type}}">',
+      '<div class="annotation {{type}}{{ternary new " new" ""}}{{ternary editing " editing" ""}}">',
         '<div class="arrow">◀</div>',
         '<div class="inner">',
-          '<span>{{truncate value 120}}</span>',
-          '{{#if editable}}',
-            '<input class="annotate-action form-submit" type="submit" id="edit-annotate-{{verse}}-submit" name="op" value="{{ternary new "New annotation" "Edit annotation"}}">',
-            '<input type="hidden" name="id" value="{{id}}">',
-            '<input type="hidden" name="nurani_library_id" value="{{nurani_library_id}}">',
-            '<input type="hidden" name="position" value="{{position}}">',
-            '<input type="hidden" name="length" value="{{length}}">',
-            '<input type="hidden" name="value" value="{{value}}">',
+          '<h5 class="title">{{title}}</h5>',
+          '{{#if editing}}',
+            '<form class="annotation-form" method="POST">',
+              '<div class="form-item form-type-textarea form-item-value">',
+                '<div class="form-textarea-wrapper">',
+                  '<textarea id="edit-value" name="value" cols="10" rows="5" class="form-textarea">{{value}}</textarea>',
+                '</div>',
+              '</div>',
+              '<div class="actions clearfix">',
+                '<a href="#" class="cancel-annotation-action">Cancel</a>',
+                '<input class="save-annotation-action form-submit" type="submit" id="edit-save-annotation-submit" name="op" value="Save">',
+              '</div>',
+              '<input type="hidden" name="id" value="{{id}}">',
+              '<input type="hidden" name="nurani_library_id" value="{{nurani_library_id}}">',
+              '<input type="hidden" name="position" value="{{position}}">',
+              '<input type="hidden" name="length" value="{{length}}">',
+              '</form>',
+          '{{else}}',
+            '<span>{{truncate value 120}}</span>',
           '{{/if}}',
         '</div>',
       '</div>'
@@ -957,9 +1034,14 @@ var NL = (function ($) {
     });
 
     /**
-     * A ternary operator
+     * A ternary operator.
+     *
+     * Eg:
+     *  {{ternary true  "1" "2"}} -> "1"
+     *  {{ternary false "1" "2"}} -> "2"
      */
     Handlebars.registerHelper('ternary', function (context, ifTrue, ifFalse) {
+      ifFalse = ifFalse || '';
       return new Handlebars.SafeString(context ? ifTrue : ifFalse);
     });
 

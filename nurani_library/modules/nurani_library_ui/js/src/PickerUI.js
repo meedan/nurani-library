@@ -86,9 +86,19 @@ PickerUI.prototype.initPassages = function ($passages) {
   // Bind passage selection tickboxes to their action
   $('.form-item-passage', $passages).click(function () { that.pickPassageAction($(this).val(), this); });
   // Bind passage hover action to display button for creating new annotation
-  $('td.annotations', $passages).mouseenter(function () { that.annotationsHoverInAction(this); });
-  $('td.annotations', $passages).mouseleave(function () { that.annotationsHoverOutAction(this); });
+  $('tr.passage-row td.annotations', $passages).click(function () { that.annotationsHoverInAction(this); });
+  $('tr.passage-row td.annotations', $passages).mouseenter(function () { that.annotationsHoverInAction(this); });
+  $('tr.passage-row td.annotations', $passages).mouseleave(function () { that.annotationsHoverOutAction(this); });
+};
 
+/**
+ * Initialize the annotations on passages. This is called dynamically
+ * when the passages view is loaded or a new annotation is added.
+ */
+PickerUI.prototype.initAnnotations = function ($annotations) {
+  var that = this;
+  $('.save-annotation-action', $annotations).click(function () { that.annotationSaveAction($(this).parents('.annotation'), this); return false; });
+  $('.cancel-annotation-action', $annotations).click(function () { that.annotationCancelAction($(this).parents('.annotation'), this); return false; });
 };
 
 /**
@@ -165,9 +175,10 @@ PickerUI.prototype.populatePassages = function (setDefaultState) {
     url: Drupal.settings.nuraniLibrary.baseAPIUrl + '/passage?' + $.param(query),
     dataType: 'jsonp',
     success: function (data) {
-      var i = 0,
-          len = data.length,
-          parts, firstVerse, lastVerse, passage;
+      var i, iLen = data.length,
+          j, jLen,
+          parts, firstVerse, lastVerse, passage,
+          note;
 
       if (setDefaultState && that.opts.osisID && that.opts.osisIDParts[2]) {
         parts = that.opts.osisIDParts[2].split('-');
@@ -177,7 +188,7 @@ PickerUI.prototype.populatePassages = function (setDefaultState) {
         setDefaultState = false;
       }
 
-      for (i = 0; i < len; i++) {
+      for (i = 0; i < iLen; i++) {
         passage = data[i];
         passage.osisID    = [passage.book_name, passage.chapter_name, passage.verse].join('.');
         passage.cssId    = 'edit-passage-' + passage.osisID.replace(/\./g, '-');
@@ -185,6 +196,14 @@ PickerUI.prototype.populatePassages = function (setDefaultState) {
 
         if (setDefaultState && passage.verse >= firstVerse && passage.verse <= lastVerse) {
           passage.selected = true;
+        }
+
+        jLen = passage.notes ? passage.notes.length : 0;
+        for (j = 0; j < jLen; j++) {
+          note = passage.notes[j];
+          note.title = that.passageTitle(passage);
+
+          passage.notes[j] = note;
         }
 
         data[i] = passage;
@@ -314,29 +333,73 @@ PickerUI.prototype.pickPassageAction = function (osisID, el) {
  * Handles adding the 'new annotation' bubble.
  */
 PickerUI.prototype.annotationsHoverInAction = function (el) {
-  // console.log($(el).siblings('td.passage'));
-  // console.log(this.viewData.passages);
+  // If another new annotation is already in progress
+  if ($('.annotation.new', el).length > 0) {
+    return;
+  }
+
   // FIXME: It's expensive to compile handlebars this often.
-  var t = Handlebars.compile('{{> annotation}}'),
-      newAnnotation = {
-        editable: true,
-        new: true,
-        id: '',
-        nurani_library_id: '123',
-        type: 'annotation new',
-        value: 'Annotate ',
-        verse: '456',
-        position: 10,
-        length: 0,
-      };
-  $(el).append(t(newAnnotation));
+  var that     = this,
+      $el      = $(el),
+      template = Handlebars.compile('{{> annotation}}'),
+      i        = $el.siblings('td.passage').find('input.form-item-passage').data('index'),
+      passage  = this.viewData.passages[i],
+      $annotation;
+
+  // Creates a new blank annotation with the form displayed
+  $annotation = $(template({
+    editing:           true,
+    new:               true,
+    id:                '',
+    nurani_library_id: passage.id,
+    type:              'annotation new',
+    value:             '',
+    title:             'Note on ' + this.passageTitle(passage),
+    verse:             passage.verse,
+    position:          passage.text.split(' ').length, // Last word
+    length:            0,
+  }));
+  this.initAnnotations($annotation);
+  $el.append($annotation);
+
+  $('#edit-value', $el).focusout(function (e) {
+    // FIXME: The hover out action should not fire when focus is off but mouse
+    //        is still inside the annotation box.
+    that.annotationsHoverOutAction($(this).parents('td')[0]);
+  });
 };
 
 /**
  * Handles removing the 'new annotation' bubble.
  */
 PickerUI.prototype.annotationsHoverOutAction = function (el) {
-  $('.annotation.new', el).remove();
+  $('.annotation.new', this.$passages).each(function () {
+    var $this = $(this),
+        $value = $this.find('#edit-value');
+
+    if ($value.val() == '' && !$value.is(':focus')) {
+      $this.remove();
+    }
+  });
+};
+
+PickerUI.prototype.annotationSaveAction = function ($annotation, el) {
+  console.log([$annotation, $('.annotation-form', $annotation).serialize()]);
+  $.ajax({
+    url: Drupal.settings.basePath + 'nurani-library/annotations',
+    type: 'POST',
+    data: $('.annotation-form', $annotation).serialize(),
+    success: function (data) {
+      console.log(data);
+    },
+    error: function (xhr, textStatus, error) {
+      console.log({'xhr': xhr, 'textStatus': textStatus, 'error': error});
+    }
+  });
+};
+
+PickerUI.prototype.annotationCancelAction = function ($annotation, el) {
+  console.log($annotation, 'cancel');
 };
 
 
@@ -673,4 +736,8 @@ PickerUI.prototype.didResize = function () {
 PickerUI.prototype.setMessage = function (message, type, hideAfter) {
   hideAfter = hideAfter || null;
   util.setMessage($('.passages', this.$element), message, type, hideAfter);
+};
+
+PickerUI.prototype.passageTitle = function (passage) {
+  return passage.book_full_name + ' ' + passage.chapter_full_name + ':' + passage.verse;
 };

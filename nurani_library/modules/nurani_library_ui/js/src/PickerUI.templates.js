@@ -75,32 +75,31 @@ PickerUI.templates = {
               '<h4>Annotations</h4>',
               '</td>',
             '</tr>',
-          '{{else}}',
-            '<tr class="{{oddOrEven verse}}">',
-              '<td class="passage">',
-                '<div class="form-item form-type-checkbox form-item-passage-row form-item-passage-row-{{verse}} {{work_language}}">',
-                  // "Select passage" tickbox
-                  '<input type="checkbox" id="{{cssId}}" name="passage[]" value="{{osisID}}" class="form-checkbox form-item-passage"{{selected this "checked"}}> ',
-                  // The verse and its number link
-                  '<label class="option" for="{{cssId}}">',
-                    '<span class="verse">',
-                      // TODO: When ready, link to verses in the Nurani Library.
-                      // '<a href="{{verseUrl}}">{{verse}}</a>',
-                      '<strong>{{verse}}</strong>',
-                    '</span> ',
-                    // Note, triple '{{{.}}}' for RAW output. This is coming direct from
-                    // the Nurani Library server and should not be an XSS vector.
-                    '{{{text}}}',
-                  '</label>',
-                '</div>',
-              '</td>',
-              '<td class="annotations">',
-                '{{#each notes}}',
-                  '{{> annotation}}',
-                '{{/each}}',
-              '</td>',
-            '</tr>',
           '{{/isChapterBeginning}}',
+          '<tr class="passage-row {{oddOrEven verse}}">',
+            '<td class="passage">',
+              '<div class="form-item form-type-checkbox form-item-passage-row form-item-passage-row-{{verse}} {{work_language}}">',
+                // "Select passage" tickbox
+                '<input type="checkbox" id="{{cssId}}" name="passage[]" value="{{osisID}}" data-index="{{@index}}" class="form-checkbox form-item-passage"{{selected this "checked"}}> ',
+                // The verse and its number link
+                '<label class="option" for="{{cssId}}">',
+                  '<span class="verse">',
+                    // TODO: When ready, link to verses in the Nurani Library.
+                    // '<a href="{{verseUrl}}">{{verse}}</a>',
+                    '<strong>{{verse}}</strong>',
+                  '</span> ',
+                  // Note, triple '{{{.}}}' for RAW output. This is coming direct from
+                  // the Nurani Library server and should not be an XSS vector.
+                  '{{{text}}}',
+                '</label>',
+              '</div>',
+            '</td>',
+            '<td class="annotations">',
+              '{{#each notes}}',
+                '{{> annotation}}',
+              '{{/each}}',
+            '</td>',
+          '</tr>',
         '{{/each}}',
       '</tbody>',
     '</table>',
@@ -109,17 +108,28 @@ PickerUI.templates = {
 
 PickerUI.partials = {
   annotation: [
-    '<div class="annotation {{type}}">',
+    '<div class="annotation {{type}}{{ternary new " new" ""}}{{ternary editing " editing" ""}}">',
       '<div class="arrow">◀</div>',
       '<div class="inner">',
-        '<span>{{truncate value 120}}</span>',
-        '{{#if editable}}',
-          '<input class="annotate-action form-submit" type="submit" id="edit-annotate-{{verse}}-submit" name="op" value="{{ternary new "New annotation" "Edit annotation"}}">',
-          '<input type="hidden" name="id" value="{{id}}">',
-          '<input type="hidden" name="nurani_library_id" value="{{nurani_library_id}}">',
-          '<input type="hidden" name="position" value="{{position}}">',
-          '<input type="hidden" name="length" value="{{length}}">',
-          '<input type="hidden" name="value" value="{{value}}">',
+        '<h5 class="title">{{title}}</h5>',
+        '{{#if editing}}',
+          '<form class="annotation-form" method="POST">',
+            '<div class="form-item form-type-textarea form-item-value">',
+              '<div class="form-textarea-wrapper">',
+                '<textarea id="edit-value" name="value" cols="10" rows="5" class="form-textarea">{{value}}</textarea>',
+              '</div>',
+            '</div>',
+            '<div class="actions clearfix">',
+              '<a href="#" class="cancel-annotation-action">Cancel</a>',
+              '<input class="save-annotation-action form-submit" type="submit" id="edit-save-annotation-submit" name="op" value="Save">',
+            '</div>',
+            '<input type="hidden" name="id" value="{{id}}">',
+            '<input type="hidden" name="nurani_library_id" value="{{nurani_library_id}}">',
+            '<input type="hidden" name="position" value="{{position}}">',
+            '<input type="hidden" name="length" value="{{length}}">',
+            '</form>',
+        '{{else}}',
+          '<span>{{truncate value 120}}</span>',
         '{{/if}}',
       '</div>',
     '</div>'
@@ -227,9 +237,14 @@ $(function () {
   });
 
   /**
-   * A ternary operator
+   * A ternary operator.
+   *
+   * Eg:
+   *  {{ternary true  "1" "2"}} -> "1"
+   *  {{ternary false "1" "2"}} -> "2"
    */
   Handlebars.registerHelper('ternary', function (context, ifTrue, ifFalse) {
+    ifFalse = ifFalse || '';
     return new Handlebars.SafeString(context ? ifTrue : ifFalse);
   });
 
