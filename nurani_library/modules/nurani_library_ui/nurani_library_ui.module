@@ -5,28 +5,28 @@
  */
 function nurani_library_ui_menu() {
   $items = array();
-  $items['ajax/picker-ui'] = array(
+  $items['nurani-library'] = array(
+    'title' => 'Nurani Library',
+    'page callback' => 'nurani_library_ui',
+    'access arguments' => array('access nurani library ui'),
+    'file' => 'nurani_library_ui.pages.inc',
+  );
+  $items['nurani-library/picker-ui'] = array(
     'title' => 'Nurani Library Picker UI',
-    'page callback' => 'nurani_library_ui_picker_ajax',
-    'access arguments' => array('access content'),
-    'type' => MENU_CALLBACK,
+    'page callback' => 'nurani_library_ui_picker_ui',
+    'access arguments' => array('access nurani library ui'),
+    'file' => 'nurani_library_ui.pages.inc',
   );
   return $items;
 }
 
 /**
- * Menu callback, prints Javascript code suitable to initialize a new
- * Nurani Library picker UI.
+ * Implements hook_permission().
  */
-function nurani_library_ui_picker_ajax() {
-  // $settings = array(
-  //   'selector' => isset($_GET['selector']) ? $_GET['selector'] : '#nurani-library-picker',
-  // );
-
-  // $output  = '';
-  // $output .= '(function ($) {';
-  // $output .=   '';
-  // $output .= '}(jQuery));';
-
-  return NULL;
+function nurani_library_ui_permission() {
+  return array(
+    'access nurani library ui' =>  array(
+      'title' => t('Access the Nurani Library Interface'),
+    ),
+  );
 }

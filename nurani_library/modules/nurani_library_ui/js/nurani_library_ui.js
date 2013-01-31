@@ -737,7 +737,7 @@ var NL = (function ($) {
         '<label for="edit-search">',
           'Search for a passage ',
         '</label>',
-        '<input type="text" id="edit-search" name="search" value="{{currentSearch}}" size="60" maxlength="1024" class="form-text required">',
+        '<input type="text" id="edit-search" name="search" value="{{currentSearch}}" size="30" maxlength="1024" class="form-text required">',
       '</div>',
       '<input class="search-action form-submit" type="submit" id="edit-search-submit" name="op" value="Search">',
       // Chapter filter
