@@ -90,26 +90,44 @@
   background: #aaa;
   box-shadow: inset 1em 0px 1em -1em rgba(0, 0, 0, 0.5);
 }
-/* line 95, scss/nurani_library_ui.scss */
+/* line 92, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation {
   display: block;
-  margin: 0.25em 0;
+  margin: 0.75em 0;
+  padding-left: 10px;
+  /* Note types */
 }
-/* line 99, scss/nurani_library_ui.scss */
+/* line 97, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation .inner {
   border-radius: 0.5em;
+  box-shadow: 0 0.2em 1em rgba(0, 0, 0, 0.5);
   padding: 1em;
 }
-/* line 104, scss/nurani_library_ui.scss */
-.passage-picker-ui .annotations .annotation.note {
-  background: url(annotation-arrow-note.png) left center no-repeat;
-  padding-left: 10px;
+/* line 102, scss/nurani_library_ui.scss */
+.passage-picker-ui .annotations .annotation .arrow {
+  margin: 0 0 -25px -12px;
+  height: 20px;
+  width: 10px;
+  font-size: 16px;
+  text-shadow: -5px 0px 0.5em rgba(0, 0, 0, 0.5);
 }
-/* line 107, scss/nurani_library_ui.scss */
+/* line 116, scss/nurani_library_ui.scss */
+.passage-picker-ui .annotations .annotation.new .arrow {
+  color: #fff;
+}
+/* line 119, scss/nurani_library_ui.scss */
+.passage-picker-ui .annotations .annotation.new .inner {
+  background: #fff;
+}
+/* line 125, scss/nurani_library_ui.scss */
+.passage-picker-ui .annotations .annotation.note .arrow {
+  color: #bdf;
+}
+/* line 128, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation.note .inner {
-  background: #eee;
+  background: #bdf;
 }
-/* line 112, scss/nurani_library_ui.scss */
+/* line 133, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation .value {
   display: none;
 }

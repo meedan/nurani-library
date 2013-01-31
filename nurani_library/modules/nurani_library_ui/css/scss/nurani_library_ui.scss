@@ -85,27 +85,48 @@ $toolbar_height: 70px;
   }
 
   .annotations {
-    // float: right;
     width: 22%;
-    // padding-right: 1em;
     background: #aaa;
     box-shadow: inset 1em 0px 1em -1em rgba(0, 0, 0, 0.5);
-    // box-shadow: inset 0 0.2em 1em rgba(0, 0, 0, 0.5);
 
     .annotation {
       display: block;
-      margin: 0.25em 0;
+      margin: 0.75em 0;
+      padding-left: 10px;
 
       .inner {
         border-radius: 0.5em;
+        box-shadow: 0 0.2em 1em rgba(0, 0, 0, 0.5);
         padding: 1em;
       }
+      .arrow {
+        margin: 0 0 -25px -12px;
+        height: 20px;
+        width: 10px;
+        font-size: 16px;
+        // FIXME: Having difficulty displaying the shadow beneath the box-shadow
+        //        on .inner.  Attempting to avoid the shadow being visible
+        //        on the right side by sliding it left.
+        text-shadow: -5px 0px 0.5em rgba(0, 0, 0, 0.5);
+      }
 
-      &.note {
-        background: url(annotation-arrow-note.png) left center no-repeat;
-        padding-left: 10px;
+      /* Note types */
+      &.new {
+        // background: url(annotation-arrow-note.png) left center no-repeat;
+        .arrow {
+          color: #fff;
+        }
         .inner {
-          background: #eee;
+          background: #fff;
+        }
+      }
+      &.note {
+        // background: url(annotation-arrow-note.png) left center no-repeat;
+        .arrow {
+          color: #bdf;
+        }
+        .inner {
+          background: #bdf;
         }
       }
 

@@ -138,6 +138,10 @@ var NL = (function ($) {
     var that = this;
     // Bind passage selection tickboxes to their action
     $('.form-item-passage', $passages).click(function () { that.pickPassageAction($(this).val(), this); });
+    // Bind passage hover action to display button for creating new annotation
+    $('td.annotations', $passages).mouseenter(function () { that.annotationsHoverInAction(this); });
+    $('td.annotations', $passages).mouseleave(function () { that.annotationsHoverOutAction(this); });
+
   };
 
   /**
@@ -358,6 +362,35 @@ var NL = (function ($) {
       this.hideAlternateWorks();
     }
   }
+
+  /**
+   * Handles adding the 'new annotation' bubble.
+   */
+  PickerUI.prototype.annotationsHoverInAction = function (el) {
+    // console.log($(el).siblings('td.passage'));
+    // console.log(this.viewData.passages);
+    // FIXME: It's expensive to compile handlebars this often.
+    var t = Handlebars.compile('{{> annotation}}'),
+        newAnnotation = {
+          editable: true,
+          new: true,
+          id: '',
+          nurani_library_id: '123',
+          type: 'annotation new',
+          value: 'Annotate ',
+          verse: '456',
+          position: 10,
+          length: 0,
+        };
+    $(el).append(t(newAnnotation));
+  };
+
+  /**
+   * Handles removing the 'new annotation' bubble.
+   */
+  PickerUI.prototype.annotationsHoverOutAction = function (el) {
+    $('.annotation.new', el).remove();
+  };
 
 
   /**
@@ -769,7 +802,7 @@ var NL = (function ($) {
                   '<h4>{{book_full_name}}, Chapter {{chapter_full_name}}</h4>',
                 '</td>',
                 '<td class="annotations">',
-                  '&nbsp;',
+                '<h4>Annotations</h4>',
                 '</td>',
               '</tr>',
             '{{else}}',
@@ -793,19 +826,7 @@ var NL = (function ($) {
                 '</td>',
                 '<td class="annotations">',
                   '{{#each notes}}',
-                    '<div class="annotation {{type}}">',
-                      '<div class="inner">',
-                        '<span>{{truncate value 120}}</span>',
-                        '{{#if editable}}',
-                          '<input class="annotate-action form-submit" type="submit" id="edit-annotate-{{verse}}-submit" name="op" value="Edit annotation">',
-                          '<input type="hidden" name="id" value="{{id}}">',
-                          '<input type="hidden" name="nurani_library_id" value="{{nurani_library_id}}">',
-                          '<input type="hidden" name="position" value="{{position}}">',
-                          '<input type="hidden" name="length" value="{{length}}">',
-                          '<input type="hidden" name="value" value="{{value}}">',
-                        '{{/if}}',
-                      '</div>',
-                    '</div>',
+                    '{{> annotation}}',
                   '{{/each}}',
                 '</td>',
               '</tr>',
@@ -813,6 +834,25 @@ var NL = (function ($) {
           '{{/each}}',
         '</tbody>',
       '</table>',
+    ].join('')
+  };
+
+  PickerUI.partials = {
+    annotation: [
+      '<div class="annotation {{type}}">',
+        '<div class="arrow">◀</div>',
+        '<div class="inner">',
+          '<span>{{truncate value 120}}</span>',
+          '{{#if editable}}',
+            '<input class="annotate-action form-submit" type="submit" id="edit-annotate-{{verse}}-submit" name="op" value="{{ternary new "New annotation" "Edit annotation"}}">',
+            '<input type="hidden" name="id" value="{{id}}">',
+            '<input type="hidden" name="nurani_library_id" value="{{nurani_library_id}}">',
+            '<input type="hidden" name="position" value="{{position}}">',
+            '<input type="hidden" name="length" value="{{length}}">',
+            '<input type="hidden" name="value" value="{{value}}">',
+          '{{/if}}',
+        '</div>',
+      '</div>'
     ].join(''),
 
     annotationForm: [
@@ -829,10 +869,16 @@ var NL = (function ($) {
         '</div>',
       '</div>',
     ].join('')
-  };
-
+  }
 
   $(function () {
+
+    // Register all partials
+    for (var key in PickerUI.partials) {
+      if (PickerUI.partials.hasOwnProperty(key)) {
+        Handlebars.registerPartial(key, PickerUI.partials[key]);
+      }
+    }
 
     /**
      * Handlebars.js helper, detects first chapter and verse condition
@@ -908,6 +954,13 @@ var NL = (function ($) {
      */
     Handlebars.registerHelper('oddOrEven', function (row) {
       return new Handlebars.SafeString(row % 2 == 0 ? 'even' : 'odd');
+    });
+
+    /**
+     * A ternary operator
+     */
+    Handlebars.registerHelper('ternary', function (context, ifTrue, ifFalse) {
+      return new Handlebars.SafeString(context ? ifTrue : ifFalse);
     });
 
   });

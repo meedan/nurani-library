@@ -85,6 +85,10 @@ PickerUI.prototype.initPassages = function ($passages) {
   var that = this;
   // Bind passage selection tickboxes to their action
   $('.form-item-passage', $passages).click(function () { that.pickPassageAction($(this).val(), this); });
+  // Bind passage hover action to display button for creating new annotation
+  $('td.annotations', $passages).mouseenter(function () { that.annotationsHoverInAction(this); });
+  $('td.annotations', $passages).mouseleave(function () { that.annotationsHoverOutAction(this); });
+
 };
 
 /**
@@ -305,6 +309,35 @@ PickerUI.prototype.pickPassageAction = function (osisID, el) {
     this.hideAlternateWorks();
   }
 }
+
+/**
+ * Handles adding the 'new annotation' bubble.
+ */
+PickerUI.prototype.annotationsHoverInAction = function (el) {
+  // console.log($(el).siblings('td.passage'));
+  // console.log(this.viewData.passages);
+  // FIXME: It's expensive to compile handlebars this often.
+  var t = Handlebars.compile('{{> annotation}}'),
+      newAnnotation = {
+        editable: true,
+        new: true,
+        id: '',
+        nurani_library_id: '123',
+        type: 'annotation new',
+        value: 'Annotate ',
+        verse: '456',
+        position: 10,
+        length: 0,
+      };
+  $(el).append(t(newAnnotation));
+};
+
+/**
+ * Handles removing the 'new annotation' bubble.
+ */
+PickerUI.prototype.annotationsHoverOutAction = function (el) {
+  $('.annotation.new', el).remove();
+};
 
 
 /**

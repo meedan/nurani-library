@@ -72,7 +72,7 @@ PickerUI.templates = {
                 '<h4>{{book_full_name}}, Chapter {{chapter_full_name}}</h4>',
               '</td>',
               '<td class="annotations">',
-                '&nbsp;',
+              '<h4>Annotations</h4>',
               '</td>',
             '</tr>',
           '{{else}}',
@@ -96,19 +96,7 @@ PickerUI.templates = {
               '</td>',
               '<td class="annotations">',
                 '{{#each notes}}',
-                  '<div class="annotation {{type}}">',
-                    '<div class="inner">',
-                      '<span>{{truncate value 120}}</span>',
-                      '{{#if editable}}',
-                        '<input class="annotate-action form-submit" type="submit" id="edit-annotate-{{verse}}-submit" name="op" value="Edit annotation">',
-                        '<input type="hidden" name="id" value="{{id}}">',
-                        '<input type="hidden" name="nurani_library_id" value="{{nurani_library_id}}">',
-                        '<input type="hidden" name="position" value="{{position}}">',
-                        '<input type="hidden" name="length" value="{{length}}">',
-                        '<input type="hidden" name="value" value="{{value}}">',
-                      '{{/if}}',
-                    '</div>',
-                  '</div>',
+                  '{{> annotation}}',
                 '{{/each}}',
               '</td>',
             '</tr>',
@@ -116,6 +104,25 @@ PickerUI.templates = {
         '{{/each}}',
       '</tbody>',
     '</table>',
+  ].join('')
+};
+
+PickerUI.partials = {
+  annotation: [
+    '<div class="annotation {{type}}">',
+      '<div class="arrow">◀</div>',
+      '<div class="inner">',
+        '<span>{{truncate value 120}}</span>',
+        '{{#if editable}}',
+          '<input class="annotate-action form-submit" type="submit" id="edit-annotate-{{verse}}-submit" name="op" value="{{ternary new "New annotation" "Edit annotation"}}">',
+          '<input type="hidden" name="id" value="{{id}}">',
+          '<input type="hidden" name="nurani_library_id" value="{{nurani_library_id}}">',
+          '<input type="hidden" name="position" value="{{position}}">',
+          '<input type="hidden" name="length" value="{{length}}">',
+          '<input type="hidden" name="value" value="{{value}}">',
+        '{{/if}}',
+      '</div>',
+    '</div>'
   ].join(''),
 
   annotationForm: [
@@ -132,10 +139,16 @@ PickerUI.templates = {
       '</div>',
     '</div>',
   ].join('')
-};
-
+}
 
 $(function () {
+
+  // Register all partials
+  for (var key in PickerUI.partials) {
+    if (PickerUI.partials.hasOwnProperty(key)) {
+      Handlebars.registerPartial(key, PickerUI.partials[key]);
+    }
+  }
 
   /**
    * Handlebars.js helper, detects first chapter and verse condition
@@ -211,6 +224,13 @@ $(function () {
    */
   Handlebars.registerHelper('oddOrEven', function (row) {
     return new Handlebars.SafeString(row % 2 == 0 ? 'even' : 'odd');
+  });
+
+  /**
+   * A ternary operator
+   */
+  Handlebars.registerHelper('ternary', function (context, ifTrue, ifFalse) {
+    return new Handlebars.SafeString(context ? ifTrue : ifFalse);
   });
 
 });
