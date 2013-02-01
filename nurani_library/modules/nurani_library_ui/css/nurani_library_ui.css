@@ -103,54 +103,48 @@
 .passage-picker-ui .annotations .annotation .inner {
   border-radius: 0.5em;
   box-shadow: 0 0.2em 1em rgba(0, 0, 0, 0.5);
+  background: #fff;
   padding: 1em;
 }
-/* line 104, scss/nurani_library_ui.scss */
+/* line 105, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation .arrow {
   margin: 0 0 -25px -12px;
   height: 20px;
   width: 10px;
   font-size: 16px;
   text-shadow: -5px 0px 0.5em rgba(0, 0, 0, 0.5);
-}
-/* line 117, scss/nurani_library_ui.scss */
-.passage-picker-ui .annotations .annotation.new .arrow {
   color: #fff;
 }
-/* line 120, scss/nurani_library_ui.scss */
-.passage-picker-ui .annotations .annotation.new .inner {
-  background: #fff;
-}
-/* line 123, scss/nurani_library_ui.scss */
+/* line 119, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation.new .title {
   display: block;
 }
-/* line 128, scss/nurani_library_ui.scss */
+/* line 124, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation.note .arrow {
   color: #bdf;
 }
-/* line 131, scss/nurani_library_ui.scss */
+/* line 127, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation.note .inner {
   background: #bdf;
 }
-/* line 137, scss/nurani_library_ui.scss */
+/* line 133, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation .title {
   display: none;
   margin: 0 0 1em 0;
 }
-/* line 141, scss/nurani_library_ui.scss */
+/* line 137, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation .form-type-textarea {
   margin-bottom: 1.0em;
 }
-/* line 144, scss/nurani_library_ui.scss */
+/* line 140, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation textarea {
   width: 100%;
 }
-/* line 148, scss/nurani_library_ui.scss */
+/* line 144, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation .actions .cancel {
   float: left;
 }
-/* line 151, scss/nurani_library_ui.scss */
+/* line 147, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation .actions .form-submit {
   float: right;
   margin: 0;

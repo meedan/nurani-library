@@ -404,8 +404,9 @@ var NL = (function ($) {
       editing:           true,
       new:               true,
       id:                '',
-      passage_id: passage.id,
-      type:              'annotation new',
+      passage_id:        passage.id,
+      author_uuid:       '', // Automatically set on the server
+      type:              'annotation',
       value:             '',
       title:             'Annotation on ' + this.passageTitle(passage),
       verse:             passage.verse,
@@ -904,7 +905,7 @@ var NL = (function ($) {
 
   PickerUI.partials = {
     annotation: [
-      '<div class="annotation {{type}}{{ternary new " new" ""}}{{ternary editing " editing" ""}}">',
+      '<div class="annotation {{annotationClasses this}}">',
         '<div class="arrow">◀</div>',
         '<div class="inner">',
           '<h5 class="title">{{title}}</h5>',
@@ -921,6 +922,8 @@ var NL = (function ($) {
               '</div>',
               '<input type="hidden" name="id" value="{{id}}">',
               '<input type="hidden" name="passage_id" value="{{passage_id}}">',
+              '<input type="hidden" name="author_uuid" value="{{author_uuid}}">',
+              '<input type="hidden" name="type" value="{{type}}">',
               '<input type="hidden" name="position" value="{{position}}">',
               '<input type="hidden" name="length" value="{{length}}">',
               '</form>',
@@ -1042,6 +1045,27 @@ var NL = (function ($) {
     Handlebars.registerHelper('ternary', function (context, ifTrue, ifFalse) {
       ifFalse = ifFalse || '';
       return new Handlebars.SafeString(context ? ifTrue : ifFalse);
+    });
+
+    /**
+     * A ternary operator.
+     *
+     * Eg:
+     *  {{ternary true  "1" "2"}} -> "1"
+     *  {{ternary false "1" "2"}} -> "2"
+     */
+    Handlebars.registerHelper('annotationClasses', function (annotation) {
+      classes = ['annotation'];
+      if (annotation.type != 'annotation') {
+        classes.push(annotation.type);
+      }
+      if (annotation.new) {
+        classes.push('new');
+      }
+      if (annotation.editing) {
+        classes.push('editing');
+      }
+      return new Handlebars.SafeString(classes.join(' '));
     });
 
   });

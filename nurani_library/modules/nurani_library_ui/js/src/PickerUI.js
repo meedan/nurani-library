@@ -351,8 +351,9 @@ PickerUI.prototype.annotationsHoverInAction = function (el) {
     editing:           true,
     new:               true,
     id:                '',
-    passage_id: passage.id,
-    type:              'annotation new',
+    passage_id:        passage.id,
+    author_uuid:       '', // Automatically set on the server
+    type:              'annotation',
     value:             '',
     title:             'Annotation on ' + this.passageTitle(passage),
     verse:             passage.verse,

@@ -99,6 +99,7 @@ $toolbar_height: 70px;
       .inner {
         border-radius: 0.5em;
         box-shadow: 0 0.2em 1em rgba(0, 0, 0, 0.5);
+        background: #fff;
         padding: 1em;
       }
       .arrow {
@@ -110,16 +111,11 @@ $toolbar_height: 70px;
         //        on .inner.  Attempting to avoid the shadow being visible
         //        on the right side by sliding it left.
         text-shadow: -5px 0px 0.5em rgba(0, 0, 0, 0.5);
+        color: #fff;
       }
 
       /* Annotation types */
       &.new {
-        .arrow {
-          color: #fff;
-        }
-        .inner {
-          background: #fff;
-        }
         .title {
           display: block;
         }
