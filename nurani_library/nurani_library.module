@@ -17,6 +17,7 @@ function nurani_library_help($path, $arg) {
  */
 function nurani_library_init() {
   drupal_add_js(array('nuraniLibrary' => array(
+    'baseWritableAPIPath' => url('api'),
     'baseUrl' => nurani_library_base_url(TRUE, FALSE, TRUE),
     'baseAPIUrl' => nurani_library_base_url(TRUE, TRUE, TRUE),
   )), 'setting');
@@ -81,15 +82,6 @@ function nurani_library_menu() {
     'access arguments' => array('administer users'),
     'file' => 'nurani_library.admin.inc',
   );
-
-  // Passthru endpoint to enable Nurani clients to securely (for us, not
-  // necessarily them) connect to the Nurani Library server.
-  $items['nurani-library/annotation'] = array(
-    'title' => 'Nurani Library Annotations',
-    'page callback' => 'nurani_library_annotations',
-    'access arguments' => array('create nurani library annotations'),
-    'file' => 'nurani_library.pages.inc',
-  );
   return $items;
 }
 
@@ -114,8 +106,17 @@ function nurani_library_nurani_library_backend() {
  */
 function nurani_library_permission() {
   return array(
+    'access nurani library' =>  array(
+      'title' => t('Access the Nurani Library'),
+    ),
     'create nurani library annotations' =>  array(
       'title' => t('Create Nurani Library Annotations'),
+    ),
+    'update nurani library annotations' =>  array(
+      'title' => t('Update Nurani Library Annotations'),
+    ),
+    'delete nurani library annotations' =>  array(
+      'title' => t('Delete Nurani Library Annotations'),
     ),
   );
 }

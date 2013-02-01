@@ -3,14 +3,14 @@
 /**
  * Deferred implementation of hook_services_resources().
  */
-function _nurani_library_provider_services_resources() {
+function _nurani_library_services_services_resources() {
   return array(
 
     'passage' => array(
       'actions' => array(
         'validate' => array(
-          'file' => array('type' => 'inc', 'module' => 'nurani_library_provider', 'name' => 'nurani_library_provider.resource'),
-          'callback' => '_nurani_library_provider_api_passage_validate',
+          'file' => array('type' => 'inc', 'module' => 'nurani_library_services', 'name' => 'nurani_library_services.resource'),
+          'callback' => '_nurani_library_services_api_passage_validate',
           'args' => array(
             array(
               'name' => 'work_name',
@@ -31,8 +31,8 @@ function _nurani_library_provider_services_resources() {
         ),
       ),
       'retrieve' => array(
-        'file' => array('type' => 'inc', 'module' => 'nurani_library_provider', 'name' => 'nurani_library_provider.resource'),
-        'callback' => '_nurani_library_provider_api_passage_retrieve',
+        'file' => array('type' => 'inc', 'module' => 'nurani_library_services', 'name' => 'nurani_library_services.resource'),
+        'callback' => '_nurani_library_services_api_passage_retrieve',
         'args' => array(
           array(
             'name' => 'work_name',
@@ -52,8 +52,8 @@ function _nurani_library_provider_services_resources() {
         'access arguments' => array('access nurani library'),
       ),
       'index' => array(
-        'file' => array('type' => 'inc', 'module' => 'nurani_library_provider', 'name' => 'nurani_library_provider.resource'),
-        'callback' => '_nurani_library_provider_api_passage_index',
+        'file' => array('type' => 'inc', 'module' => 'nurani_library_services', 'name' => 'nurani_library_services.resource'),
+        'callback' => '_nurani_library_services_api_passage_index',
         'args' => array(
           array(
             'name' => 'work_name',
@@ -96,7 +96,7 @@ function _nurani_library_provider_services_resources() {
             'optional' => TRUE,
             'type' => 'int',
             'description' => 'Number of records to get per page.',
-            'default value' => variable_get('nurani_library_provider_api_pagesize', 20),
+            'default value' => variable_get('nurani_library_services_api_pagesize', 20),
             'source' => array('param' => 'pagesize'),
           ),
         ),
@@ -106,8 +106,8 @@ function _nurani_library_provider_services_resources() {
 
     'annotation' => array(
       'retrieve' => array(
-        'file' => array('type' => 'inc', 'module' => 'nurani_library_provider', 'name' => 'nurani_library_provider.resource'),
-        'callback' => '_nurani_library_provider_api_annotation_retrieve',
+        'file' => array('type' => 'inc', 'module' => 'nurani_library_services', 'name' => 'nurani_library_services.resource'),
+        'callback' => '_nurani_library_services_api_annotation_retrieve',
         'args' => array(
           array(
             'name' => 'id',
@@ -120,8 +120,8 @@ function _nurani_library_provider_services_resources() {
         'access arguments' => array('access nurani library'), // TODO: Take private annotations into account
       ),
       'create' => array(
-        'file' => array('type' => 'inc', 'module' => 'nurani_library_provider', 'name' => 'nurani_library_provider.resource'),
-        'callback' => '_nurani_library_provider_api_annotation_create',
+        'file' => array('type' => 'inc', 'module' => 'nurani_library_services', 'name' => 'nurani_library_services.resource'),
+        'callback' => '_nurani_library_services_api_annotation_create',
         'args' => array(
           array(
             'name' => 'annotation',
@@ -134,8 +134,8 @@ function _nurani_library_provider_services_resources() {
         'access arguments' => array('create nurani library annotations'), // TODO: Take private annotations into account
       ),
       'update' => array(
-        'file' => array('type' => 'inc', 'module' => 'nurani_library_provider', 'name' => 'nurani_library_provider.resource'),
-        'callback' => '_nurani_library_provider_api_annotation_update',
+        'file' => array('type' => 'inc', 'module' => 'nurani_library_services', 'name' => 'nurani_library_services.resource'),
+        'callback' => '_nurani_library_services_api_annotation_update',
         'args' => array(
           array(
             'name' => 'id',
@@ -155,8 +155,8 @@ function _nurani_library_provider_services_resources() {
         'access arguments' => array('update nurani library annotations'), // TODO: Take private annotations into account
       ),
       'delete' => array(
-        'file' => array('type' => 'inc', 'module' => 'nurani_library_provider', 'name' => 'nurani_library_provider.resource'),
-        'callback' => '_nurani_library_provider_api_annotation_delete',
+        'file' => array('type' => 'inc', 'module' => 'nurani_library_services', 'name' => 'nurani_library_services.resource'),
+        'callback' => '_nurani_library_services_api_annotation_delete',
         'args' => array(
           array(
             'name' => 'id',
@@ -169,8 +169,8 @@ function _nurani_library_provider_services_resources() {
         'access arguments' => array('delete nurani library annotations'), // TODO: Take private annotations into account
       ),
       'index' => array(
-        'file' => array('type' => 'inc', 'module' => 'nurani_library_provider', 'name' => 'nurani_library_provider.resource'),
-        'callback' => '_nurani_library_provider_api_annotation_index',
+        'file' => array('type' => 'inc', 'module' => 'nurani_library_services', 'name' => 'nurani_library_services.resource'),
+        'callback' => '_nurani_library_services_api_annotation_index',
         'args' => array(
           array(
             'name' => 'passage_id',
@@ -192,7 +192,7 @@ function _nurani_library_provider_services_resources() {
             'optional' => TRUE,
             'type' => 'int',
             'description' => 'Number of records to get per page.',
-            'default value' => variable_get('nurani_library_provider_api_pagesize', 20),
+            'default value' => variable_get('nurani_library_services_api_pagesize', 20),
             'source' => array('param' => 'pagesize'),
           ),
         ),
@@ -202,8 +202,8 @@ function _nurani_library_provider_services_resources() {
 
     'work' => array(
       'retrieve' => array(
-        'file' => array('type' => 'inc', 'module' => 'nurani_library_provider', 'name' => 'nurani_library_provider.resource'),
-        'callback' => '_nurani_library_provider_api_work_retrieve',
+        'file' => array('type' => 'inc', 'module' => 'nurani_library_services', 'name' => 'nurani_library_services.resource'),
+        'callback' => '_nurani_library_services_api_work_retrieve',
         'args' => array(
           array(
             'name' => 'work_name',
@@ -216,8 +216,8 @@ function _nurani_library_provider_services_resources() {
         'access arguments' => array('access nurani library'),
       ),
       'index' => array(
-        'file' => array('type' => 'inc', 'module' => 'nurani_library_provider', 'name' => 'nurani_library_provider.resource'),
-        'callback' => '_nurani_library_provider_api_work_index',
+        'file' => array('type' => 'inc', 'module' => 'nurani_library_services', 'name' => 'nurani_library_services.resource'),
+        'callback' => '_nurani_library_services_api_work_index',
         'access arguments' => array('access nurani library'),
       ),
     ),
@@ -227,12 +227,12 @@ function _nurani_library_provider_services_resources() {
 
 /**
  * Retrieves a passage from a work.
- * 
+ *
  * @return (array) $verses
  *  A list of verses that comprise the passage or an empty array no passage
  *  was located.
  */
-function _nurani_library_provider_api_passage_retrieve($work_name, $osisID) {
+function _nurani_library_services_api_passage_retrieve($work_name, $osisID) {
   $parts = explode('.', $osisID);
 
   $nl = nurani_library();
@@ -245,74 +245,75 @@ function _nurani_library_provider_api_passage_retrieve($work_name, $osisID) {
 /**
  * Returns a list of verses in a work.  Optionally, the list can be filtered
  * by book / chapter.
- * 
+ *
  * @return (array) $verses
  *  A list of verses corresponding to the query or an empty array if no verses
  *  match that query.
  */
-function _nurani_library_provider_api_passage_index($work_name, $book, $chapter, $verse, $page, $pagesize) {
+function _nurani_library_services_api_passage_index($work_name, $book, $chapter, $verse, $page, $pagesize) {
   $nl = nurani_library();
   return $nl->search($work_name, $book, $chapter, $verse, $page, $pagesize);
 }
 
 /**
  * Returns TRUE or FALSE if a passage is found within a work.
- * 
+ *
  * @return (boolean) $is_passage_valid
  */
-function _nurani_library_provider_api_passage_validate($work_name, $osisID) {
-  $verses = _nurani_library_provider_api_passage_retrieve($work_name, $osisID);
+function _nurani_library_services_api_passage_validate($work_name, $osisID) {
+  $verses = _nurani_library_services_api_passage_retrieve($work_name, $osisID);
   // TODO: Handle errors.
 
   return (count($verses) > 0);
 }
 
 /**
- * 
+ *
  */
-function _nurani_library_provider_api_annotation_retrieve($id) {
+function _nurani_library_services_api_annotation_retrieve($id) {
   $nl = nurani_library();
   return $nl->getAnnotation($id);
 }
 
 /**
- * 
+ *
  */
-function _nurani_library_provider_api_annotation_create($annotation) {
+function _nurani_library_services_api_annotation_create($annotation) {
   $nl = nurani_library();
+  $annotation['author_uuid'] = $GLOBALS['user']->uuid;
   return $nl->createAnnotation($annotation);
 }
 
 /**
- * 
+ *
  */
-function _nurani_library_provider_api_annotation_update($id, $annotation) {
+function _nurani_library_services_api_annotation_update($id, $annotation) {
   $nl = nurani_library();
   return $nl->updateAnnotation($id, $annotation);
 }
 
 /**
- * 
+ *
  */
-function _nurani_library_provider_api_annotation_delete($id) {
+function _nurani_library_services_api_annotation_delete($id) {
   $nl = nurani_library();
   return $nl->deleteAnnotation($id);
 }
 
 /**
- * 
+ *
  */
-function _nurani_library_provider_api_annotation_index($passage_id, $page, $pagesize) {
+function _nurani_library_services_api_annotation_index($passage_id, $page, $pagesize) {
   $nl = nurani_library();
   return $nl->getAnnotations($passage_id, $page, $pagesize);
 }
 
 /**
  * Returns a work given its name.
- * 
+ *
  * @return (object) $work
  */
-function _nurani_library_provider_api_work_retrieve($work_name) {
+function _nurani_library_services_api_work_retrieve($work_name) {
   $nl = nurani_library();
   $work = $nl->getWork($work_name);
   return $work;
@@ -320,10 +321,10 @@ function _nurani_library_provider_api_work_retrieve($work_name) {
 
 /**
  * Returns an array of all works.
- * 
+ *
  * @return (array) $works
  */
-function _nurani_library_provider_api_work_index() {
+function _nurani_library_services_api_work_index() {
   $nl = nurani_library();
   $works = $nl->getWorks();
   return $works;

@@ -20,9 +20,6 @@ function nurani_library_provider_permission() {
     'validate passages' =>  array(
       'title' => t('Validate Nurani Library passages'),
     ),
-    'access nurani library' =>  array(
-      'title' => t('Access the Nurani Library'),
-    ),
   );
 }
 
@@ -100,14 +97,6 @@ function nurani_library_provider_views_api() {
   return array(
     'api' => 3.0,
   );
-}
-
-/**
- * Implements hook_services_resources().
- */
-function nurani_library_provider_services_resources() {
-  module_load_include('inc', 'nurani_library_provider', 'nurani_library_provider.resource');
-  return _nurani_library_provider_services_resources();
 }
 
 /**

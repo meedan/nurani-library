@@ -384,9 +384,8 @@ PickerUI.prototype.annotationsHoverOutAction = function (el) {
 };
 
 PickerUI.prototype.annotationSaveAction = function ($annotation, el) {
-  console.log([$annotation, $('.annotation-form', $annotation).serialize()]);
   $.ajax({
-    url: Drupal.settings.basePath + 'nurani-library/annotation',
+    url: Drupal.settings.nuraniLibrary.baseWritableAPIPath + '/annotation',
     type: 'POST',
     data: $('.annotation-form', $annotation).serialize(),
     success: function (data) {
