@@ -50,15 +50,62 @@ class NuraniRESTModel extends NuraniModel {
   }
 
 
-  public function getNotes($passage_id, $page = 0, $pagesize = 100) {
+  /**
+   * Retrieves a list of annotations for a passage from remote Nurani Library
+   * Provider instance.
+   */
+  public function getAnnotations($passage_id, $page = 0, $pagesize = 100) {
     $this->resetErrorState();
     $query = array('page' => $page, 'pagesize' => $pagesize);
-    $path = 'note';
+    $path = 'annotation';
     if (is_numeric($passage_id) && $passage_id > 0) {
       $path .= '/' . $passage_id;
     }
-    $notes = $this->restRequest('GET', $path . $this->queryString($query));
-    return $notes;
+    $annotations = $this->restRequest('GET', $path . $this->queryString($query));
+    return $annotations;
+  }
+
+
+  /**
+   * Retrieves an annotation from remote Nurani Library Provider instance.
+   */
+  public function getAnnotation($id) {
+    $this->resetErrorState();
+    $annotation = $this->restRequest('GET', 'annotation/' . (int) $id);
+    if (is_array($annotation)) {
+      $annotation = (object) $annotation;
+    }
+    return $annotation;
+  }
+
+
+  /**
+   * Create an annotation on a Nurani Library Provider instance.
+   */
+  public function createAnnotation($annotation) {
+    $this->resetErrorState();
+    $annotation = $this->restRequest('POST', 'annotation', (array) $annotation);
+    return $annotation;
+  }
+
+
+  /**
+   * Updates an annotation on a Nurani Library Provider instance.
+   */
+  public function updateAnnotation($id, $annotation) {
+    $this->resetErrorState();
+    $result = $this->restRequest('PUT', 'annotation/' . $id, (array) $annotation);
+    return $result;
+  }
+
+
+  /**
+   * Deletes an annotation from a Nurani Library Provider instance.
+   */
+  public function deleteAnnotation($id) {
+    $this->resetErrorState();
+    $result = $this->restRequest('DELETE', 'annotation/' . $id);
+    return $result;
   }
 
 

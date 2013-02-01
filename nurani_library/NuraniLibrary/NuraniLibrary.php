@@ -46,8 +46,28 @@ class NuraniLibrary {
   }
 
 
-  public function getNotes($passage_id, $page = 0, $pagesize = 100) {
-    return $this->model->getNotes($passage_id, $page, $pagesize);
+  public function getAnnotations($passage_id, $page = 0, $pagesize = 100) {
+    return $this->model->getAnnotations($passage_id, $page, $pagesize);
+  }
+
+
+  public function getAnnotation($id) {
+    return $this->model->getAnnotation($id);
+  }
+
+
+  public function createAnnotation($annotation) {
+    return $this->model->createAnnotation($annotation);
+  }
+
+
+  public function updateAnnotation($id, $annotation) {
+    return $this->model->updateAnnotation($id, $annotation);
+  }
+
+
+  public function deleteAnnotation($id) {
+    return $this->model->deleteAnnotation($id);
   }
 
 

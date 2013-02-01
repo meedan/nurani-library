@@ -104,25 +104,81 @@ function _nurani_library_provider_services_resources() {
       ),
     ),
 
-    'note' => array(
+    'annotation' => array(
       'retrieve' => array(
         'file' => array('type' => 'inc', 'module' => 'nurani_library_provider', 'name' => 'nurani_library_provider.resource'),
-        'callback' => '_nurani_library_provider_api_note_retrieve',
+        'callback' => '_nurani_library_provider_api_annotation_retrieve',
+        'args' => array(
+          array(
+            'name' => 'id',
+            'optional' => FALSE,
+            'type' => 'int',
+            'description' => 'The id of a Nurani Library annotation.',
+            'source' => array('path' => 0),
+          ),
+        ),
+        'access arguments' => array('access nurani library'), // TODO: Take private annotations into account
+      ),
+      'create' => array(
+        'file' => array('type' => 'inc', 'module' => 'nurani_library_provider', 'name' => 'nurani_library_provider.resource'),
+        'callback' => '_nurani_library_provider_api_annotation_create',
+        'args' => array(
+          array(
+            'name' => 'annotation',
+            'optional' => FALSE,
+            'source' => 'data',
+            'description' => 'The data used to create a Nurani Library annotation.',
+            'type' => 'array',
+          ),
+        ),
+        'access arguments' => array('create nurani library annotations'), // TODO: Take private annotations into account
+      ),
+      'update' => array(
+        'file' => array('type' => 'inc', 'module' => 'nurani_library_provider', 'name' => 'nurani_library_provider.resource'),
+        'callback' => '_nurani_library_provider_api_annotation_update',
+        'args' => array(
+          array(
+            'name' => 'id',
+            'optional' => FALSE,
+            'source' => array('path' => 0),
+            'type' => 'int',
+            'description' => 'The id of a Nurani Library annotation.',
+          ),
+          array(
+            'name' => 'annotation',
+            'optional' => FALSE,
+            'source' => 'data',
+            'description' => 'The Nurani Library annotation data to update.',
+            'type' => 'array',
+          ),
+        ),
+        'access arguments' => array('update nurani library annotations'), // TODO: Take private annotations into account
+      ),
+      'delete' => array(
+        'file' => array('type' => 'inc', 'module' => 'nurani_library_provider', 'name' => 'nurani_library_provider.resource'),
+        'callback' => '_nurani_library_provider_api_annotation_delete',
+        'args' => array(
+          array(
+            'name' => 'id',
+            'optional' => FALSE,
+            'source' => array('path' => 0),
+            'type' => 'int',
+            'description' => 'The id of a Nurani Library annotation.',
+          ),
+        ),
+        'access arguments' => array('delete nurani library annotations'), // TODO: Take private annotations into account
+      ),
+      'index' => array(
+        'file' => array('type' => 'inc', 'module' => 'nurani_library_provider', 'name' => 'nurani_library_provider.resource'),
+        'callback' => '_nurani_library_provider_api_annotation_index',
         'args' => array(
           array(
             'name' => 'passage_id',
-            'optional' => FALSE,
+            'optional' => TRUE,
             'type' => 'int',
             'description' => 'The id of a Nurani Library passage.',
             'source' => array('path' => 0),
           ),
-        ),
-        'access arguments' => array('access nurani library'), // TODO: Take private notes into account
-      ),
-      'index' => array(
-        'file' => array('type' => 'inc', 'module' => 'nurani_library_provider', 'name' => 'nurani_library_provider.resource'),
-        'callback' => '_nurani_library_provider_api_note_index',
-        'args' => array(
           array(
             'name' => 'page',
             'optional' => TRUE,
@@ -140,7 +196,7 @@ function _nurani_library_provider_services_resources() {
             'source' => array('param' => 'pagesize'),
           ),
         ),
-        'access arguments' => array('access nurani library'), // TODO: Take private notes into account
+        'access arguments' => array('access nurani library'), // TODO: Take private annotations into account
       ),
     ),
 
@@ -214,17 +270,41 @@ function _nurani_library_provider_api_passage_validate($work_name, $osisID) {
 /**
  * 
  */
-function _nurani_library_provider_api_note_retrieve($passage_id) {
+function _nurani_library_provider_api_annotation_retrieve($id) {
   $nl = nurani_library();
-  return $nl->getNotes($passage_id);
+  return $nl->getAnnotation($id);
 }
 
 /**
  * 
  */
-function _nurani_library_provider_api_note_index($page, $pagesize) {
+function _nurani_library_provider_api_annotation_create($annotation) {
   $nl = nurani_library();
-  return $nl->getNotes(NULL, $page, $pagesize);
+  return $nl->createAnnotation($annotation);
+}
+
+/**
+ * 
+ */
+function _nurani_library_provider_api_annotation_update($id, $annotation) {
+  $nl = nurani_library();
+  return $nl->updateAnnotation($id, $annotation);
+}
+
+/**
+ * 
+ */
+function _nurani_library_provider_api_annotation_delete($id) {
+  $nl = nurani_library();
+  return $nl->deleteAnnotation($id);
+}
+
+/**
+ * 
+ */
+function _nurani_library_provider_api_annotation_index($passage_id, $page, $pagesize) {
+  $nl = nurani_library();
+  return $nl->getAnnotations($passage_id, $page, $pagesize);
 }
 
 /**

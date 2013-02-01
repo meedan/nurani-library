@@ -176,17 +176,18 @@ function nurani_library_provider_schema() {
         'unsigned' => TRUE,
         'not null' => TRUE
       ),
-      'nurani_library_id' => array(
+      'passage_id' => array(
         'description' => 'The {nurani_library}.id this annotation refers to.',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
-      'uid' => array(
-        'description' => 'The {users}.uid of the author of this annotation.',
-        'type' => 'int',
-        'unsigned' => TRUE,
+      'author_uuid' => array(
+        'description' => 'A UUID representing the author of this annotation.',
+        'type' => 'char',
+        'length' => 36,
         'not null' => TRUE,
+        'default' => '',
       ),
       'type' => array(
         'type' => 'varchar',
@@ -214,8 +215,8 @@ function nurani_library_provider_schema() {
       ),
     ),
     'indexes' => array(
-      'nurani_library_id' => array('nurani_library_id'),
-      'uid' => array('uid'),
+      'passage_id' => array('passage_id'),
+      'author_uuid' => array('author_uuid'),
       'type' => array('type'),
     ),
     'primary key' => array('id'),
@@ -262,5 +263,68 @@ function nurani_library_provider_update_7002(&$sandbox) {
     if (!db_index_exists('nurani_library', $index)) {
       db_add_index('nurani_library', $index, $columns);
     }
+  }
+}
+
+/**
+ * Ensuring {nurani_library_annotations} table is installed.
+ */
+function nurani_library_provider_update_7003() {
+  if (!db_table_exists('nurani_library_annotations')) {
+    $schema = nurani_library_provider_schema();
+    db_create_table('nurani_library_annotations', $schema['nurani_library_annotations']);
+  }
+}
+
+/**
+ * Replacing {nurani_library_annotations}.uid with {nurani_library_annotations}.author_uuid.
+ */
+function nurani_library_provider_update_7004() {
+  if (db_field_exists('nurani_library_annotations', 'uid')) {
+    db_drop_field('nurani_library_annotations', 'uid');
+    db_drop_index('nurani_library_annotations', 'uid');
+  }
+  if (!db_field_exists('nurani_library_annotations', 'author_uuid')) {
+    db_add_field(
+      'nurani_library_annotations',
+      'author_uuid',
+      array(
+        'description' => 'A UUID representing the author of this annotation.',
+        'type' => 'char',
+        'length' => 36,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      array(
+        'indexes' => array(
+          'author_uuid' => array('author_uuid'),
+        ),
+      )
+    );
+  }
+}
+
+/**
+ * Renaming {nurani_library_annotations}.nurani_library_id to {nurani_library_annotations}.passage_id.
+ */
+function nurani_library_provider_update_7005() {
+  if (db_field_exists('nurani_library_annotations', 'nurani_library_id')) {
+    db_drop_index('nurani_library_annotations', 'nurani_library_id');
+    db_change_field(
+      'nurani_library_annotations',
+      'nurani_library_id',
+      'passage_id',
+      array(
+        'description' => 'The {nurani_library}.id this annotation refers to.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      array(
+        'indexes' => array(
+          'passage_id' => array('passage_id'),
+        ),
+      )
+    );
   }
 }

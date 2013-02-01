@@ -88,7 +88,7 @@ PickerUI.templates = {
                     // '<a href="{{verseUrl}}">{{verse}}</a>',
                     '<strong>{{verse}}</strong>',
                   '</span> ',
-                  // Note, triple '{{{.}}}' for RAW output. This is coming direct from
+                  // NOTE: triple '{{{.}}}' for RAW output. This is coming direct from
                   // the Nurani Library server and should not be an XSS vector.
                   '{{{text}}}',
                 '</label>',
@@ -124,7 +124,7 @@ PickerUI.partials = {
               '<input class="save-annotation-action form-submit" type="submit" id="edit-save-annotation-submit" name="op" value="Save">',
             '</div>',
             '<input type="hidden" name="id" value="{{id}}">',
-            '<input type="hidden" name="nurani_library_id" value="{{nurani_library_id}}">',
+            '<input type="hidden" name="passage_id" value="{{passage_id}}">',
             '<input type="hidden" name="position" value="{{position}}">',
             '<input type="hidden" name="length" value="{{length}}">',
             '</form>',

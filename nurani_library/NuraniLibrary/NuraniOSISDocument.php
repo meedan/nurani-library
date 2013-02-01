@@ -144,24 +144,6 @@ class NuraniOSISDocument extends NuraniDocument {
   }
 
 
-  protected function note_to_span($matches) {
-    $classes = array('note');
-
-    if ($matches[1]) {
-      $parts = array_diff(array_map('trim', explode(' ', $matches[1])), array(''));
-
-      foreach ($parts as $part) {
-        $pieces    = explode('=', $part);
-        $key       = $pieces[0];
-        $val       = trim($pieces[1], '"');
-        $classes[] = "$key-$val";
-      }
-    }
-
-    return '<span class="' . implode(' ', $classes) . '">' . $matches[2] . '</span>';
-  }
-
-
   protected function populateBooks() {
     $this->bibleBooks = array(
       // Old Testament

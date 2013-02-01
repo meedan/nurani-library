@@ -47,7 +47,7 @@ var PassageWidget = (function ($) {
   PassageWidget.prototype.init = function (widget) {
     var matches, id;
 
-    // Note the page anchor fragment marker '#' is abused to also be the
+    // Annotation the page anchor fragment marker '#' is abused to also be the
     // ID marker for jQuery
     matches = widget.original_url.match(/#passage-widget-[a-z0-9]{8,32}$/);
 
@@ -63,10 +63,10 @@ var PassageWidget = (function ($) {
 
   PassageWidget.prototype.addWidget = function(html) {
     this.$element.html(html);
-    this.initNotes();
+    this.initAnnotations();
   };
 
-  PassageWidget.prototype.initNotes = function () {
+  PassageWidget.prototype.initAnnotations = function () {
     var that = this;
 
     $('span.note', this.$element).each(function () {

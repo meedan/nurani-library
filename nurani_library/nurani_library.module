@@ -84,7 +84,7 @@ function nurani_library_menu() {
 
   // Passthru endpoint to enable Nurani clients to securely (for us, not
   // necessarily them) connect to the Nurani Library server.
-  $items['nurani-library/annotations'] = array(
+  $items['nurani-library/annotation'] = array(
     'title' => 'Nurani Library Annotations',
     'page callback' => 'nurani_library_annotations',
     'access arguments' => array('create nurani library annotations'),

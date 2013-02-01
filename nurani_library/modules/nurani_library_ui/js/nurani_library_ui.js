@@ -404,10 +404,10 @@ var NL = (function ($) {
       editing:           true,
       new:               true,
       id:                '',
-      nurani_library_id: passage.id,
+      passage_id: passage.id,
       type:              'annotation new',
       value:             '',
-      title:             'Note on ' + this.passageTitle(passage),
+      title:             'Annotation on ' + this.passageTitle(passage),
       verse:             passage.verse,
       position:          passage.text.split(' ').length, // Last word
       length:            0,
@@ -439,7 +439,7 @@ var NL = (function ($) {
   PickerUI.prototype.annotationSaveAction = function ($annotation, el) {
     console.log([$annotation, $('.annotation-form', $annotation).serialize()]);
     $.ajax({
-      url: Drupal.settings.basePath + 'nurani-library/annotations',
+      url: Drupal.settings.basePath + 'nurani-library/annotation',
       type: 'POST',
       data: $('.annotation-form', $annotation).serialize(),
       success: function (data) {
@@ -885,7 +885,7 @@ var NL = (function ($) {
                       // '<a href="{{verseUrl}}">{{verse}}</a>',
                       '<strong>{{verse}}</strong>',
                     '</span> ',
-                    // Note, triple '{{{.}}}' for RAW output. This is coming direct from
+                    // NOTE: triple '{{{.}}}' for RAW output. This is coming direct from
                     // the Nurani Library server and should not be an XSS vector.
                     '{{{text}}}',
                   '</label>',
@@ -921,7 +921,7 @@ var NL = (function ($) {
                 '<input class="save-annotation-action form-submit" type="submit" id="edit-save-annotation-submit" name="op" value="Save">',
               '</div>',
               '<input type="hidden" name="id" value="{{id}}">',
-              '<input type="hidden" name="nurani_library_id" value="{{nurani_library_id}}">',
+              '<input type="hidden" name="passage_id" value="{{passage_id}}">',
               '<input type="hidden" name="position" value="{{position}}">',
               '<input type="hidden" name="length" value="{{length}}">',
               '</form>',

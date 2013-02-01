@@ -97,7 +97,7 @@
   display: block;
   margin: 0.75em 0;
   padding-left: 10px;
-  /* Note types */
+  /* Annotation types */
 }
 /* line 99, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation .inner {

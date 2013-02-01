@@ -351,10 +351,10 @@ PickerUI.prototype.annotationsHoverInAction = function (el) {
     editing:           true,
     new:               true,
     id:                '',
-    nurani_library_id: passage.id,
+    passage_id: passage.id,
     type:              'annotation new',
     value:             '',
-    title:             'Note on ' + this.passageTitle(passage),
+    title:             'Annotation on ' + this.passageTitle(passage),
     verse:             passage.verse,
     position:          passage.text.split(' ').length, // Last word
     length:            0,
@@ -386,7 +386,7 @@ PickerUI.prototype.annotationsHoverOutAction = function (el) {
 PickerUI.prototype.annotationSaveAction = function ($annotation, el) {
   console.log([$annotation, $('.annotation-form', $annotation).serialize()]);
   $.ajax({
-    url: Drupal.settings.basePath + 'nurani-library/annotations',
+    url: Drupal.settings.basePath + 'nurani-library/annotation',
     type: 'POST',
     data: $('.annotation-form', $annotation).serialize(),
     success: function (data) {

@@ -73,7 +73,7 @@ class NuraniDrupalModel extends NuraniModel {
 
     $search = count($result) ? array() : FALSE;
     foreach ($result as $row) {
-      $notes = $this->getNotes($row->id);
+      $notes = $this->getAnnotations($row->id);
 
       if (!empty($notes)) {
         $row->notes = $notes;
@@ -86,7 +86,7 @@ class NuraniDrupalModel extends NuraniModel {
   }
 
 
-  public function getNotes($passage_id, $page = 0, $pagesize = 100) {
+  public function getAnnotations($passage_id, $page = 0, $pagesize = 100) {
     if (!$this->connected) {
       return $this->error(t("Could not establish connection to {nurani_library} database tables."), 0);
     }
@@ -94,9 +94,9 @@ class NuraniDrupalModel extends NuraniModel {
     $select = db_select('nurani_library_annotations', 'a');
     $select->fields('a');
     if (is_numeric($passage_id) && $passage_id > 0) {
-      $select->condition('a.nurani_library_id', $passage_id);
+      $select->condition('a.passage_id', $passage_id);
     }
-    $select->orderBy('a.nurani_library_id');
+    $select->orderBy('a.passage_id');
     $select->orderBy('a.position');
 
     if ($pagesize > 0) {
@@ -112,6 +112,75 @@ class NuraniDrupalModel extends NuraniModel {
 
     return $notes;
   }
+
+
+  public function getAnnotation($id) {
+    return db_select('nurani_library_annotations', 'a')
+             ->fields('a')
+             ->condition('a.id', $id)
+             ->execute()
+             ->fetchObject();
+  }
+
+
+  public function createAnnotation($annotation) {
+    $annotation = (array) $annotation;
+
+    $id = db_insert('nurani_library_annotations')
+            ->fields(array(
+                'passage_id'  => $annotation['passage_id'],
+                'author_uuid' => $annotation['author_uuid'],
+                'type'        => $annotation['type'],
+                'position'    => $annotation['position'],
+                'length'      => $annotation['length'],
+                'value'       => $annotation['value'],
+              ))
+            ->execute();
+
+    if (!$id) {
+      return $this->error(t("Error creating Nurani Library annotation."), 0);
+    }
+
+    return $id;
+  }
+
+
+  public function updateAnnotation($id, $annotation) {
+    $annotation = (array) $annotation;
+
+    $num_updated = db_update('nurani_library_annotations')
+                     ->fields(array(
+                         'passage_id'  => $annotation['passage_id'],
+                         'author_uuid' => $annotation['author_uuid'],
+                         'type'        => $annotation['type'],
+                         'position'    => $annotation['position'],
+                         'length'      => $annotation['length'],
+                         'value'       => $annotation['value'],
+                       ))
+                     ->condition('id', $id)
+                     ->execute();
+
+    if ($num_updated <= 0) {
+      return $this->error(t("Error updating Nurani Library annotation."), 0);
+    }
+
+    return TRUE;
+  }
+
+
+  public function deleteAnnotation($id) {
+    $num_deleted = db_update('nurani_library_annotations')
+                     ->condition('id', $id)
+                     ->execute();
+
+    if ($num_deleted <= 0) {
+      return $this->error(t("Error deleting Nurani Library annotation."), 0);
+    }
+
+    return TRUE;
+  }
+
+
 
 
   public function getWorks() {
@@ -298,7 +367,7 @@ class NuraniDrupalModel extends NuraniModel {
           // Remove all 'note' annotations, but preserve annotations made by
           // users.
           db_delete('nurani_library_annotations')
-            ->condition('nurani_library_id', $id)
+            ->condition('passage_id', $id)
             ->condition('type', 'note')
             ->execute();
 
@@ -306,8 +375,8 @@ class NuraniDrupalModel extends NuraniModel {
             foreach ($verse->notes as $note) {
               db_insert('nurani_library_annotations')
                 ->fields(array(
-                    'nurani_library_id' => $id,
-                    'uid' => 1,
+                    'passage_id' => $id,
+                    'author_uuid' => '', // System created notes have no specific author
                     'type' => 'note',
                     'position' => $note->position,
                     'length' => $note->length,
