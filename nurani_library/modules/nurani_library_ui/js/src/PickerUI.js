@@ -134,7 +134,7 @@ PickerUI.prototype.populateWorks = function (andPassages, setDefaultState) {
   var that = this;
 
   $.ajax({
-    url: Drupal.settings.nuraniLibrary.baseAPIUrl + '/work?format=jsonp&callback=?',
+    url: Drupal.settings.nuraniLibrary.apiBasePath + 'work?format=jsonp&callback=?',
     dataType: 'jsonp',
     success: function (data) {
       that.viewData.works = that.unpackWorkData(data);
@@ -172,7 +172,7 @@ PickerUI.prototype.populatePassages = function (setDefaultState) {
       };
 
   $.ajax({
-    url: Drupal.settings.nuraniLibrary.baseAPIUrl + '/passage?' + $.param(query),
+    url: Drupal.settings.nuraniLibrary.apiBasePath + 'passage?' + $.param(query),
     dataType: 'jsonp',
     success: function (data) {
       var i, iLen = data.length,
@@ -192,7 +192,7 @@ PickerUI.prototype.populatePassages = function (setDefaultState) {
         passage = data[i];
         passage.osisID    = [passage.book_name, passage.chapter_name, passage.verse].join('.');
         passage.cssId    = 'edit-passage-' + passage.osisID.replace(/\./g, '-');
-        passage.verseUrl = Drupal.settings.nuraniLibrary.baseUrl + '/passages/' + passage.work_name + '/' + passage.osisID;
+        passage.verseUrl = Drupal.settings.nuraniLibrary.apiBasePath + 'passages/' + passage.work_name + '/' + passage.osisID;
 
         if (setDefaultState && passage.verse >= firstVerse && passage.verse <= lastVerse) {
           passage.selected = true;
@@ -386,7 +386,7 @@ PickerUI.prototype.annotationsHoverOutAction = function (el) {
 
 PickerUI.prototype.annotationSaveAction = function ($annotation, el) {
   $.ajax({
-    url: Drupal.settings.nuraniLibrary.baseWritableAPIPath + '/annotation',
+    url: Drupal.settings.nuraniLibrary.apiBasePath + 'annotation',
     type: 'POST',
     data: $('.annotation-form', $annotation).serialize(),
     success: function (data) {

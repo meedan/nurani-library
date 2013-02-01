@@ -17,9 +17,8 @@ function nurani_library_help($path, $arg) {
  */
 function nurani_library_init() {
   drupal_add_js(array('nuraniLibrary' => array(
-    'baseWritableAPIPath' => url('api'),
     'baseUrl' => nurani_library_base_url(TRUE, FALSE, TRUE),
-    'baseAPIUrl' => nurani_library_base_url(TRUE, TRUE, TRUE),
+    'apiBasePath' => url('api') . '/',
   )), 'setting');
 }
 
