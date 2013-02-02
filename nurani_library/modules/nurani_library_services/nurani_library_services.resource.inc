@@ -67,6 +67,7 @@ function _nurani_library_services_services_resources() {
             'optional' => TRUE,
             'type' => 'string',
             'description' => 'The OSIS name of the book to filter this work by (eg: John, 1Chr, Quran)',
+            'default value' => NULL,
             'source' => array('param' => 'book'),
           ),
           array(
@@ -74,6 +75,7 @@ function _nurani_library_services_services_resources() {
             'optional' => TRUE,
             'type' => 'int',
             'description' => 'The number of the chapter to filter this work by.',
+            'default value' => NULL,
             'source' => array('param' => 'chapter'),
           ),
           array(
@@ -81,7 +83,16 @@ function _nurani_library_services_services_resources() {
             'optional' => TRUE,
             'type' => 'string',
             'description' => 'The number of the verse to filter this work by, ranges are okay.',
+            'default value' => NULL,
             'source' => array('param' => 'verse'),
+          ),
+          array(
+            'name' => 'authorUUID',
+            'optional' => TRUE,
+            'type' => 'string',
+            'description' => 'Additionally, fetch notes by this author. This parameter is only available to trusted connections.',
+            'default value' => NULL,
+            'source' => array('param' => 'authorUUID'),
           ),
           array(
             'name' => 'page',
@@ -176,8 +187,17 @@ function _nurani_library_services_services_resources() {
             'name' => 'passage_id',
             'optional' => TRUE,
             'type' => 'int',
+            'default value' => NULL,
             'description' => 'The id of a Nurani Library passage.',
             'source' => array('path' => 0),
+          ),
+          array(
+            'name' => 'authorUUID',
+            'optional' => TRUE,
+            'type' => 'string',
+            'default value' => NULL,
+            'description' => 'Additionally, fetch notes by this author. This parameter is only available to trusted connections.',
+            'source' => array('param' => 'authorUUID'),
           ),
           array(
             'name' => 'page',
@@ -250,9 +270,12 @@ function _nurani_library_services_api_passage_retrieve($work_name, $osisID) {
  *  A list of verses corresponding to the query or an empty array if no verses
  *  match that query.
  */
-function _nurani_library_services_api_passage_index($work_name, $book, $chapter, $verse, $page, $pagesize) {
+function _nurani_library_services_api_passage_index($work_name, $book, $chapter, $verse, $authorUUID, $page, $pagesize) {
   $nl = nurani_library();
-  return $nl->search($work_name, $book, $chapter, $verse, $page, $pagesize);
+  if (!user_access('view all nurani library annotations') && $authorUUID) {
+    return services_error('Access denied for filtering by authorUUID.', 403);
+  }
+  return $nl->search($work_name, $book, $chapter, $verse, $authorUUID, $page, $pagesize);
 }
 
 /**
@@ -272,7 +295,13 @@ function _nurani_library_services_api_passage_validate($work_name, $osisID) {
  */
 function _nurani_library_services_api_annotation_retrieve($id) {
   $nl = nurani_library();
-  return $nl->getAnnotation($id);
+  $annotation = $nl->getAnnotation($id);
+  if (!user_access('view all nurani library annotations')) {
+    if (!in_array((string) $annotation->authorUUID, array($GLOBALS['users']->uuid, ''))) {
+      return FALSE; // TODO: Set an error here?
+    }
+  }
+  return $annotation;
 }
 
 /**
@@ -280,7 +309,10 @@ function _nurani_library_services_api_annotation_retrieve($id) {
  */
 function _nurani_library_services_api_annotation_create($annotation) {
   $nl = nurani_library();
-  $annotation['author_uuid'] = $GLOBALS['user']->uuid;
+  // FIXME: This could fail in at least two ways: (1) $user->uuid is NULL / empty, (2) The administrator is making this call and attempting to create an authorless note, which should be allowed.
+  if (!$annotation['author_uuid']) {
+    $annotation['author_uuid'] = $GLOBALS['user']->uuid;
+  }
   return $nl->createAnnotation($annotation);
 }
 
@@ -289,7 +321,14 @@ function _nurani_library_services_api_annotation_create($annotation) {
  */
 function _nurani_library_services_api_annotation_update($id, $annotation) {
   $nl = nurani_library();
-  return $nl->updateAnnotation($id, $annotation);
+  // A little slow, but checking that the annotation can be retrieved
+  // satisfies several security issues:
+  // 1) Ensures the passage exists
+  // 2) Ensures the current account has access to the passage
+  if (_nurani_library_services_api_annotation_retrieve($id)) {
+    return $nl->updateAnnotation($id, $annotation);
+  }
+  return FALSE; // TODO: Set an error here?
 }
 
 /**
@@ -297,15 +336,21 @@ function _nurani_library_services_api_annotation_update($id, $annotation) {
  */
 function _nurani_library_services_api_annotation_delete($id) {
   $nl = nurani_library();
-  return $nl->deleteAnnotation($id);
+  if (_nurani_library_services_api_annotation_retrieve($id)) {
+    return $nl->deleteAnnotation($id);
+  }
+  return FALSE; // TODO: Set an error here?
 }
 
 /**
  *
  */
-function _nurani_library_services_api_annotation_index($passage_id, $page, $pagesize) {
+function _nurani_library_services_api_annotation_index($passage_id, $authorUUID, $page, $pagesize) {
   $nl = nurani_library();
-  return $nl->getAnnotations($passage_id, $page, $pagesize);
+  if (!user_access('view all nurani library annotations') && $authorUUID) {
+    return services_error('Access denied for filtering by authorUUID.', 403);
+  }
+  return $nl->getAnnotations($passage_id, $authorUUID, $page, $pagesize);
 }
 
 /**

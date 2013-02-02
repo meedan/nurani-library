@@ -108,6 +108,9 @@ function nurani_library_permission() {
     'access nurani library' =>  array(
       'title' => t('Access the Nurani Library'),
     ),
+    'view all nurani library annotations' =>  array(
+      'title' => t('Can View All Nurani Library Annotations'),
+    ),
     'create nurani library annotations' =>  array(
       'title' => t('Create Nurani Library Annotations'),
     ),

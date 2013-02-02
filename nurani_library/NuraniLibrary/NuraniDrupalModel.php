@@ -23,7 +23,7 @@ class NuraniDrupalModel extends NuraniModel {
   }
 
 
-  public function search($work_name, $book = NULL, $chapter = NULL, $verse = NULL, $page = 0, $pagesize = 100) {
+  public function search($work_name, $book = NULL, $chapter = NULL, $verse = NULL, $authorUUID = NULL, $page = 0, $pagesize = 100) {
     if (!$this->connected) {
       return $this->error(t("Could not establish connection to {nurani_library} database tables."), 0);
     }
@@ -73,7 +73,7 @@ class NuraniDrupalModel extends NuraniModel {
 
     $search = count($result) ? array() : FALSE;
     foreach ($result as $row) {
-      $notes = $this->getAnnotations($row->id);
+      $notes = $this->getAnnotations($row->id, $authorUUID, $page, $pagesize);
 
       if (!empty($notes)) {
         $row->notes = $notes;
@@ -86,7 +86,7 @@ class NuraniDrupalModel extends NuraniModel {
   }
 
 
-  public function getAnnotations($passage_id, $page = 0, $pagesize = 100) {
+  public function getAnnotations($passage_id, $authorUUID = NULL, $page = 0, $pagesize = 100) {
     if (!$this->connected) {
       return $this->error(t("Could not establish connection to {nurani_library} database tables."), 0);
     }
@@ -96,6 +96,7 @@ class NuraniDrupalModel extends NuraniModel {
     if (is_numeric($passage_id) && $passage_id > 0) {
       $select->condition('a.passage_id', $passage_id);
     }
+    $select->condition('a.author_uuid', $authorUUID ? array('', $authorUUID) : array(''), 'IN');
     $select->orderBy('a.passage_id');
     $select->orderBy('a.position');
 

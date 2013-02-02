@@ -17,12 +17,12 @@ class NuraniRESTModel extends NuraniModel {
   /**
    * Performs a search against a remote Nurani Library Provider instance.
    */
-  public function search($work_name, $book = NULL, $chapter = NULL, $verse = NULL, $page = 0, $pagesize = 100) {
+  public function search($work_name, $book = NULL, $chapter = NULL, $verse = NULL, $authorUUID = NULL, $page = 0, $pagesize = 100) {
     $this->resetErrorState();
 
     $query = array('work_name' => $work_name);
 
-    foreach (array('book', 'chapter', 'verse', 'page', 'pagesize') as $variable) {
+    foreach (array('book', 'chapter', 'verse', 'authorUUID', 'page', 'pagesize') as $variable) {
       // Beware the $$ notation..
       if (!is_null($$variable)) {
         $query[$variable] = $$variable;
@@ -54,9 +54,9 @@ class NuraniRESTModel extends NuraniModel {
    * Retrieves a list of annotations for a passage from remote Nurani Library
    * Provider instance.
    */
-  public function getAnnotations($passage_id, $page = 0, $pagesize = 100) {
+  public function getAnnotations($passage_id, $authorUUID = NULL, $page = 0, $pagesize = 100) {
     $this->resetErrorState();
-    $query = array('page' => $page, 'pagesize' => $pagesize);
+    $query = array('authorUUID' => $authorUUID, 'page' => $page, 'pagesize' => $pagesize);
     $path = 'annotation';
     if (is_numeric($passage_id) && $passage_id > 0) {
       $path .= '/' . $passage_id;

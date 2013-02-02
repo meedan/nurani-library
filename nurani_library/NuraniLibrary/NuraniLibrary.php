@@ -41,13 +41,13 @@ class NuraniLibrary {
   }
 
 
-  public function search($work_name, $book = NULL, $chapter = NULL, $verse = NULL, $page = 0, $pagesize = 100) {
-    return $this->model->search($work_name, $book, $chapter, $verse, $page, $pagesize);
+  public function search($work_name, $book = NULL, $chapter = NULL, $verse = NULL, $authorUUID = NULL, $page = 0, $pagesize = 100) {
+    return $this->model->search($work_name, $book, $chapter, $verse, $authorUUID, $page, $pagesize);
   }
 
 
-  public function getAnnotations($passage_id, $page = 0, $pagesize = 100) {
-    return $this->model->getAnnotations($passage_id, $page, $pagesize);
+  public function getAnnotations($passage_id, $authorUUID = NULL, $page = 0, $pagesize = 100) {
+    return $this->model->getAnnotations($passage_id, $authorUUID, $page, $pagesize);
   }
 
 
