@@ -21,8 +21,7 @@ function nurani_library_ui() {
 function nurani_library_ui_picker_ui() {
   // Add the custom bundle UI and connections to the nurani library UI for the
   // passage picker
-  $path = drupal_get_path('module', 'nurani_library_ui');
-  $libraries_path = 'sites/all/libraries';
+  nurani_library_ui_load();
 
   $initializer = 'jQuery(function () {'
                .   'var nuraniLibraryPickerUI = new NL.PickerUI({'
@@ -41,14 +40,7 @@ function nurani_library_ui_picker_ui() {
 
   $content = array();
   $content['#attached'] = array(
-    'css' => array(
-      $path . '/css/nurani_library_ui.css',
-    ),
     'js'  => array(
-      $libraries_path . '/handlebars/handlebars-1.0.rc.1.js',
-      $libraries_path . '/Bible-Passage-Reference-Parser/js/en_bcv_parser.min.js',
-      $libraries_path . '/jquery-color/jquery.color-2.1.1.min.js',
-      $path . '/js/nurani_library_ui.js',
       $initializer => array(
         'type' => 'inline'
       ),

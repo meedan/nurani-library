@@ -33,6 +33,10 @@ class NuraniRESTModel extends NuraniModel {
     if (is_array($passages)) {
       foreach ($passages as &$passage) {
         $passage = (object) $passage;
+
+        if (isset($passage->notes)) {
+          $this->addNoteAuthors($passage->notes);
+        }
       }
     }
 
@@ -146,6 +150,31 @@ class NuraniRESTModel extends NuraniModel {
     return $this->error("Deleting from remote Nurani Library Provider instances is not allowed at this time.", 0);
   }
 
+
+  protected function addNoteAuthors(&$notes) {
+    foreach ($notes as $i => $note) {
+      $note = (array) $note;
+
+      if (!$note['author_uuid']) {
+        continue;
+      }
+
+      $author = db_select('users', 'u')
+                  ->fields('u', array('uid', 'name'))
+                  ->condition('u.uuid', $note['author_uuid'])
+                  ->execute()
+                  ->fetchAssoc();
+
+      if (!$author) {
+        continue;
+      }
+
+      $notes[$i]['author'] = array(
+        'name' => $author['name'],
+        'url' => url('user/' . $author['uid'], array('absolute' => TRUE)),
+      );
+    }
+  }
 
   /**
    * Sends a REST request using information provided in $this->connection.

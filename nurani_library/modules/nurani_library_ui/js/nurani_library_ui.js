@@ -139,8 +139,8 @@ var NL = (function ($) {
     // Bind passage selection tickboxes to their action
     $('.form-item-passage', $passages).click(function () { that.pickPassageAction($(this).val(), this); });
     // Bind passage hover action to display button for creating new annotation
-    $('td.passage', $passages).mouseenter(function () { that.newAnnotationButtonShowAction(this); });
-    $('td.passage', $passages).mouseleave(function () { that.newAnnotationButtonHideAction(this); });
+    $('tr.passage-row td.passage', $passages).mouseenter(function () { that.newAnnotationButtonShowAction(this); });
+    $('tr.passage-row td.passage', $passages).mouseleave(function () { that.newAnnotationButtonHideAction(this); });
   };
 
   /**
@@ -949,6 +949,11 @@ var NL = (function ($) {
               '</form>',
           '{{else}}',
             '<span>{{truncate value 120}}</span>',
+            '{{#if author}}',
+              '<span class="attribution">',
+                '— <a href="{{author.url}}" title="View user profile." class="username" xml:lang="" about="{{author.url}}" typeof="sioc:UserAccount" property="foaf:name">{{author.name}}</a>',
+              '</span>',
+            '{{/if}}',
           '{{/if}}',
         '</div>',
       '</div>'

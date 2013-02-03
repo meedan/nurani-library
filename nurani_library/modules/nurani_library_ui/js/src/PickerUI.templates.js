@@ -132,6 +132,11 @@ PickerUI.partials = {
             '</form>',
         '{{else}}',
           '<span>{{truncate value 120}}</span>',
+          '{{#if author}}',
+            '<span class="attribution">',
+              '— <a href="{{author.url}}" title="View user profile." class="username" xml:lang="" about="{{author.url}}" typeof="sioc:UserAccount" property="foaf:name">{{author.name}}</a>',
+            '</span>',
+          '{{/if}}',
         '{{/if}}',
       '</div>',
     '</div>'

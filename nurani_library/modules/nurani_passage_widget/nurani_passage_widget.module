@@ -1,14 +1,32 @@
 <?php
 
 /**
+ * Implements hook_library().
+ */
+function nurani_passage_widget_library() {
+  $libraries = array();
+  $path = drupal_get_path('module', 'nurani_passage_widget');
+  $libraries['nurani.passage-widget'] = array(
+    'title' => 'Nurani Passage Widget',
+    'version' => VERSION,
+    'js' => array(
+      $path . '/js/nurani_passage_widget.js' => array(),
+    ),
+    'css' => array(
+      $path . '/css/nurani_passage_widget.css' => array(),
+    ),
+  );
+  return $libraries;
+}
+
+/**
  * Returns a Nurani Library Passage Widget.
  */
 function nurani_passage_widget($osisIDWork, $osisID) {
   $backend = nurani_library_backend();
   $output = '';
 
-  drupal_add_js(drupal_get_path('module', 'nurani_passage_widget') . '/js/nurani_passage_widget.js');
-  drupal_add_css(drupal_get_path('module', 'nurani_passage_widget') . '/css/nurani_passage_widget.css');
+  drupal_add_library('nurani_passage_widget', 'nurani.passage-widget');
 
   $id  = 'passage-widget-' . substr(md5($osisIDWork . '/' . $osisID), 0, 8);
 
