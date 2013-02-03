@@ -139,9 +139,8 @@ var NL = (function ($) {
     // Bind passage selection tickboxes to their action
     $('.form-item-passage', $passages).click(function () { that.pickPassageAction($(this).val(), this); });
     // Bind passage hover action to display button for creating new annotation
-    $('tr.passage-row td.annotations', $passages).click(function () { that.annotationsHoverInAction(this); });
-    $('tr.passage-row td.annotations', $passages).mouseenter(function () { that.annotationsHoverInAction(this); });
-    $('tr.passage-row td.annotations', $passages).mouseleave(function () { that.annotationsHoverOutAction(this); });
+    $('td.passage', $passages).mouseenter(function () { that.newAnnotationButtonShowAction(this); });
+    $('td.passage', $passages).mouseleave(function () { that.newAnnotationButtonHideAction(this); });
   };
 
   /**
@@ -383,20 +382,53 @@ var NL = (function ($) {
   }
 
   /**
-   * Handles adding the 'new annotation' bubble.
+   * Handles displaying the 'Add note' button.
    */
-  PickerUI.prototype.annotationsHoverInAction = function (el) {
-    // If another new annotation is already in progress
-    if ($('.annotation.new', el).length > 0) {
+  PickerUI.prototype.newAnnotationButtonShowAction = function (el) {
+    var that = this,
+        // FIXME: It's expensive to compile handlebars this often.
+        template = Handlebars.compile('{{> newAnnotationButton}}'),
+        $el = $(el),
+        $annotations = $el.siblings('td.annotations'),
+        $newAnnotationButton;
+
+    // If another new annotation is already in progress for this passage
+    if ($('.annotation.new', $annotations).length > 0) {
+      this.newAnnotationButtonHideAction(el);
       return;
     }
 
-    // FIXME: It's expensive to compile handlebars this often.
-    var that     = this,
-        $el      = $(el),
-        template = Handlebars.compile('{{> annotation}}'),
-        i        = $el.siblings('td.passage').find('input.form-item-passage').data('index'),
-        passage  = this.viewData.passages[i],
+    $newAnnotationButton = $(template());
+    $newAnnotationButton
+      .find('.new-annotation-form-action')
+      .click(function () {
+        that.newAnnotationButtonHideAction(el);
+        that.newAnnotationFormShowAction(el);
+        return false;
+      });
+
+    // Prepend is important here, ensures we can correctly float the button right.
+    $el.prepend($newAnnotationButton);
+  };
+
+  /**
+   * Removes all 'Add note' buttons from the UI.
+   */
+  PickerUI.prototype.newAnnotationButtonHideAction = function (el) {
+    $('.new-annotation-button', this.$passages).remove();
+  };
+
+  /**
+   * Handles adding the 'new annotation' bubble.
+   */
+  PickerUI.prototype.newAnnotationFormShowAction = function (el) {
+    var that         = this,
+        $el          = $(el),
+        $annotations = $el.siblings('td.annotations'),
+        // FIXME: It's expensive to compile handlebars this often.
+        template     = Handlebars.compile('{{> annotation}}'),
+        i            = $el.find('input.form-item-passage').data('index'),
+        passage      = this.viewData.passages[i],
         $annotation;
 
     // Creates a new blank annotation with the form displayed
@@ -414,27 +446,7 @@ var NL = (function ($) {
       length:            0,
     }));
     this.initAnnotations($annotation);
-    $el.append($annotation);
-
-    $('#edit-value', $el).focusout(function (e) {
-      // FIXME: The hover out action should not fire when focus is off but mouse
-      //        is still inside the annotation box.
-      that.annotationsHoverOutAction($(this).parents('td')[0]);
-    });
-  };
-
-  /**
-   * Handles removing the 'new annotation' bubble.
-   */
-  PickerUI.prototype.annotationsHoverOutAction = function (el) {
-    $('.annotation.new', this.$passages).each(function () {
-      var $this = $(this),
-          $value = $this.find('#edit-value');
-
-      if ($value.val() == '' && !$value.is(':focus')) {
-        $this.remove();
-      }
-    });
+    $annotations.append($annotation);
   };
 
   PickerUI.prototype.annotationSaveAction = function ($annotation, el) {
@@ -452,7 +464,8 @@ var NL = (function ($) {
   };
 
   PickerUI.prototype.annotationCancelAction = function ($annotation, el) {
-    console.log($annotation, 'cancel');
+    // FIXME: This is too simplistic. Clicking the cancel button doesn't always just remove the form.
+    $annotation.remove();
   };
 
 
@@ -695,7 +708,14 @@ var NL = (function ($) {
         this.$element.animate({ scrollTop: this.$element.scrollTop() + $passageRow.position().top - this.$element.height()/2 });
       }
       // Fade the background colour into yellow
-      $passageRow.animate({ backgroundColor: '#ffff66' });
+      $passageRow.animate(
+        {
+          backgroundColor: '#ffff66'
+        },
+        function () {
+          $(this).css('backgroundColor', '');
+        }
+      );
 
       // After pausing, fade the background colour back to white, then remove
       // the background color.
@@ -934,6 +954,12 @@ var NL = (function ($) {
       '</div>'
     ].join(''),
 
+    newAnnotationButton: [
+      '<div class="new-annotation-button">',
+        '<input class="new-annotation-form-action form-submit" type="submit" id="edit-new-annotation-submit" name="op" value="Add note">',
+      '</div>'
+    ].join(''),
+
     annotationForm: [
       '<div class="annotation-form">',
         '<div class="form-item form-type-textarea form-item-value">',
@@ -943,7 +969,7 @@ var NL = (function ($) {
           '</div>',
         '</div>',
         '<div class="actions">',
-          '<a href="#">Cancel</a>',
+          '<a href="#" class="cancel-annotation-action">Cancel</a>',
           '<input class="save-annotation-action form-submit" type="submit" id="edit-save-annotation-submit" name="op" value="Save">',
         '</div>',
       '</div>',

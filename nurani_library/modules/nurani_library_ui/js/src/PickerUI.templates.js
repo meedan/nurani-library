@@ -137,6 +137,12 @@ PickerUI.partials = {
     '</div>'
   ].join(''),
 
+  newAnnotationButton: [
+    '<div class="new-annotation-button">',
+      '<input class="new-annotation-form-action form-submit" type="submit" id="edit-new-annotation-submit" name="op" value="Add note">',
+    '</div>'
+  ].join(''),
+
   annotationForm: [
     '<div class="annotation-form">',
       '<div class="form-item form-type-textarea form-item-value">',
@@ -146,7 +152,7 @@ PickerUI.partials = {
         '</div>',
       '</div>',
       '<div class="actions">',
-        '<a href="#">Cancel</a>',
+        '<a href="#" class="cancel-annotation-action">Cancel</a>',
         '<input class="save-annotation-action form-submit" type="submit" id="edit-save-annotation-submit" name="op" value="Save">',
       '</div>',
     '</div>',

@@ -68,11 +68,18 @@ $toolbar_height: 70px;
     .passage {
       vertical-align: top;
       width: 75%;
+      padding: 0;
+
+      &:hover {
+        background: #ffffb3;
+      }
     }
 
     .form-item-passage-row {
       margin: 0;
       white-space: normal;
+      min-height: 32px;
+      padding-right: 8em;
 
       .form-checkbox {
         display: block;
@@ -82,6 +89,15 @@ $toolbar_height: 70px;
       label {
         display: block;
         margin-left: 2em;
+      }
+    }
+
+    .new-annotation-button {
+      float: right;
+      padding: 0.25em;
+
+      .form-submit {
+        margin: 0;
       }
     }
   }
