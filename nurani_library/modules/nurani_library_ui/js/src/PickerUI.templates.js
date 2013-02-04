@@ -77,10 +77,10 @@ PickerUI.templates = {
             '</tr>',
           '{{/isChapterBeginning}}',
           '<tr class="passage-row {{oddOrEven verse}}">',
-            '<td class="passage">',
+            '<td class="passage" data-index="{{@index}}">',
               '<div class="form-item form-type-checkbox form-item-passage-row form-item-passage-row-{{verse}} {{work_language}}">',
                 // "Select passage" tickbox
-                '<input type="checkbox" id="{{cssId}}" name="passage[]" value="{{osisID}}" data-index="{{@index}}" class="form-checkbox form-item-passage"{{selected this "checked"}}> ',
+                '<input type="checkbox" id="{{cssId}}" name="passage[]" value="{{osisID}}" class="form-checkbox form-item-passage"{{selected this "checked"}}> ',
                 // The verse and its number link
                 '<label class="option" for="{{cssId}}">',
                   '<span class="verse">',
@@ -96,7 +96,7 @@ PickerUI.templates = {
             '</td>',
             '<td class="annotations">',
               '{{#each notes}}',
-                '{{> annotation}}',
+                '{{> annotation this}}',
               '{{/each}}',
             '</td>',
           '</tr>',
@@ -108,35 +108,28 @@ PickerUI.templates = {
 
 PickerUI.partials = {
   annotation: [
-    '<div class="annotation {{annotationClasses this}}">',
+    '<div class="annotation {{annotationClasses this}}" data-index="{{@index}}">',
       '<div class="arrow">◀</div>',
       '<div class="inner">',
         '<h5 class="title">{{title}}</h5>',
-        '{{#if editing}}',
-          '<form class="annotation-form" method="POST">',
-            '<div class="form-item form-type-textarea form-item-value">',
-              '<div class="form-textarea-wrapper">',
-                '<textarea id="edit-value" name="value" cols="10" rows="5" class="form-textarea">{{value}}</textarea>',
-              '</div>',
-            '</div>',
-            '<div class="actions clearfix">',
-              '<a href="#" class="cancel-annotation-action">Cancel</a>',
-              '<input class="save-annotation-action form-submit" type="submit" id="edit-save-annotation-submit" name="op" value="Save">',
-            '</div>',
-            '<input type="hidden" name="id" value="{{id}}">',
-            '<input type="hidden" name="passage_id" value="{{passage_id}}">',
-            '<input type="hidden" name="author_uuid" value="{{author_uuid}}">',
-            '<input type="hidden" name="type" value="{{type}}">',
-            '<input type="hidden" name="position" value="{{position}}">',
-            '<input type="hidden" name="length" value="{{length}}">',
-            '</form>',
-        '{{else}}',
-          '<span>{{truncate value 120}}</span>',
+
+        '<div class="contents">',
+          '<span class="value">{{truncate value 120}}</span>',
           '{{#if author}}',
             '<span class="attribution">',
               '— <a href="{{author.url}}" title="View user profile." class="username" xml:lang="" about="{{author.url}}" typeof="sioc:UserAccount" property="foaf:name">{{author.name}}</a>',
             '</span>',
           '{{/if}}',
+          '{{#if editable}}',
+            '<div class="actions clearfix">',
+              '<input class="delete-annotation-action form-submit" type="submit" id="edit-delete-annotation-submit-annotation-submit" name="op" value="Delete">',
+              '<input class="edit-annotation-action form-submit" type="submit" id="edit-edit-annotation-submit" name="op" value="Edit">',
+            '</div>',
+          '{{/if}}',
+        '</div>',
+
+        '{{#if editable}}',
+          '{{> annotationForm this}}',
         '{{/if}}',
       '</div>',
     '</div>'
@@ -149,18 +142,23 @@ PickerUI.partials = {
   ].join(''),
 
   annotationForm: [
-    '<div class="annotation-form">',
+    '<form class="annotation-form" method="POST">',
       '<div class="form-item form-type-textarea form-item-value">',
-        '<label for="edit-value">Annotate {{book_full_name}} {{chapter_full_name}}:{{verse}}</label>',
         '<div class="form-textarea-wrapper">',
           '<textarea id="edit-value" name="value" cols="10" rows="5" class="form-textarea">{{value}}</textarea>',
         '</div>',
       '</div>',
-      '<div class="actions">',
+      '<div class="actions clearfix">',
         '<a href="#" class="cancel-annotation-action">Cancel</a>',
         '<input class="save-annotation-action form-submit" type="submit" id="edit-save-annotation-submit" name="op" value="Save">',
       '</div>',
-    '</div>',
+      '<input type="hidden" name="id" value="{{id}}">',
+      '<input type="hidden" name="passage_id" value="{{passage_id}}">',
+      '<input type="hidden" name="author_uuid" value="{{author_uuid}}">',
+      '<input type="hidden" name="type" value="{{type}}">',
+      '<input type="hidden" name="position" value="{{position}}">',
+      '<input type="hidden" name="length" value="{{length}}">',
+    '</form>',
   ].join('')
 }
 
@@ -262,24 +260,21 @@ $(function () {
   });
 
   /**
-   * A ternary operator.
-   *
-   * Eg:
-   *  {{ternary true  "1" "2"}} -> "1"
-   *  {{ternary false "1" "2"}} -> "2"
+   * Generates classes for an annotation.
    */
   Handlebars.registerHelper('annotationClasses', function (annotation) {
     classes = ['annotation'];
     if (annotation.type != 'annotation') {
       classes.push(annotation.type);
     }
-    if (annotation.new) {
-      classes.push('new');
-    }
     if (annotation.editing) {
       classes.push('editing');
     }
     return new Handlebars.SafeString(classes.join(' '));
+  });
+
+  Handlebars.registerHelper('whatis', function (obj) {
+    console.log(obj);
   });
 
 });

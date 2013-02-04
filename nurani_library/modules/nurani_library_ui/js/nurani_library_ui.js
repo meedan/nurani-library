@@ -139,8 +139,10 @@ var NL = (function ($) {
     // Bind passage selection tickboxes to their action
     $('.form-item-passage', $passages).click(function () { that.pickPassageAction($(this).val(), this); });
     // Bind passage hover action to display button for creating new annotation
-    $('tr.passage-row td.passage', $passages).mouseenter(function () { that.newAnnotationButtonShowAction(this); });
-    $('tr.passage-row td.passage', $passages).mouseleave(function () { that.newAnnotationButtonHideAction(this); });
+    $('tr.passage-row td.passage', $passages).mouseenter(function () { that.newAnnotationButtonShowAction($(this)); });
+    $('tr.passage-row td.passage', $passages).mouseleave(function () { that.newAnnotationButtonHideAction($(this)); });
+
+    this.initAnnotations($passages);
   };
 
   /**
@@ -149,8 +151,10 @@ var NL = (function ($) {
    */
   PickerUI.prototype.initAnnotations = function ($annotations) {
     var that = this;
-    $('.save-annotation-action', $annotations).click(function () { that.annotationSaveAction($(this).parents('.annotation'), this); return false; });
-    $('.cancel-annotation-action', $annotations).click(function () { that.annotationCancelAction($(this).parents('.annotation'), this); return false; });
+    $('.delete-annotation-action', $annotations).click(function () { that.annotationDeleteAction($(this).parents('.annotation')); return false; });
+    $('.edit-annotation-action', $annotations).click(function () { that.annotationEditAction($(this).parents('.annotation')); return false; });
+    $('.save-annotation-action', $annotations).click(function () { that.annotationSaveAction($(this).parents('.annotation')); return false; });
+    $('.cancel-annotation-action', $annotations).click(function () { that.annotationCancelAction($(this).parents('.annotation')); return false; });
   };
 
   /**
@@ -384,17 +388,16 @@ var NL = (function ($) {
   /**
    * Handles displaying the 'Add note' button.
    */
-  PickerUI.prototype.newAnnotationButtonShowAction = function (el) {
+  PickerUI.prototype.newAnnotationButtonShowAction = function ($passage) {
     var that = this,
         // FIXME: It's expensive to compile handlebars this often.
         template = Handlebars.compile('{{> newAnnotationButton}}'),
-        $el = $(el),
-        $annotations = $el.siblings('td.annotations'),
+        $annotations = $passage.siblings('td.annotations'),
         $newAnnotationButton;
 
     // If another new annotation is already in progress for this passage
     if ($('.annotation.new', $annotations).length > 0) {
-      this.newAnnotationButtonHideAction(el);
+      this.newAnnotationButtonHideAction($passage);
       return;
     }
 
@@ -402,39 +405,37 @@ var NL = (function ($) {
     $newAnnotationButton
       .find('.new-annotation-form-action')
       .click(function () {
-        that.newAnnotationButtonHideAction(el);
-        that.newAnnotationFormShowAction(el);
+        that.newAnnotationButtonHideAction($passage);
+        that.newAnnotationFormShowAction($passage);
         return false;
       });
 
     // Prepend is important here, ensures we can correctly float the button right.
-    $el.prepend($newAnnotationButton);
+    $passage.prepend($newAnnotationButton);
   };
 
   /**
    * Removes all 'Add note' buttons from the UI.
    */
-  PickerUI.prototype.newAnnotationButtonHideAction = function (el) {
+  PickerUI.prototype.newAnnotationButtonHideAction = function ($passage) {
     $('.new-annotation-button', this.$passages).remove();
   };
 
   /**
    * Handles adding the 'new annotation' bubble.
    */
-  PickerUI.prototype.newAnnotationFormShowAction = function (el) {
+  PickerUI.prototype.newAnnotationFormShowAction = function ($passage) {
     var that         = this,
-        $el          = $(el),
-        $annotations = $el.siblings('td.annotations'),
+        $annotations = $passage.siblings('td.annotations'),
         // FIXME: It's expensive to compile handlebars this often.
         template     = Handlebars.compile('{{> annotation}}'),
-        i            = $el.find('input.form-item-passage').data('index'),
+        i            = $passage.data('index'),
         passage      = this.viewData.passages[i],
         $annotation;
 
     // Creates a new blank annotation with the form displayed
     $annotation = $(template({
-      editing:           true,
-      new:               true,
+      editable:          true,
       id:                '',
       passage_id:        passage.id,
       author_uuid:       '', // Automatically set on the server
@@ -447,25 +448,117 @@ var NL = (function ($) {
     }));
     this.initAnnotations($annotation);
     $annotations.append($annotation);
+
+    this.annotationEditAction($annotation);
   };
 
-  PickerUI.prototype.annotationSaveAction = function ($annotation, el) {
+  /**
+   * After confirmation, deletes the annotation.
+   */
+  PickerUI.prototype.annotationDeleteAction = function ($annotation) {
+    if (confirm('Are you sure? This will permanently remove this annotation.')) {
+      var that     = this,
+          $passage = $annotation.parents('td.annotations').siblings('td.passage'),
+          i        = $passage.data('index'),
+          j        = $annotation.data('index'),
+          passage  = this.viewData.passages[i],
+          note     = passage.notes[j];
+
+      if (!note || !note.id) {
+        // TODO: Handle error.
+        return;
+      }
+
+      $annotation.animate({ opacity: 0.0 });
+
+      $.ajax({
+        url: Drupal.settings.nuraniLibrary.apiBasePath + 'annotation/' + note.id,
+        type: 'DELETE',
+        dataType: 'json',
+        success: function (result) {
+          if (result && result[0] === true) {
+            that.viewData.passages[i].notes[j] = null;
+            $annotation.remove();
+          } else {
+            // TODO: Handle error.
+            $annotation.css('opacity', 1.0);
+          }
+        }
+      });
+    }
+  };
+
+  /**
+   * Displays the annotation edit form.
+   */
+  PickerUI.prototype.annotationEditAction = function ($annotation) {
+    $annotation.addClass('editing');
+    $('.contents', $annotation).hide();
+    $('.annotation-form', $annotation).show();
+  };
+
+  PickerUI.prototype.annotationSaveAction = function ($annotation) {
+    var that     = this,
+        url      = Drupal.settings.nuraniLibrary.apiBasePath + 'annotation',
+        // A new note has no ID yet
+        isNew    = $('input[name="id"]', $annotation).val() == '',
+        $passage = $annotation.parents('td.annotations').siblings('td.passage'),
+        i        = $passage.data('index'),
+        j        = $annotation.data('index'),
+        passage  = this.viewData.passages[i],
+        // FIXME: It's expensive to compile handlebars this often.
+        template = Handlebars.compile('{{> annotation}}');
+
+    if (isNew) {
+      // Ensure notes array is valid
+      this.viewData.passages[i].notes = passage.notes || [];
+      j = passage.notes.length; // Find the new index
+    } else {
+      note = passage.notes[j];
+      url += '/' + note.id;
+    }
+
     $.ajax({
-      url: Drupal.settings.nuraniLibrary.apiBasePath + 'annotation',
-      type: 'POST',
+      url: url,
+      type: isNew ? 'POST' : 'PUT',
+      dataType: 'json',
       data: $('.annotation-form', $annotation).serialize(),
-      success: function (data) {
-        console.log(data);
+      success: function (newNote) {
+        if (newNote && newNote.id) {
+          newNote.title = that.passageTitle(passage);
+          that.viewData.passages[i].notes[j] = newNote;
+        } else {
+          // TODO: Handle the error.
+          return;
+        }
+
+        // Create the new annotation from template and replace it with the old one
+        var $newAnnotation = $(template(newNote));
+        that.initAnnotations($newAnnotation);
+        $annotation.after($newAnnotation);
+        $annotation.remove();
+
+        // Ensure both the object property and jQuery data cache are updated
+        // for debugging consistency.
+        $newAnnotation.attr('data-index', j);
+        $newAnnotation.data('index', j);
       },
       error: function (xhr, textStatus, error) {
-        console.log({'xhr': xhr, 'textStatus': textStatus, 'error': error});
+        // Error.
       }
     });
   };
 
-  PickerUI.prototype.annotationCancelAction = function ($annotation, el) {
-    // FIXME: This is too simplistic. Clicking the cancel button doesn't always just remove the form.
-    $annotation.remove();
+  PickerUI.prototype.annotationCancelAction = function ($annotation) {
+    var isNew = $('input[name="id"]', $annotation).val() == '';
+
+    if (isNew) {
+      $annotation.remove();
+    } else {
+      $annotation.removeClass('editing');
+      $('.contents', $annotation).show();
+      $('.annotation-form', $annotation).hide();
+    }
   };
 
 
@@ -894,10 +987,10 @@ var NL = (function ($) {
               '</tr>',
             '{{/isChapterBeginning}}',
             '<tr class="passage-row {{oddOrEven verse}}">',
-              '<td class="passage">',
+              '<td class="passage" data-index="{{@index}}">',
                 '<div class="form-item form-type-checkbox form-item-passage-row form-item-passage-row-{{verse}} {{work_language}}">',
                   // "Select passage" tickbox
-                  '<input type="checkbox" id="{{cssId}}" name="passage[]" value="{{osisID}}" data-index="{{@index}}" class="form-checkbox form-item-passage"{{selected this "checked"}}> ',
+                  '<input type="checkbox" id="{{cssId}}" name="passage[]" value="{{osisID}}" class="form-checkbox form-item-passage"{{selected this "checked"}}> ',
                   // The verse and its number link
                   '<label class="option" for="{{cssId}}">',
                     '<span class="verse">',
@@ -913,7 +1006,7 @@ var NL = (function ($) {
               '</td>',
               '<td class="annotations">',
                 '{{#each notes}}',
-                  '{{> annotation}}',
+                  '{{> annotation this}}',
                 '{{/each}}',
               '</td>',
             '</tr>',
@@ -925,35 +1018,28 @@ var NL = (function ($) {
 
   PickerUI.partials = {
     annotation: [
-      '<div class="annotation {{annotationClasses this}}">',
+      '<div class="annotation {{annotationClasses this}}" data-index="{{@index}}">',
         '<div class="arrow">◀</div>',
         '<div class="inner">',
           '<h5 class="title">{{title}}</h5>',
-          '{{#if editing}}',
-            '<form class="annotation-form" method="POST">',
-              '<div class="form-item form-type-textarea form-item-value">',
-                '<div class="form-textarea-wrapper">',
-                  '<textarea id="edit-value" name="value" cols="10" rows="5" class="form-textarea">{{value}}</textarea>',
-                '</div>',
-              '</div>',
-              '<div class="actions clearfix">',
-                '<a href="#" class="cancel-annotation-action">Cancel</a>',
-                '<input class="save-annotation-action form-submit" type="submit" id="edit-save-annotation-submit" name="op" value="Save">',
-              '</div>',
-              '<input type="hidden" name="id" value="{{id}}">',
-              '<input type="hidden" name="passage_id" value="{{passage_id}}">',
-              '<input type="hidden" name="author_uuid" value="{{author_uuid}}">',
-              '<input type="hidden" name="type" value="{{type}}">',
-              '<input type="hidden" name="position" value="{{position}}">',
-              '<input type="hidden" name="length" value="{{length}}">',
-              '</form>',
-          '{{else}}',
-            '<span>{{truncate value 120}}</span>',
+
+          '<div class="contents">',
+            '<span class="value">{{truncate value 120}}</span>',
             '{{#if author}}',
               '<span class="attribution">',
                 '— <a href="{{author.url}}" title="View user profile." class="username" xml:lang="" about="{{author.url}}" typeof="sioc:UserAccount" property="foaf:name">{{author.name}}</a>',
               '</span>',
             '{{/if}}',
+            '{{#if editable}}',
+              '<div class="actions clearfix">',
+                '<input class="delete-annotation-action form-submit" type="submit" id="edit-delete-annotation-submit-annotation-submit" name="op" value="Delete">',
+                '<input class="edit-annotation-action form-submit" type="submit" id="edit-edit-annotation-submit" name="op" value="Edit">',
+              '</div>',
+            '{{/if}}',
+          '</div>',
+
+          '{{#if editable}}',
+            '{{> annotationForm this}}',
           '{{/if}}',
         '</div>',
       '</div>'
@@ -966,18 +1052,23 @@ var NL = (function ($) {
     ].join(''),
 
     annotationForm: [
-      '<div class="annotation-form">',
+      '<form class="annotation-form" method="POST">',
         '<div class="form-item form-type-textarea form-item-value">',
-          '<label for="edit-value">Annotate {{book_full_name}} {{chapter_full_name}}:{{verse}}</label>',
           '<div class="form-textarea-wrapper">',
             '<textarea id="edit-value" name="value" cols="10" rows="5" class="form-textarea">{{value}}</textarea>',
           '</div>',
         '</div>',
-        '<div class="actions">',
+        '<div class="actions clearfix">',
           '<a href="#" class="cancel-annotation-action">Cancel</a>',
           '<input class="save-annotation-action form-submit" type="submit" id="edit-save-annotation-submit" name="op" value="Save">',
         '</div>',
-      '</div>',
+        '<input type="hidden" name="id" value="{{id}}">',
+        '<input type="hidden" name="passage_id" value="{{passage_id}}">',
+        '<input type="hidden" name="author_uuid" value="{{author_uuid}}">',
+        '<input type="hidden" name="type" value="{{type}}">',
+        '<input type="hidden" name="position" value="{{position}}">',
+        '<input type="hidden" name="length" value="{{length}}">',
+      '</form>',
     ].join('')
   }
 
@@ -1079,24 +1170,21 @@ var NL = (function ($) {
     });
 
     /**
-     * A ternary operator.
-     *
-     * Eg:
-     *  {{ternary true  "1" "2"}} -> "1"
-     *  {{ternary false "1" "2"}} -> "2"
+     * Generates classes for an annotation.
      */
     Handlebars.registerHelper('annotationClasses', function (annotation) {
       classes = ['annotation'];
       if (annotation.type != 'annotation') {
         classes.push(annotation.type);
       }
-      if (annotation.new) {
-        classes.push('new');
-      }
       if (annotation.editing) {
         classes.push('editing');
       }
       return new Handlebars.SafeString(classes.join(' '));
+    });
+
+    Handlebars.registerHelper('whatis', function (obj) {
+      console.log(obj);
     });
 
   });

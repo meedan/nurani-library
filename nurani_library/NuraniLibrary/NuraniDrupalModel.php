@@ -142,7 +142,7 @@ class NuraniDrupalModel extends NuraniModel {
       return $this->error(t("Error creating Nurani Library annotation."), 0);
     }
 
-    return $id;
+    return $this->getAnnotation($id);
   }
 
 
@@ -165,12 +165,12 @@ class NuraniDrupalModel extends NuraniModel {
       return $this->error(t("Error updating Nurani Library annotation."), 0);
     }
 
-    return TRUE;
+    return $this->getAnnotation($id);
   }
 
 
   public function deleteAnnotation($id) {
-    $num_deleted = db_update('nurani_library_annotations')
+    $num_deleted = db_delete('nurani_library_annotations')
                      ->condition('id', $id)
                      ->execute();
 

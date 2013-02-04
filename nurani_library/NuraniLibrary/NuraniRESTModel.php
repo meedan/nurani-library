@@ -66,6 +66,7 @@ class NuraniRESTModel extends NuraniModel {
       $path .= '/' . $passage_id;
     }
     $annotations = $this->restRequest('GET', $path . $this->queryString($query));
+    $this->addNoteAuthors($annotations);
     return $annotations;
   }
 
@@ -76,9 +77,7 @@ class NuraniRESTModel extends NuraniModel {
   public function getAnnotation($id) {
     $this->resetErrorState();
     $annotation = $this->restRequest('GET', 'annotation/' . (int) $id);
-    if (is_array($annotation)) {
-      $annotation = (object) $annotation;
-    }
+    $this->addNoteAuthor($annotation);
     return $annotation;
   }
 
@@ -89,6 +88,7 @@ class NuraniRESTModel extends NuraniModel {
   public function createAnnotation($annotation) {
     $this->resetErrorState();
     $annotation = $this->restRequest('POST', 'annotation', (array) $annotation);
+    $this->addNoteAuthor($annotation);
     return $annotation;
   }
 
@@ -98,8 +98,9 @@ class NuraniRESTModel extends NuraniModel {
    */
   public function updateAnnotation($id, $annotation) {
     $this->resetErrorState();
-    $result = $this->restRequest('PUT', 'annotation/' . $id, (array) $annotation);
-    return $result;
+    $annotation = $this->restRequest('PUT', 'annotation/' . $id, (array) $annotation);
+    $this->addNoteAuthor($annotation);
+    return $annotation;
   }
 
 
@@ -151,7 +152,10 @@ class NuraniRESTModel extends NuraniModel {
   }
 
 
+  // TODO: Maybe this should be moved into nurani_library_services? It's highly Drupal'y
   protected function addNoteAuthors(&$notes) {
+    global $user;
+
     foreach ($notes as $i => $note) {
       $note = (array) $note;
 
@@ -173,8 +177,20 @@ class NuraniRESTModel extends NuraniModel {
         'name' => $author['name'],
         'url' => url('user/' . $author['uid'], array('absolute' => TRUE)),
       );
+
+      if ($note['author_uuid'] == $user->uuid) {
+        $notes[$i]['editable'] = TRUE;
+      }
     }
   }
+
+
+  protected function addNoteAuthor(&$note) {
+    $notes = array($note);
+    $this->addNoteAuthors($notes);
+    $note = $notes[0];
+  }
+
 
   /**
    * Sends a REST request using information provided in $this->connection.

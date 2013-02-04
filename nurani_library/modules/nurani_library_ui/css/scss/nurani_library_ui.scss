@@ -144,34 +144,51 @@ $toolbar_height: 70px;
         }
       }
 
-      //
-      .attribution {
-        display: block;
+      /* Limited space, all action buttons lose their margin */
+      .form-submit {
         float: right;
+        margin: 0;
+      }
+
+      &:not(.editing):hover {
+        .contents .actions {
+          display: block;
+        }
+      }
+
+      .contents {
+        .attribution {
+          display: block;
+          float: right;
+        }
+
+        .actions {
+          display: none; // Actions are displayed on hover
+
+          margin-top: 1em;
+          .delete-annotation-action {
+            float: left;
+          }
+        }
       }
 
       // The annotation form
-      .title {
-        display: none;
-        margin: 0 0 1em 0;
-      }
-      .form-type-textarea {
-        margin-bottom: 1.0em;
-      }
-      textarea {
-        width: 100%;
-      }
-      .actions {
-        .cancel {
-          float: left;
+      .annotation-form {
+        display: none; // Form is displayed when .edit-annotation-action clicked
+
+        .form-type-textarea {
+          margin-bottom: 1.0em;
         }
-        .form-submit {
-          float: right;
-          margin: 0;
+        textarea {
+          width: 100%;
+        }
+        .actions {
+          .cancel {
+            float: left;
+          }
         }
       }
+
     }
-
-
   }
 }

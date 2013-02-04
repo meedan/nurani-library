@@ -114,6 +114,7 @@
   margin: 0.75em 0;
   padding-left: 10px;
   /* Annotation types */
+  /* Limited space, all action buttons lose their margin */
 }
 /* line 114, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation .inner {
@@ -144,29 +145,41 @@
   background: #bdf;
 }
 /* line 148, scss/nurani_library_ui.scss */
-.passage-picker-ui .annotations .annotation .attribution {
+.passage-picker-ui .annotations .annotation .form-submit {
+  float: right;
+  margin: 0;
+}
+/* line 154, scss/nurani_library_ui.scss */
+.passage-picker-ui .annotations .annotation:not(.editing):hover .contents .actions {
+  display: block;
+}
+/* line 160, scss/nurani_library_ui.scss */
+.passage-picker-ui .annotations .annotation .contents .attribution {
   display: block;
   float: right;
 }
-/* line 154, scss/nurani_library_ui.scss */
-.passage-picker-ui .annotations .annotation .title {
-  display: none;
-  margin: 0 0 1em 0;
-}
-/* line 158, scss/nurani_library_ui.scss */
-.passage-picker-ui .annotations .annotation .form-type-textarea {
-  margin-bottom: 1.0em;
-}
-/* line 161, scss/nurani_library_ui.scss */
-.passage-picker-ui .annotations .annotation textarea {
-  width: 100%;
-}
 /* line 165, scss/nurani_library_ui.scss */
-.passage-picker-ui .annotations .annotation .actions .cancel {
+.passage-picker-ui .annotations .annotation .contents .actions {
+  display: none;
+  margin-top: 1em;
+}
+/* line 169, scss/nurani_library_ui.scss */
+.passage-picker-ui .annotations .annotation .contents .actions .delete-annotation-action {
   float: left;
 }
-/* line 168, scss/nurani_library_ui.scss */
-.passage-picker-ui .annotations .annotation .actions .form-submit {
-  float: right;
-  margin: 0;
+/* line 176, scss/nurani_library_ui.scss */
+.passage-picker-ui .annotations .annotation .annotation-form {
+  display: none;
+}
+/* line 179, scss/nurani_library_ui.scss */
+.passage-picker-ui .annotations .annotation .annotation-form .form-type-textarea {
+  margin-bottom: 1.0em;
+}
+/* line 182, scss/nurani_library_ui.scss */
+.passage-picker-ui .annotations .annotation .annotation-form textarea {
+  width: 100%;
+}
+/* line 186, scss/nurani_library_ui.scss */
+.passage-picker-ui .annotations .annotation .annotation-form .actions .cancel {
+  float: left;
 }
