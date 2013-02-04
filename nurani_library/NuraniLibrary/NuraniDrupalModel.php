@@ -312,7 +312,10 @@ class NuraniDrupalModel extends NuraniModel {
       return FALSE;
     }
 
-    $work_id = $this->getWorkID($work, array('language' => $document->conf['language']));
+    $work_id = $this->getWorkID($work, array(
+      'full_name' => isset($document->conf['full_name']) ? $document->conf['full_name'] : $work,
+      'language'  => $document->conf['language']
+    ));
     if ($work_id === FALSE) {
       return FALSE; // TODO: Log error for broken work ID.
     }

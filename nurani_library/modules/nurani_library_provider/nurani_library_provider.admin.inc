@@ -452,14 +452,13 @@ function nurani_library_provider_import_form_submit($form, &$form_state) {
   $format = $form_state['storage']['format'];
 
   $import[$work->name] = array(
-    'path'          => nurani_library_provider_works_path(),
-    'format'        => $format,
-    'language'      => $work->language,
-    // TODO: textDirection should not be hard-coded.
-    'textDirection' => in_array($work->language, array('he', 'ar')) ? 'rtl' : 'ltr',
+    'path'             => nurani_library_provider_works_path(),
+    'format'           => $format,
+    'language'         => $work->language,
     // NOTE: Character stripping should not be hard-coded.
-    'stripChars'    => $work->language == 'he' ? '/' : '',
-    'files' => array(),
+    'stripChars'       => $work->language == 'he' ? '/' : '',
+    'files'            => array(),
+    'includeApocrypha' => TRUE,
   );
 
   foreach ($files as $file) {

@@ -173,18 +173,18 @@ class NuraniOSISDocument extends NuraniDocument {
       '3John'  => '3 John',          'Jude'   => 'Jude',            'Rev'    => 'Revelation',
     );
 
-    // TODO: Verify if the list of Apocrypha is correct
+    // Apocrypha
     if (isset($this->conf['includeApocrypha']) && $this->conf['includeApocrypha']) {
       $this->bibleBooks = array_merge($this->bibleBooks, array(
         'Tob'     => 'Tobit',                      'Jdt'     => 'Judith',
-        'GkEsth'  => 'Greek Esther',               'Wis'     => 'Wisdom of Solomon',
+        'AddEsth' => 'Additions to Esther',        'Wis'     => 'Wisdom of Solomon',
         'Sir'     => 'Sirach',                     'Bar'     => 'Baruch',
-        'PrAzar'  => 'The Prayer of Azarias',      'Sus'     => 'Susanna',
-        'Bel'     => 'Bel and the Dragon',         'SgThree' => 'Song of the Three Children',
-        'EpJer'   => 'Epistle of Jeremy',          '1Macc'   => '1 Maccabees',
-        '2Macc'   => '2 Maccabees',                '3Macc'   => '3 Maccabees',
-        '4Macc'   => '4 Maccabees',                '1Esd'    => '1 Esdras',
-        '2Esd'    => '2 Esdras',                   'PrMan'   => 'Prayer of Manasses',
+        'EpJer'   => 'Letter of Jeremiah',         'PrAzar'  => 'Prayer of Azariah',
+        'PrAzar'  => 'Prayer of Azariah',          'Sus'     => 'Susanna',
+        'Bel'     => 'Bel and the Dragon',         '1Macc'   => '1 Maccabees',
+        '2Macc'   => '2 Maccabees',                '1Esd'    => '1 Esdras',
+        'PrMan'   => 'Prayer of Manasses',         '3Macc'   => '3 Maccabees',
+        '2Esd'    => '2 Esdras',                   '4Macc'   => '4 Maccabees',
       ));
     }
 
