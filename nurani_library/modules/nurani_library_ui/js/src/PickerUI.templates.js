@@ -108,12 +108,12 @@ PickerUI.templates = {
 
 PickerUI.partials = {
   annotation: [
-    '<div class="annotation {{annotationClasses this}}" data-index="{{@index}}">',
+    '<div class="annotation {{annotationClasses this}} clearfix" data-index="{{@index}}">',
       '<div class="arrow">◀</div>',
       '<div class="inner">',
-        '<h5 class="title">{{title}}</h5>',
+        '<h5 class="title">{{passage_title}}</h5>',
 
-        '<div class="contents">',
+        '<div class="contents clearfix">',
           '<span class="value">{{truncate value 120}}</span>',
           '{{#if author}}',
             '<span class="attribution">',

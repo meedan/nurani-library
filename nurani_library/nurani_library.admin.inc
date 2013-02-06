@@ -66,7 +66,7 @@ function nurani_library_tests() {
     'class' => array(is_null($error) ? 'test-pass' : 'test-fail'),
   );
 
-  $result = $nl->getAnnotations(NULL, 0, 5);
+  $result = $nl->getAnnotations(NULL, NULL, NULL, 0, 5);
   $error  = $nl->model->getError();
   $rows[] = array(
     'data' => array(

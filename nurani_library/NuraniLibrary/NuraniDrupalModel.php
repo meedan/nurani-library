@@ -73,8 +73,9 @@ class NuraniDrupalModel extends NuraniModel {
 
     $search = count($result) ? array() : FALSE;
     foreach ($result as $row) {
-      $notes = $this->getAnnotations($row->id, $authorUUID, $page, $pagesize);
+      $row->passage_title = NuraniLibrary::passageTitle($row);
 
+      $notes = $this->getAnnotations($row->id, $authorUUID, NULL, $page, $pagesize);
       if (!empty($notes)) {
         $row->notes = $notes;
       }
@@ -86,19 +87,32 @@ class NuraniDrupalModel extends NuraniModel {
   }
 
 
-  public function getAnnotations($passage_id, $authorUUID = NULL, $page = 0, $pagesize = 100) {
+  public function getAnnotations($passage_id, $authorUUID = NULL, $type = NULL, $page = 0, $pagesize = 100) {
     if (!$this->connected) {
       return $this->error(t("Could not establish connection to {nurani_library} database tables."), 0);
     }
 
     $select = db_select('nurani_library_annotations', 'a');
     $select->fields('a');
+
+    // Add fields to generate the passage title
+    $select->join('nurani_library', 'l', 'a.passage_id = l.id');
+    $select->join('nurani_library_books', 'b', 'l.book_id = b.id');
+    $select->join('nurani_library_chapters', 'ch', 'l.chapter_id = ch.id');
+    $select->addField('b', 'full_name', 'book_full_name');
+    $select->addField('ch', 'full_name', 'chapter_full_name');
+    $select->addField('l', 'verse');
+
     if (is_numeric($passage_id) && $passage_id > 0) {
       $select->condition('a.passage_id', $passage_id);
     }
-    $select->condition('a.author_uuid', $authorUUID ? array('', $authorUUID) : array(''), 'IN');
-    $select->orderBy('a.passage_id');
-    $select->orderBy('a.position');
+    if ($type) {
+      $select->condition('a.type', $type);
+    }
+    if ($authorUUID != 'all') {
+      $select->condition('a.author_uuid', $authorUUID ? array('', $authorUUID) : array(''), 'IN');
+    }
+    $select->orderBy('a.created', 'DESC');
 
     if ($pagesize > 0) {
       $select->range($page * $pagesize, $pagesize);
@@ -108,6 +122,7 @@ class NuraniDrupalModel extends NuraniModel {
 
     $notes = array();
     foreach ($result as $row) {
+      $row->passage_title = NuraniLibrary::passageTitle($row);
       $notes[] = $row;
     }
 

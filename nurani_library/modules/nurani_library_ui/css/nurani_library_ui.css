@@ -113,7 +113,7 @@
   display: block;
   margin: 0.75em 0;
   padding-left: 10px;
-  /* Annotation types */
+  /* Annotation types and modes */
   /* Limited space, all action buttons lose their margin */
 }
 /* line 114, scss/nurani_library_ui.scss */
@@ -132,54 +132,61 @@
   text-shadow: -5px 0px 0.5em rgba(0, 0, 0, 0.5);
   color: #fff;
 }
-/* line 134, scss/nurani_library_ui.scss */
-.passage-picker-ui .annotations .annotation.new .title {
+/* line 132, scss/nurani_library_ui.scss */
+.passage-picker-ui .annotations .annotation .title {
+  display: none;
+}
+/* line 138, scss/nurani_library_ui.scss */
+.passage-picker-ui .annotations .annotation.editing .title {
   display: block;
 }
-/* line 139, scss/nurani_library_ui.scss */
+/* line 143, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation.note .arrow {
   color: #bdf;
 }
-/* line 142, scss/nurani_library_ui.scss */
+/* line 146, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation.note .inner {
   background: #bdf;
 }
-/* line 148, scss/nurani_library_ui.scss */
+/* line 152, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation .form-submit {
   float: right;
   margin: 0;
 }
-/* line 154, scss/nurani_library_ui.scss */
+/* line 158, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation:not(.editing):hover .contents .actions {
   display: block;
 }
-/* line 160, scss/nurani_library_ui.scss */
+/* line 164, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation .contents .attribution {
   display: block;
   float: right;
 }
-/* line 165, scss/nurani_library_ui.scss */
+/* line 169, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation .contents .actions {
   display: none;
+  clear: both;
+  float: left;
+  width: 100%;
   margin-top: 1em;
 }
-/* line 169, scss/nurani_library_ui.scss */
+/* line 176, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation .contents .actions .delete-annotation-action {
   float: left;
 }
-/* line 176, scss/nurani_library_ui.scss */
+/* line 183, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation .annotation-form {
   display: none;
 }
-/* line 179, scss/nurani_library_ui.scss */
+/* line 186, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation .annotation-form .form-type-textarea {
   margin-bottom: 1.0em;
 }
-/* line 182, scss/nurani_library_ui.scss */
+/* line 189, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation .annotation-form textarea {
   width: 100%;
 }
-/* line 186, scss/nurani_library_ui.scss */
+/* line 193, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation .annotation-form .actions .cancel {
   float: left;
 }

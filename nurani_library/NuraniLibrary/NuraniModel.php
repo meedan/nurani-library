@@ -41,7 +41,7 @@ abstract class NuraniModel {
 
 
   abstract public function search($work_name, $book = NULL, $chapter = NULL, $verse = NULL, $authorUUID = NULL, $page = 0, $pagesize = 100);
-  abstract public function getAnnotations($passage_id, $authorUUID = NULL, $page = 0, $pagesize = 100);
+  abstract public function getAnnotations($passage_id, $authorUUID = NULL, $type = NULL, $page = 0, $pagesize = 100);
   abstract public function getAnnotation($id);
   abstract public function createAnnotation($annotation);
   abstract public function updateAnnotation($id, $annotation);

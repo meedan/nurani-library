@@ -129,8 +129,12 @@ $toolbar_height: 70px;
         color: #fff;
       }
 
-      /* Annotation types */
-      &.new {
+      .title {
+        display: none;
+      }
+
+      /* Annotation types and modes */
+      &.editing {
         .title {
           display: block;
         }
@@ -164,6 +168,9 @@ $toolbar_height: 70px;
 
         .actions {
           display: none; // Actions are displayed on hover
+          clear: both;
+          float: left;
+          width: 100%;
 
           margin-top: 1em;
           .delete-annotation-action {

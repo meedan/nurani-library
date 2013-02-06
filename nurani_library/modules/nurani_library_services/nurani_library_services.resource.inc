@@ -200,6 +200,14 @@ function _nurani_library_services_services_resources() {
             'source' => array('param' => 'authorUUID'),
           ),
           array(
+            'name' => 'type',
+            'optional' => TRUE,
+            'type' => 'string',
+            'description' => 'Additionally, filter notes by type.',
+            'default value' => NULL,
+            'source' => array('param' => 'type'),
+          ),
+          array(
             'name' => 'page',
             'optional' => TRUE,
             'type' => 'int',
@@ -349,12 +357,12 @@ function _nurani_library_services_api_annotation_delete($id) {
 /**
  *
  */
-function _nurani_library_services_api_annotation_index($passage_id, $authorUUID, $page, $pagesize) {
+function _nurani_library_services_api_annotation_index($passage_id, $authorUUID, $type, $page, $pagesize) {
   $nl = nurani_library();
   if (!user_access('view all nurani library annotations') && $authorUUID) {
     return services_error('Access denied for filtering by authorUUID.', 403);
   }
-  return $nl->getAnnotations($passage_id, $authorUUID, $page, $pagesize);
+  return $nl->getAnnotations($passage_id, $authorUUID, $type, $page, $pagesize);
 }
 
 /**

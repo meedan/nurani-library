@@ -58,9 +58,9 @@ class NuraniRESTModel extends NuraniModel {
    * Retrieves a list of annotations for a passage from remote Nurani Library
    * Provider instance.
    */
-  public function getAnnotations($passage_id, $authorUUID = NULL, $page = 0, $pagesize = 100) {
+  public function getAnnotations($passage_id, $authorUUID = NULL, $type = NULL, $page = 0, $pagesize = 100) {
     $this->resetErrorState();
-    $query = array('authorUUID' => $authorUUID, 'page' => $page, 'pagesize' => $pagesize);
+    $query = array('authorUUID' => $authorUUID, 'type' => $type, 'page' => $page, 'pagesize' => $pagesize);
     $path = 'annotation';
     if (is_numeric($passage_id) && $passage_id > 0) {
       $path .= '/' . $passage_id;
@@ -174,6 +174,7 @@ class NuraniRESTModel extends NuraniModel {
       }
 
       $notes[$i]['author'] = array(
+        'uid' => $author['uid'],
         'name' => $author['name'],
         'url' => url('user/' . $author['uid'], array('absolute' => TRUE)),
       );

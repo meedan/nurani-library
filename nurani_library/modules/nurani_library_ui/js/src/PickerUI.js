@@ -204,8 +204,6 @@ PickerUI.prototype.populatePassages = function (setDefaultState) {
         jLen = passage.notes ? passage.notes.length : 0;
         for (j = 0; j < jLen; j++) {
           note = passage.notes[j];
-          note.title = that.passageTitle(passage);
-
           passage.notes[j] = note;
         }
 
@@ -388,7 +386,7 @@ PickerUI.prototype.newAnnotationFormShowAction = function ($passage) {
     author_uuid:       '', // Automatically set on the server
     type:              'annotation',
     value:             '',
-    title:             'Annotation on ' + this.passageTitle(passage),
+    title:             'Annotation on ' + passage.passage_title,
     verse:             passage.verse,
     position:          passage.text.split(' ').length, // Last word
     length:            0,
@@ -472,7 +470,6 @@ PickerUI.prototype.annotationSaveAction = function ($annotation) {
     data: $('.annotation-form', $annotation).serialize(),
     success: function (newNote) {
       if (newNote && newNote.id) {
-        newNote.title = that.passageTitle(passage);
         that.viewData.passages[i].notes[j] = newNote;
       } else {
         // TODO: Handle the error.
@@ -849,8 +846,4 @@ PickerUI.prototype.didResize = function () {
 PickerUI.prototype.setMessage = function (message, type, hideAfter) {
   hideAfter = hideAfter || null;
   util.setMessage($('.passages', this.$element), message, type, hideAfter);
-};
-
-PickerUI.prototype.passageTitle = function (passage) {
-  return passage.book_full_name + ' ' + passage.chapter_full_name + ':' + passage.verse;
 };

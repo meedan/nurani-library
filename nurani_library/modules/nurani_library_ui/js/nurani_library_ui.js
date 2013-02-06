@@ -257,8 +257,6 @@ var NL = (function ($) {
           jLen = passage.notes ? passage.notes.length : 0;
           for (j = 0; j < jLen; j++) {
             note = passage.notes[j];
-            note.title = that.passageTitle(passage);
-
             passage.notes[j] = note;
           }
 
@@ -441,7 +439,7 @@ var NL = (function ($) {
       author_uuid:       '', // Automatically set on the server
       type:              'annotation',
       value:             '',
-      title:             'Annotation on ' + this.passageTitle(passage),
+      title:             'Annotation on ' + passage.passage_title,
       verse:             passage.verse,
       position:          passage.text.split(' ').length, // Last word
       length:            0,
@@ -525,7 +523,6 @@ var NL = (function ($) {
       data: $('.annotation-form', $annotation).serialize(),
       success: function (newNote) {
         if (newNote && newNote.id) {
-          newNote.title = that.passageTitle(passage);
           that.viewData.passages[i].notes[j] = newNote;
         } else {
           // TODO: Handle the error.
@@ -904,10 +901,6 @@ var NL = (function ($) {
     util.setMessage($('.passages', this.$element), message, type, hideAfter);
   };
 
-  PickerUI.prototype.passageTitle = function (passage) {
-    return passage.book_full_name + ' ' + passage.chapter_full_name + ':' + passage.verse;
-  };
-
   // Static template for the picker UI. Handlebars compiles this shared template
   // into a specific HTML blob for each PickerUI instance.
   PickerUI.templates = {
@@ -1018,12 +1011,12 @@ var NL = (function ($) {
 
   PickerUI.partials = {
     annotation: [
-      '<div class="annotation {{annotationClasses this}}" data-index="{{@index}}">',
+      '<div class="annotation {{annotationClasses this}} clearfix" data-index="{{@index}}">',
         '<div class="arrow">◀</div>',
         '<div class="inner">',
-          '<h5 class="title">{{title}}</h5>',
+          '<h5 class="title">{{passage_title}}</h5>',
 
-          '<div class="contents">',
+          '<div class="contents clearfix">',
             '<span class="value">{{truncate value 120}}</span>',
             '{{#if author}}',
               '<span class="attribution">',

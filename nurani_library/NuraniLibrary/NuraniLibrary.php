@@ -46,8 +46,8 @@ class NuraniLibrary {
   }
 
 
-  public function getAnnotations($passage_id, $authorUUID = NULL, $page = 0, $pagesize = 100) {
-    return $this->model->getAnnotations($passage_id, $authorUUID, $page, $pagesize);
+  public function getAnnotations($passage_id, $authorUUID = NULL, $type = NULL, $page = 0, $pagesize = 100) {
+    return $this->model->getAnnotations($passage_id, $authorUUID, $type, $page, $pagesize);
   }
 
 
@@ -98,6 +98,15 @@ class NuraniLibrary {
    */
   static function passageTextWords($text) {
     return preg_split('/[\pZ\pC]+/u', $text);
+  }
+
+  /**
+   * NuraniLibrary::passageWords()
+   *
+   * UTF8 safe word splitter.
+   */
+  static function passageTitle($passage) {
+    return $passage->book_full_name . ' ' . $passage->chapter_full_name . ':' . $passage->verse;
   }
 
 }

@@ -189,6 +189,18 @@ function nurani_library_provider_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the annotation was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'changed' => array(
+        'description' => 'The Unix timestamp when the annotation was most recently saved.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
       'type' => array(
         'type' => 'varchar',
         'length' => 32,
@@ -324,6 +336,41 @@ function nurani_library_provider_update_7005() {
         'indexes' => array(
           'passage_id' => array('passage_id'),
         ),
+      )
+    );
+  }
+}
+
+/**
+ * Adding the created and changed fields to {nurani_library_annotations}
+ */
+function nurani_library_provider_update_7006() {
+  if (!db_field_exists('nurani_library_annotations', 'created')) {
+    db_add_field(
+      'nurani_library_annotations',
+      'created',
+      array(
+        'description' => 'The Unix timestamp when the annotation was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      array(
+        'indexes' => array(
+          'created' => array('created'),
+        ),
+      )
+    );
+  }
+  if (!db_field_exists('nurani_library_annotations', 'changed')) {
+    db_add_field(
+      'nurani_library_annotations',
+      'changed',
+      array(
+        'description' => 'The Unix timestamp when the annotation was most recently saved.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
       )
     );
   }
