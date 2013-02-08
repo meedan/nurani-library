@@ -139,6 +139,11 @@ $toolbar_height: 70px;
           display: block;
         }
       }
+      &.editable {
+        .inner {
+          border-top: 5px solid #005eae;
+        }
+      }
       &.note {
         .arrow {
           color: #bdf;

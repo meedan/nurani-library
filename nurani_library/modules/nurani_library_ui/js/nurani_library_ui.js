@@ -637,9 +637,9 @@ var NL = (function ($) {
         // Skip unknown types
         objects = [];
         switch (type) {
-          case 'work':    objects = this.viewData.works; break;
-          case 'book':    objects = this.viewData.selectedWork.books; break;
-          case 'chapter': objects = this.viewData.selectedBook.chapters; break;
+          case 'work':    objects = this.viewData.works || []; break;
+          case 'book':    objects = this.viewData.selectedWork.books || []; break;
+          case 'chapter': objects = this.viewData.selectedBook.chapters || []; break;
         }
 
         for (j = objects.length - 1; j >= 0; j--) {
@@ -1172,6 +1172,9 @@ var NL = (function ($) {
       }
       if (annotation.editing) {
         classes.push('editing');
+      }
+      if (annotation.editable) {
+        classes.push('editable');
       }
       return new Handlebars.SafeString(classes.join(' '));
     });

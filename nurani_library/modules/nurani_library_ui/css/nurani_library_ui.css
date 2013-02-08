@@ -141,28 +141,32 @@
   display: block;
 }
 /* line 143, scss/nurani_library_ui.scss */
+.passage-picker-ui .annotations .annotation.editable .inner {
+  border-top: 5px solid #005eae;
+}
+/* line 148, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation.note .arrow {
   color: #bdf;
 }
-/* line 146, scss/nurani_library_ui.scss */
+/* line 151, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation.note .inner {
   background: #bdf;
 }
-/* line 152, scss/nurani_library_ui.scss */
+/* line 157, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation .form-submit {
   float: right;
   margin: 0;
 }
-/* line 158, scss/nurani_library_ui.scss */
+/* line 163, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation:not(.editing):hover .contents .actions {
   display: block;
 }
-/* line 164, scss/nurani_library_ui.scss */
+/* line 169, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation .contents .attribution {
   display: block;
   float: right;
 }
-/* line 169, scss/nurani_library_ui.scss */
+/* line 174, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation .contents .actions {
   display: none;
   clear: both;
@@ -170,23 +174,23 @@
   width: 100%;
   margin-top: 1em;
 }
-/* line 176, scss/nurani_library_ui.scss */
+/* line 181, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation .contents .actions .delete-annotation-action {
   float: left;
 }
-/* line 183, scss/nurani_library_ui.scss */
+/* line 188, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation .annotation-form {
   display: none;
 }
-/* line 186, scss/nurani_library_ui.scss */
+/* line 191, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation .annotation-form .form-type-textarea {
   margin-bottom: 1.0em;
 }
-/* line 189, scss/nurani_library_ui.scss */
+/* line 194, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation .annotation-form textarea {
   width: 100%;
 }
-/* line 193, scss/nurani_library_ui.scss */
+/* line 198, scss/nurani_library_ui.scss */
 .passage-picker-ui .annotations .annotation .annotation-form .actions .cancel {
   float: left;
 }

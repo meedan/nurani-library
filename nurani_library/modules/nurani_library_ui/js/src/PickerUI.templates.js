@@ -270,6 +270,9 @@ $(function () {
     if (annotation.editing) {
       classes.push('editing');
     }
+    if (annotation.editable) {
+      classes.push('editable');
+    }
     return new Handlebars.SafeString(classes.join(' '));
   });
 

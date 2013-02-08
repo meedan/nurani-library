@@ -283,6 +283,9 @@ function _nurani_library_services_api_passage_index($work_name, $book, $chapter,
   if (!user_access('view all nurani library annotations') && $authorUUID) {
     return services_error('Access denied for filtering by authorUUID.', 403);
   }
+  else if (user_access('view all nurani library annotations')) {
+    $authorUUID = 'all';
+  }
   // TODO: Need a mechanism for the admin user to see all annotations if they choose.
   if (!$authorUUID) {
     $authorUUID = $GLOBALS['user']->uuid;
