@@ -43,6 +43,9 @@ PassageWidget.prototype.init = function (widget) {
     if (widget.html) {
       this.addWidget(widget.html)
     }
+    else if (widget.scalar) {
+      this.addWidget(widget.scalar)
+    }
     this.addWidgetTabBar();
   }
 };

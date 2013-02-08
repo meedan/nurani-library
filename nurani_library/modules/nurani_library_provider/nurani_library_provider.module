@@ -144,7 +144,24 @@ function nurani_library_provider_passages_provider($provider, $url, $matches) {
   }
 
   if (!$output) {
-    return FALSE;
+    if (!$osisIDWorks) {
+      $error = t('Error, no <em>work</em> defined for this passage.');
+    }
+    else if (!$osisID) {
+      $error = t('Error, no <em>passage</em> defined.');
+    }
+    else {
+      $passage_title = "$osisIDWork:$osisID";
+      $error = t('%passage was not found in the Nurani Library.', array('%passage' => $passage_title));
+    }
+    return '<div class="error">'
+         .   '<div class="message">'
+         .     $error
+         .   '</div>'
+         .   '<div class="info">'
+         .     t('Please contact the @site team', array('@site' => variable_get('site_name', 'Nurani Library')))
+         .   '</div>'
+         . '</div>';
   }
 
   $result = _oembedprovider_result('rich', array(

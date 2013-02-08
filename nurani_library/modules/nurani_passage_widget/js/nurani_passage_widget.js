@@ -57,6 +57,9 @@ var PassageWidget = (function ($) {
       if (widget.html) {
         this.addWidget(widget.html)
       }
+      else if (widget.scalar) {
+        this.addWidget(widget.scalar)
+      }
       this.addWidgetTabBar();
     }
   };
