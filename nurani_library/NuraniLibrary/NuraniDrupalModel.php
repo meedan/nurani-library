@@ -135,7 +135,7 @@ class NuraniDrupalModel extends NuraniModel {
              ->fields('a')
              ->condition('a.id', $id)
              ->execute()
-             ->fetchObject();
+             ->fetchAssoc();
   }
 
 

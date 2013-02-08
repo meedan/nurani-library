@@ -312,7 +312,7 @@ function _nurani_library_services_api_annotation_retrieve($id) {
   $nl = nurani_library();
   $annotation = $nl->getAnnotation($id);
   if (!user_access('view all nurani library annotations')) {
-    if (!in_array((string) $annotation->authorUUID, array($GLOBALS['users']->uuid, ''))) {
+    if (!in_array((string) $annotation['author_uuid'], array($GLOBALS['users']->uuid, ''))) {
       return FALSE; // TODO: Set an error here?
     }
   }
@@ -335,14 +335,30 @@ function _nurani_library_services_api_annotation_create($annotation) {
  *
  */
 function _nurani_library_services_api_annotation_update($id, $annotation) {
+  global $user;
+
   $nl = nurani_library();
+
   // A little slow, but checking that the annotation can be retrieved
   // satisfies several security issues:
   // 1) Ensures the passage exists
   // 2) Ensures the current account has access to the passage
-  if (_nurani_library_services_api_annotation_retrieve($id)) {
-    return $nl->updateAnnotation($id, $annotation);
+  if ($original_annotation = _nurani_library_services_api_annotation_retrieve($id)) {
+    // Ensure we compare against SOMETHING. If this user doesn't have a UUID
+    // we must be careful to avoid letting them edit a 'note' (footnote) which
+    // have no UUID.
+    $user_uuid = $user->uuid ? $user->uuid : '-1';
+
+    if ($original_annotation['author_uuid'] == $user_uuid || user_access('edit all nurani library annotations')) {
+      return $nl->updateAnnotation($id, $annotation);
+    }
+    else {
+      return services_error(t('Access denied for user @user', array(
+        '@user' => isset($user->name) ? $user->name : 'anonymous',
+      )), 401);
+    }
   }
+
   return FALSE; // TODO: Set an error here?
 }
 

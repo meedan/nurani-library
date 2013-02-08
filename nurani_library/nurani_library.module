@@ -111,6 +111,9 @@ function nurani_library_permission() {
     'view all nurani library annotations' =>  array(
       'title' => t('Can View All Nurani Library Annotations'),
     ),
+    'edit all nurani library annotations' =>  array(
+      'title' => t('Can Edit All Nurani Library Annotations'),
+    ),
     'create nurani library annotations' =>  array(
       'title' => t('Create Nurani Library Annotations'),
     ),

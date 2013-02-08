@@ -179,7 +179,7 @@ class NuraniRESTModel extends NuraniModel {
         'url' => url('user/' . $author['uid'], array('absolute' => TRUE)),
       );
 
-      if ($note['author_uuid'] == $user->uuid) {
+      if ($note['author_uuid'] == $user->uuid || user_access('edit all nurani library annotations')) {
         $notes[$i]['editable'] = TRUE;
       }
     }
