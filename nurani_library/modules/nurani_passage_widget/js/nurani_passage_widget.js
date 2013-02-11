@@ -61,12 +61,12 @@ var PassageWidget = (function ($) {
         this.addWidget(widget.scalar)
       }
       this.addWidgetTabBar();
+      this.initAnnotations();
     }
   };
 
   PassageWidget.prototype.addWidget = function(html) {
     this.$element.html(html);
-    this.initAnnotations();
   };
 
   PassageWidget.prototype.initAnnotations = function () {
