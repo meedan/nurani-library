@@ -137,7 +137,7 @@ PickerUI.partials = {
 
   newAnnotationButton: [
     '<div class="new-annotation-button">',
-      '<input class="new-annotation-form-action form-submit" type="submit" id="edit-new-annotation-submit" name="op" value="Add note">',
+      '<input class="new-annotation-form-action form-submit" type="submit" id="edit-new-annotation-submit" name="op" value="Annotate this passage">',
     '</div>'
   ].join(''),
 
