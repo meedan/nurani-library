@@ -3,11 +3,17 @@
 /**
  * Loads requires CSS / JS for Nurani Library UI
  */
-function nurani_library_ui_load() {
-  drupal_add_library('nurani_library_ui', 'nurani_library.ui');
-  libraries_load('handlebars');
-  libraries_load('jquery.color');
-  libraries_load('openbibleinfo.bible-passage-reference-parser');
+function nurani_library_ui_attached() {
+  return array(
+    'library' => array(
+      array('nurani_library_ui', 'nurani_library.ui'),
+    ),
+    'libraries_load' => array(
+      array('handlebars'),
+      array('jquery.color'),
+      array('openbibleinfo.bible-passage-reference-parser'),
+    ),
+  );
 }
 
 /**

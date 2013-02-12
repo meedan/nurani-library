@@ -19,10 +19,6 @@ function nurani_library_ui() {
  * Menu callback for main Nurani Library Picker user interface.
  */
 function nurani_library_ui_picker_ui() {
-  // Add the custom bundle UI and connections to the nurani library UI for the
-  // passage picker
-  nurani_library_ui_load();
-
   $initializer = 'jQuery(function () {'
                .   'var nuraniLibraryPickerUI = new NL.PickerUI({'
                .     'osisIDWork: null,'
@@ -39,13 +35,10 @@ function nurani_library_ui_picker_ui() {
                . '});';
 
   $content = array();
-  $content['#attached'] = array(
-    'js'  => array(
-      $initializer => array(
-        'type' => 'inline'
-      ),
-    ),
-  );
+  // Add the custom bundle UI and connections to the nurani library UI for the
+  // passage picker
+  $content['#attached'] = nurani_library_ui_attached();
+  $content['#attached']['js'][$initializer] = array('type' => 'inline');
   $content['container'] = array(
     '#type' => 'markup',
     // FIXME: Un-hardcode this.
