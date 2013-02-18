@@ -1,4 +1,6 @@
-var NL = (function ($) {
+if (!NL) { var NL = {}; }
+
+var _nlui = (function ($) {
 
   /**
    * Util library.
@@ -1188,3 +1190,5 @@ var NL = (function ($) {
   return {PickerUI: PickerUI};
 
 })(jQuery);
+
+NL.PickerUI   = _nlui.PickerUI;

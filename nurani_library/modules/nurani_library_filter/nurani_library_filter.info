@@ -1,0 +1,6 @@
+name = Nurani Library Filter
+description = Nurani Library passage filter.
+core = 7.x
+version = 7.x-1.0
+package = Nurani
+dependencies[] = nurani_passage_widget

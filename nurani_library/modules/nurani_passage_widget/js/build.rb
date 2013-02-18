@@ -15,9 +15,12 @@ require 'fileutils'
 ]
 @out_file = "nurani_passage_widget.js"
 
-@prefix  = "var PassageWidget = (function ($) {\n\n"
-@suffix  = "  return PassageWidget;\n\n"
-@suffix += "})(jQuery);"
+@prefix  = "if (!NL) { var NL = {}; }\n\n"
+@prefix += "var _npw = (function ($) {\n\n"
+@suffix  = "  return { PassageWidget: PassageWidget, PassageCitation: PassageCitation };\n\n"
+@suffix += "})(jQuery);\n\n"
+@suffix += "NL.PassageWidget   = _npw.PassageWidget;\n"
+@suffix += "NL.PassageCitation = _npw.PassageCitation;"
 
 # Ensure the out_file exists and has zero bytes
 out_file = File.join(@root, @out_file)

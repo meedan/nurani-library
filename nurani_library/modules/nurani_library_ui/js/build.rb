@@ -16,9 +16,11 @@ require 'fileutils'
 ]
 @out_file = "nurani_library_ui.js"
 
-@prefix  = "var NL = (function ($) {\n\n"
+@prefix  = "if (!NL) { var NL = {}; }\n\n"
+@prefix += "var _nlui = (function ($) {\n\n"
 @suffix  = "  return {PickerUI: PickerUI};\n\n"
-@suffix += "})(jQuery);"
+@suffix += "})(jQuery);\n\n"
+@suffix += "NL.PickerUI   = _nlui.PickerUI;"
 
 # Ensure the out_file exists and has zero bytes
 out_file = File.join(@root, @out_file)

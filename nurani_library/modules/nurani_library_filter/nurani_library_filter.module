@@ -1,0 +1,62 @@
+<?php
+
+/**
+ * Implements hook_filter_info()
+ */
+function nurani_library_filter_info() {
+  $filters = array();
+  $filters['nurani_library_passages'] = array(
+    'title' => t('Nurani Library passages'),
+    'description' => t('Enables users to cite passages.'),
+    'process callback' => 'nurani_library_passages_filter',
+    'settings callback' => 'nurani_library_passages_filter_settings',
+    'tips callback' => 'nurani_library_passages_filter_tips',
+  );
+  return $filters;
+}
+
+/**
+ * Filter callback for nurani_library_passages filter.
+ */
+function nurani_library_passages_filter($text, $filter) {
+  $text = preg_replace_callback('/\[([a-z0-9_]+):([A-Za-z]+\.[0-9]+\.[0-9\-]+)\]/m', '_nurani_library_passages_filter_callback', $text);
+  return $text;
+}
+
+/**
+ * Regular expression replace callback to insert notes into passages.
+ */
+function _nurani_library_passages_filter_callback($matches) {
+  if (isset($matches[1]) && isset($matches[2])) {
+    return nurani_passage_embedded_citation($matches[1], $matches[2]);
+  }
+  else {
+    return $matches[0];
+  }
+}
+
+/**
+ * Filter settings callback for nurani_library_passages filter.
+ */
+function nurani_library_passages_filter_settings($form, &$form_state, $filter, $format, $defaults) {
+  $filter->settings += $defaults;
+
+  $settings['allowed_works'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Allowed works'),
+    '#default_value' => array(),
+    '#options' => nurani_library_work_options(),
+  );
+
+  return $settings;
+}
+
+
+/**
+ * Filter tips callback for nurani_library_passages filter.
+ */
+function nurani_library_passages_filter_tips($filter, $format, $long = FALSE) {
+  return '<p>' . t("Nurani Library passages can be inserted with syntax like <code>[nrsv_en:Gen.1.1]</code>.") . '</p>'
+       . '<p>' . t("Allowed works: @allowed_works", array('@allowed_works' => implode(', ', $filter->settings['allowed_works']))) . '</p>';
+}
+

@@ -1,4 +1,6 @@
-var PassageWidget = (function ($) {
+if (!NL) { var NL = {}; }
+
+var _npw = (function ($) {
 
   /**
    * Util library.
@@ -13,7 +15,9 @@ var PassageWidget = (function ($) {
   var log = function f(){ log.history = log.history || []; log.history.push(arguments); if(this.console) { var args = arguments, newarr; args.callee = args.callee.caller; newarr = [].slice.call(args); if (typeof console.log === 'object') log.apply.call(console.log, console, newarr); else console.log.apply(console, newarr);}};
 
   function PassageWidget(widget) {
-    this.init(widget);
+    if (widget) {
+      this.init(widget);
+    }
   }
 
   /**
@@ -146,6 +150,28 @@ var PassageWidget = (function ($) {
   };
 
 
-  return PassageWidget;
+  /**
+   * PassageCitation is a derivative widget type inherited from PassageWidget.
+   */
+  function PassageCitation(widget) {
+    // Invoke parent constructor
+    PassageWidget.call(this, widget);
+  }
+
+  // Inheritance, PassageCitation < PassageWidget
+  PassageCitation.prototype = new PassageWidget();
+
+  PassageCitation.prototype.init = function (widget) {
+    // Invoke parent initialization
+    PassageWidget.prototype.init.call(this, widget);
+  };
+
+  // Override to disable tab-bar
+  PassageCitation.prototype.addWidgetTabBar = function () { };
+
+  return { PassageWidget: PassageWidget, PassageCitation: PassageCitation };
 
 })(jQuery);
+
+NL.PassageWidget   = _npw.PassageWidget;
+NL.PassageCitation = _npw.PassageCitation;
