@@ -53,7 +53,7 @@ var _npw = (function ($) {
 
     // Annotation the page anchor fragment marker '#' is abused to also be the
     // ID marker for jQuery
-    matches = widget.original_url.match(/#passage-widget-[a-z0-9]{8,32}$/);
+    matches = widget.original_url.match(/#passage-(widget|citation)-[a-z0-9]{8,32}$/);
 
     this.$element = matches[0] ? $(matches[0]) : false;
 
@@ -83,8 +83,8 @@ var _npw = (function ($) {
 
       $note.before($nm);
 
-      $nm.hover(function () { that.noteDisplayAction($nm, $note); },
-                function () { that.noteHideAction($nm, $note); });
+      $nm.hover(function () { that.tooltipDisplayAction($nm, $note); },
+                function () { that.tooltipHideAction($nm, $note); });
     });
   };
 
@@ -134,19 +134,19 @@ var _npw = (function ($) {
     $(tab).addClass('active');
   };
 
-  PassageWidget.prototype.noteDisplayAction = function ($nm, $note) {
-    var pos = $nm.position();
-
-    $note.css({
-      top:  pos.top - $note.outerHeight() - 10,
+  PassageWidget.prototype.tooltipDisplayAction = function ($el, $tooltip) {
+    var pos = $el.position();
+   
+    $tooltip.css({
+      top:  pos.top - $tooltip.outerHeight() - 10,
       left: pos.left
     })
 
-    $note.show();
+    $tooltip.show();
   };
 
-  PassageWidget.prototype.noteHideAction = function ($nm, $note) {
-    $note.hide();
+  PassageWidget.prototype.tooltipHideAction = function ($el, $tooltip) {
+    $tooltip.hide();
   };
 
 
@@ -161,13 +161,37 @@ var _npw = (function ($) {
   // Inheritance, PassageCitation < PassageWidget
   PassageCitation.prototype = new PassageWidget();
 
+  /**
+   * Static method for JSONP driven object instantiation.
+   */
+  PassageCitation.JSONP = function (widget) {
+    return new PassageCitation(widget);
+  };
+
   PassageCitation.prototype.init = function (widget) {
     // Invoke parent initialization
     PassageWidget.prototype.init.call(this, widget);
+
+    if (this.$element) {
+      this.initTooltip(widget);
+    }
   };
 
   // Override to disable tab-bar
   PassageCitation.prototype.addWidgetTabBar = function () { };
+
+  // 
+  PassageCitation.prototype.initTooltip = function (widget) {
+    var that = this,
+        $link = $('<a href="#" class="citation-marker">' + widget.title + '</a>'),
+        $tooltip = $('.passage-widget', this.$element);
+
+    this.$element.append($link);
+
+    $link.hover(function () { that.tooltipDisplayAction($link, $tooltip); },
+                function () { that.tooltipHideAction($link, $tooltip); });
+  };
+
 
   return { PassageWidget: PassageWidget, PassageCitation: PassageCitation };
 

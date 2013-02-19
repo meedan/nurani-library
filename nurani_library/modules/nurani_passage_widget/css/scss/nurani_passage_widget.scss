@@ -25,6 +25,18 @@
     display: none;
   }
 }
+.passage-citation-wrapper {
+  display: inline-block;
+
+  .citation-marker {
+    display: inline-block;
+  }
+  .passage-widget {
+    position: absolute;
+    z-index: 1000;
+    display: none;
+  }
+}
 
 //
 // Colours and visual styles, separated for easy removal
@@ -45,6 +57,15 @@
     cursor: help;
   }
   span.note {
+    width: 20em;
+    background: #fff;
+    border-radius: 0.5em;
+    box-shadow: 0 0.2em 1em rgba(0, 0, 0, 0.5);
+    padding: 1em;
+  }
+}
+.passage-citation-wrapper {
+  .passage-widget {
     width: 20em;
     background: #fff;
     border-radius: 0.5em;
