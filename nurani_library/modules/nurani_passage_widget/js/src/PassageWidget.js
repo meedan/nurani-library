@@ -164,7 +164,6 @@ PassageCitation.prototype.init = function (widget) {
 // Override to disable tab-bar
 PassageCitation.prototype.addWidgetTabBar = function () { };
 
-// 
 PassageCitation.prototype.initTooltip = function (widget) {
   var that = this,
       $link = $('<a href="#" class="citation-marker">' + widget.title + '</a>'),
@@ -175,4 +174,3 @@ PassageCitation.prototype.initTooltip = function (widget) {
   $link.hover(function () { that.tooltipDisplayAction($link, $tooltip); },
               function () { that.tooltipHideAction($link, $tooltip); });
 };
-

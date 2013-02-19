@@ -84,7 +84,7 @@ function nurani_passage_embedded_citation($osisIDWork, $osisID) {
 
   if ($backend == 'REST') {
     $url = nurani_passage_widget_oembed_url($osisIDWork, $osisID, $id, 'jsonp', 'NL.PassageCitation.JSONP');
-    $output .= '<div class="passage-citation-wrapper" id="' . $id . '"></div>';
+    $output .= '<span class="passage-citation-wrapper" id="' . $id . '"></span>';
     $output .= '<script src="' . $url . '"></script>';
   }
   else if (module_exists('nurani_library_provider')) {
@@ -98,7 +98,7 @@ function nurani_passage_embedded_citation($osisIDWork, $osisID) {
     $oembed = nurani_library_provider_passages_provider($provider, $url, array($url, $passages_path));
 
     if ($oembed && $oembed['html']) {
-      $output .= '<div class="passage-citation-wrapper" id="' . $id . '">' . $oembed['html'] . '</div>';
+      $output .= '<span class="passage-citation-wrapper" id="' . $id . '">' . $oembed['html'] . '</span>';
       $url = nurani_passage_widget_oembed_url($osisIDWork, $osisID, $id, 'jsonp', 'NL.PassageCitation.JSONP');
       $output .= '<script>jQuery(function () { new PassageCitation({original_url: "' . url($_GET['q'], array('fragment' => $id)) . '", html: false}) });</script>';
     }
@@ -122,11 +122,11 @@ function nurani_passage_embedded_citation($osisIDWork, $osisID) {
 function nurani_passage_widget_oembed_url($osisIDWork, $osisID, $hash = NULL, $format = 'jsonp', $callback = 'NL.PassageWidget.JSONP') {
   $hash = $hash ? '#' . $hash : '';
 
-  return url(nurani_library_base_url() . '/oembed/endpoint', array(
+  return str_replace('&', '&amp;', url(nurani_library_base_url() . '/oembed/endpoint', array(
     'query' => array(
       'url'      => nurani_library_base_url(TRUE) . '/passages/' . $osisIDWork . '/' . $osisID . $hash,
       'format'   => $format,
       'callback' => $callback
     )
-  ));
+  )));
 }

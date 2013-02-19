@@ -180,7 +180,6 @@ var _npw = (function ($) {
   // Override to disable tab-bar
   PassageCitation.prototype.addWidgetTabBar = function () { };
 
-  // 
   PassageCitation.prototype.initTooltip = function (widget) {
     var that = this,
         $link = $('<a href="#" class="citation-marker">' + widget.title + '</a>'),
@@ -191,7 +190,6 @@ var _npw = (function ($) {
     $link.hover(function () { that.tooltipDisplayAction($link, $tooltip); },
                 function () { that.tooltipHideAction($link, $tooltip); });
   };
-
 
   return { PassageWidget: PassageWidget, PassageCitation: PassageCitation };
 
