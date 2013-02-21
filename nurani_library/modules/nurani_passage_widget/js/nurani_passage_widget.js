@@ -1,6 +1,8 @@
+/*jslint nomen: true, plusplus: true, todo: true, white: true, browser: true, indent: 2 */
 if (!NL) { var NL = {}; }
 
 var _npw = (function ($) {
+  "use strict";
 
   /**
    * Util library.
@@ -10,9 +12,6 @@ var _npw = (function ($) {
 
   // Globally available Util
   var util = new Util();
-
-  // paulirish.com/2009/log-a-lightweight-wrapper-for-consolelog/
-  var log = function f(){ log.history = log.history || []; log.history.push(arguments); if(this.console) { var args = arguments, newarr; args.callee = args.callee.caller; newarr = [].slice.call(args); if (typeof console.log === 'object') log.apply.call(console.log, console, newarr); else console.log.apply(console, newarr);}};
 
   function PassageWidget(widget) {
     if (widget) {
@@ -32,8 +31,8 @@ var _npw = (function ($) {
    */
   PassageWidget.oEmbedURL = function (osisIDWork, osisID, hash, format, callback) {
     hash     = hash ? '#' + hash : '';
-    format   = format ? format : 'jsonp';
-    callback = callback ? callback : 'PassageWidget.JSONP';
+    format   = format || 'jsonp';
+    callback = callback || 'PassageWidget.JSONP';
 
     var nl    = Drupal.settings.nuraniLibrary,
         query = [
@@ -59,10 +58,10 @@ var _npw = (function ($) {
 
     if (this.$element) {
       if (widget.html) {
-        this.addWidget(widget.html)
+        this.addWidget(widget.html);
       }
       else if (widget.scalar) {
-        this.addWidget(widget.scalar)
+        this.addWidget(widget.scalar);
       }
       this.addWidgetTabBar();
       this.initAnnotations();
@@ -140,7 +139,7 @@ var _npw = (function ($) {
     $tooltip.css({
       top:  pos.top - $tooltip.outerHeight() - 10,
       left: pos.left
-    })
+    });
 
     $tooltip.show();
   };
@@ -193,7 +192,7 @@ var _npw = (function ($) {
 
   return { PassageWidget: PassageWidget, PassageCitation: PassageCitation };
 
-})(jQuery);
+}(jQuery));
 
 NL.PassageWidget   = _npw.PassageWidget;
 NL.PassageCitation = _npw.PassageCitation;

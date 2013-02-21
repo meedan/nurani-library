@@ -10,16 +10,19 @@ require 'fileutils'
 @root = File.expand_path(File.dirname(__FILE__))
 
 @src_files = [
+  "src/Compat.js",
   "src/Util.js",
   "src/PickerUI.js",
   "src/PickerUI.templates.js",
 ]
 @out_file = "nurani_library_ui.js"
 
-@prefix  = "if (!NL) { var NL = {}; }\n\n"
-@prefix += "var _nlui = (function ($) {\n\n"
+@prefix  = "/*jslint nomen: true, plusplus: true, todo: true, white: true, browser: true, indent: 2 */\n"
+@prefix += "if (!NL) { var NL = {}; }\n\n"
+@prefix += "var _nlui = (function ($) {\n"
+@prefix += "  \"use strict\";\n\n"
 @suffix  = "  return {PickerUI: PickerUI};\n\n"
-@suffix += "})(jQuery);\n\n"
+@suffix += "}(jQuery));\n\n"
 @suffix += "NL.PickerUI   = _nlui.PickerUI;"
 
 # Ensure the out_file exists and has zero bytes

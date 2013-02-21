@@ -4,7 +4,7 @@
 function PickerUI(opts) {
   this.defaults = {
     osisIDWork: '',
-    osisID:     '',
+    osisID:     ''
   };
 
   this.opts  = $.extend(this.defaults, opts);
@@ -38,7 +38,7 @@ PickerUI.prototype.init = function () {
 
   // Use the Bible-Passage-Reference-Parser, if available
   if (typeof bcv_parser === 'function') {
-    this.bcv = new bcv_parser;
+    this.bcv = new bcv_parser();
     this.bcv.set_options({
       book_alone_strategy: 'include',
       book_sequence_strategy: 'include'
@@ -65,7 +65,7 @@ PickerUI.prototype.initToolbar = function ($toolbar) {
     .keydown(function (e) {
       var keyCode = e.keyCode || e.which;
       // <Enter> and <Tab> are valid ways to search
-      if (keyCode == 13 || keyCode == 9) {
+      if (keyCode === 13 || keyCode === 9) {
         e.preventDefault();
         that.searchAction(null, this);
       }
@@ -109,10 +109,10 @@ PickerUI.prototype.initAnnotations = function ($annotations) {
  * be loaded from templates.
  */
 PickerUI.prototype.renderViews = function (toRender) {
-  var func, $el;
+  var func, $el, i;
   toRender = toRender || ['toolbar', 'alternateWorks', 'passages'];
 
-  for (var i = toRender.length - 1; i >= 0; i--) {
+  for (i = toRender.length - 1; i >= 0; i--) {
     $el = this.$element.find('.' + toRender[i]);
     // Compile handlebars.js templates as needed
     // @see: PickerUI.templates.js
@@ -186,7 +186,7 @@ PickerUI.prototype.populatePassages = function (setDefaultState) {
       if (setDefaultState && that.opts.osisID && that.opts.osisIDParts[2]) {
         parts = that.opts.osisIDParts[2].split('-');
         firstVerse = parseInt(parts[0], 10);
-        lastVerse = parts.length == 2 ? parseInt(parts[1], 10) : firstVerse;
+        lastVerse = parts.length === 2 ? parseInt(parts[1], 10) : firstVerse;
       } else {
         setDefaultState = false;
       }
@@ -302,15 +302,16 @@ PickerUI.prototype.chooseChapterAction = function (chosenChapter) {
 PickerUI.prototype.pickPassageAction = function (osisID, el) {
   var $el = $(el),
       $checkboxes = $('.form-item-passage', this.$element),
-      originI = $checkboxes.index(el);
+      originI = $checkboxes.index(el),
+      first, last, firstVerse, lastVerse;
 
   if ($el.attr('checked')) {
     // Determine the contiguous group el checkbox belongs to then remove
     // all other ticked boxes
-    var first = this.contiguous($checkboxes, originI, -1),
-        last = this.contiguous($checkboxes, originI,  1),
-        firstVerse = parseInt(first.split('.')[2], 10),
-        lastVerse = parseInt(last.split('.')[2], 10);
+    first = this.contiguous($checkboxes, originI, -1);
+    last = this.contiguous($checkboxes, originI,  1);
+    firstVerse = parseInt(first.split('.')[2], 10);
+    lastVerse = parseInt(last.split('.')[2], 10);
 
     $checkboxes.each(function () {
       var $this = $(this),
@@ -325,10 +326,10 @@ PickerUI.prototype.pickPassageAction = function (osisID, el) {
     if (this.viewData.alternateWorks.length > 0) {
       this.showAlternateWorks();
     }
-  } else if ($checkboxes.filter('[checked]').length == 0) {
+  } else if ($checkboxes.filter('[checked]').length === 0) {
     this.hideAlternateWorks();
   }
-}
+};
 
 /**
  * Handles displaying the 'Add note' button.
@@ -389,7 +390,7 @@ PickerUI.prototype.newAnnotationFormShowAction = function ($passage) {
     title:             'Annotation on ' + passage.passage_title,
     verse:             passage.verse,
     position:          passage.text.split(' ').length, // Last word
-    length:            0,
+    length:            0
   }));
   this.initAnnotations($annotation);
   $annotations.append($annotation);
@@ -446,11 +447,12 @@ PickerUI.prototype.annotationSaveAction = function ($annotation) {
   var that     = this,
       url      = Drupal.settings.nuraniLibrary.apiBasePath + 'annotation',
       // A new note has no ID yet
-      isNew    = $('input[name="id"]', $annotation).val() == '',
+      isNew    = $('input[name="id"]', $annotation).val() === '',
       $passage = $annotation.parents('td.annotations').siblings('td.passage'),
       i        = $passage.data('index'),
       j        = $annotation.data('index'),
       passage  = this.viewData.passages[i],
+      note,
       // FIXME: It's expensive to compile handlebars this often.
       template = Handlebars.compile('{{> annotation}}');
 
@@ -494,7 +496,7 @@ PickerUI.prototype.annotationSaveAction = function ($annotation) {
 };
 
 PickerUI.prototype.annotationCancelAction = function ($annotation) {
-  var isNew = $('input[name="id"]', $annotation).val() == '';
+  var isNew = $('input[name="id"]', $annotation).val() === '';
 
   if (isNew) {
     $annotation.remove();
@@ -511,7 +513,7 @@ PickerUI.prototype.annotationCancelAction = function ($annotation) {
  */
 PickerUI.prototype.unpackWorkData = function (data) {
   var i,  j,  k,
-      books, chapters,
+      books, chapters, chapter,
       range;
 
   for (i = data.length - 1; i >=0; i--) {
@@ -590,7 +592,7 @@ PickerUI.prototype.setFilterOptions = function (toClear, toDefault) {
       }
 
       for (j = objects.length - 1; j >= 0; j--) {
-        if (objects[j].name == defaultsMap[type]) {
+        if (objects[j].name === defaultsMap[type]) {
           this.viewData['selected' + util.capitalize(type)] = objects[j];
           this.viewData['selected' + util.capitalize(type)]._key = j;
         }
@@ -612,15 +614,16 @@ PickerUI.prototype.setFilterOptions = function (toClear, toDefault) {
     this.viewData.selectedChapter._key = 0;
   }
 
-  this.setAlternateWorks(this.viewData.selectedWork, this.viewData.selectedBook, this.viewData.selectedChapter, toDefault.indexOf('work') != -1);
-}
+  this.setAlternateWorks(this.viewData.selectedWork, this.viewData.selectedBook, this.viewData.selectedChapter, toDefault.indexOf('work') !== -1);
+};
 
 /**
  * Similar to setFilterOptions, this sets the state of the alternateWorks view.
  */
 PickerUI.prototype.setAlternateWorks = function (originWork, originBook, originChapter, setDefaults) {
   var i, j, k,
-      work, book, chapter;
+      work, book, chapter,
+      alternates, alternate;
 
   setDefaults = typeof setDefaults !== 'undefined' ? setDefaults : false;
 
@@ -629,7 +632,7 @@ PickerUI.prototype.setAlternateWorks = function (originWork, originBook, originC
     work = this.viewData.works[i];
 
     // Don't also add the origin work as an alternate work
-    if (work.name == originWork.name) {
+    if (work.name === originWork.name) {
       continue;
     }
 
@@ -638,13 +641,13 @@ PickerUI.prototype.setAlternateWorks = function (originWork, originBook, originC
 
       // This work contains the same book as the origin, next check if has
       // the same chapter too
-      if (book.name == originBook.name) {
+      if (book.name === originBook.name) {
         for (k = book.chapters.length - 1; k >= 0; k--) {
           chapter = book.chapters[k];
 
           // This work contains the same book and chapter as the origin
           // that means that almost certainly it is a valid alternate work
-          if (chapter.name == originChapter.name) {
+          if (chapter.name === originChapter.name) {
             // Need to make a deep copy here, else alternateWorks stae will be
             // bound to works!
             this.viewData.alternateWorks.push($.extend(true, {}, work));
@@ -656,17 +659,16 @@ PickerUI.prototype.setAlternateWorks = function (originWork, originBook, originC
     }
   }
 
-  if (this.viewData.alternateWorks.length == 0) {
+  if (this.viewData.alternateWorks.length === 0) {
     this.hideAlternateWorks(false);
   } else {
     if (setDefaults && this.opts.osisIDWork && this.opts.osisIDWorkParts.length > 1) {
-      var alternate,
-          alternates = this.opts.osisIDWorkParts.slice(1);
+      alternates = this.opts.osisIDWorkParts.slice(1);
 
       for (i = this.viewData.alternateWorks.length - 1; i >= 0; i--) {
         alternate = this.viewData.alternateWorks[i];
 
-        if (alternates.indexOf(alternate.name) != -1) {
+        if (alternates.indexOf(alternate.name) !== -1) {
           this.viewData.alternateWorks[i].selected = true;
         }
       }
@@ -737,11 +739,11 @@ PickerUI.prototype.highlightVerses = function(verses, hideAfter) {
 
   hideAfter = hideAfter || 3000;
 
-  for (var i = verses.length - 1; i >= 0; i--) {
+  for (i = verses.length - 1; i >= 0; i--) {
     $passageRow = $('.form-item-passage-row-' + verses[i], this.$element);
 
     // Scroll down to the first passage
-    if (i == 0) {
+    if (i === 0) {
       this.$element.animate({ scrollTop: this.$element.scrollTop() + $passageRow.position().top - this.$element.height()/2 });
     }
     // Fade the background colour into yellow
@@ -761,7 +763,7 @@ PickerUI.prototype.highlightVerses = function(verses, hideAfter) {
         $(this).css('backgroundColor', null);
       });
     }, hideAfter);
-  };
+  }
 };
 
 /**
@@ -790,7 +792,7 @@ PickerUI.prototype.getSelectionOSIS = function ($origin) {
     osisID.push(firstParts[0]);
     osisID.push(firstParts[1]);
 
-    if (firstParts[2] != lastParts[2]) {
+    if (firstParts[2] !== lastParts[2]) {
       osisID.push(firstParts[2] + '-' + lastParts[2]);
     } else {
       osisID.push(firstParts[2]);
@@ -801,12 +803,12 @@ PickerUI.prototype.getSelectionOSIS = function ($origin) {
       if (this.checked) {
         osisIDWork.push($(this).val());
       }
-    })
+    });
 
     return {
       osisIDWork: osisIDWork.join(','),
       osisID: osisID.join('.')
-    }
+    };
   }
 
   this.setMessage(Drupal.t('A passage must be selected.'), 'error');
@@ -821,15 +823,15 @@ PickerUI.prototype.contiguous = function ($checkboxes, i, dir, bound) {
   bound = $checkboxes[i].value;
 
   // Failsafe
-  if (dir != -1 && dir != 1) {
+  if (dir !== -1 && dir !== 1) {
     return '';
   }
 
   if (i + dir >= 0 && i + dir < $checkboxes.length && $checkboxes[i + dir].checked) {
     return this.contiguous($checkboxes, i + dir, dir, bound);
-  } else {
-    return bound;
   }
+
+  return bound;
 };
 
 /**

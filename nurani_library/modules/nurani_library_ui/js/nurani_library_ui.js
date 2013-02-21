@@ -1,6 +1,43 @@
+/*jslint nomen: true, plusplus: true, todo: true, white: true, browser: true, indent: 2 */
 if (!NL) { var NL = {}; }
 
 var _nlui = (function ($) {
+  "use strict";
+
+  // Fix old IE missing Array.indexOf
+  // See: https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/IndexOf
+  if (!Array.prototype.indexOf) {
+      Array.prototype.indexOf = function (searchElement /*, fromIndex */ ) {
+          "use strict";
+          if (this == null) {
+              throw new TypeError();
+          }
+          var t = Object(this);
+          var len = t.length >>> 0;
+          if (len === 0) {
+              return -1;
+          }
+          var n = 0;
+          if (arguments.length > 1) {
+              n = Number(arguments[1]);
+              if (n != n) { // shortcut for verifying if it's NaN
+                  n = 0;
+              } else if (n != 0 && n != Infinity && n != -Infinity) {
+                  n = (n > 0 || -1) * Math.floor(Math.abs(n));
+              }
+          }
+          if (n >= len) {
+              return -1;
+          }
+          var k = n >= 0 ? n : Math.max(len - Math.abs(n), 0);
+          for (; k < len; k++) {
+              if (k in t && t[k] === searchElement) {
+                  return k;
+              }
+          }
+          return -1;
+      }
+  }
 
   /**
    * Util library.
@@ -10,10 +47,6 @@ var _nlui = (function ($) {
 
   // Globally available Util
   var util = new Util();
-
-  // paulirish.com/2009/log-a-lightweight-wrapper-for-consolelog/
-  var log = function f(){ log.history = log.history || []; log.history.push(arguments); if(this.console) { var args = arguments, newarr; args.callee = args.callee.caller; newarr = [].slice.call(args); if (typeof console.log === 'object') log.apply.call(console.log, console, newarr); else console.log.apply(console, newarr);}};
-
 
   /**
    * Capitalizes the first letter of a string.
@@ -25,7 +58,7 @@ var _nlui = (function ($) {
 
   Util.prototype.findByName = function (array, name) {
     var search, key;
-    search = $.grep(array, function (o, i) { return o.name == name; });
+    search = $.grep(array, function (o, i) { return o.name === name; });
     return search.length > 0 ? $.extend({ _key: array.indexOf(search[0]) }, search[0]) : false;
   };
 
@@ -34,6 +67,8 @@ var _nlui = (function ($) {
    * of time.
    */
   Util.prototype.setMessage = function (prepend_to, message, type, hide_after) {
+    var classes, $message;
+
     type       = type || 'ok';
     hide_after = hide_after || 4000;
 
@@ -42,16 +77,16 @@ var _nlui = (function ($) {
       classes.push(type);
     }
 
-    var message = $('<div class="' + classes.join(' ') + '" style="display: none;">' + message + '</div>');
-    prepend_to.prepend(message);
-    message.slideDown();
+    $message = $('<div class="' + classes.join(' ') + '" style="display: none;">' + message + '</div>');
+    prepend_to.prepend($message);
+    $message.slideDown();
 
     setTimeout(function () {
-      message.slideUp(function () {
+      $message.slideUp(function () {
         $(this).remove();
       });
     }, hide_after);
-  }
+  };
 
   /**
    * Main controller object for the bundle UI.
@@ -59,7 +94,7 @@ var _nlui = (function ($) {
   function PickerUI(opts) {
     this.defaults = {
       osisIDWork: '',
-      osisID:     '',
+      osisID:     ''
     };
 
     this.opts  = $.extend(this.defaults, opts);
@@ -93,7 +128,7 @@ var _nlui = (function ($) {
 
     // Use the Bible-Passage-Reference-Parser, if available
     if (typeof bcv_parser === 'function') {
-      this.bcv = new bcv_parser;
+      this.bcv = new bcv_parser();
       this.bcv.set_options({
         book_alone_strategy: 'include',
         book_sequence_strategy: 'include'
@@ -120,7 +155,7 @@ var _nlui = (function ($) {
       .keydown(function (e) {
         var keyCode = e.keyCode || e.which;
         // <Enter> and <Tab> are valid ways to search
-        if (keyCode == 13 || keyCode == 9) {
+        if (keyCode === 13 || keyCode === 9) {
           e.preventDefault();
           that.searchAction(null, this);
         }
@@ -164,10 +199,10 @@ var _nlui = (function ($) {
    * be loaded from templates.
    */
   PickerUI.prototype.renderViews = function (toRender) {
-    var func, $el;
+    var func, $el, i;
     toRender = toRender || ['toolbar', 'alternateWorks', 'passages'];
 
-    for (var i = toRender.length - 1; i >= 0; i--) {
+    for (i = toRender.length - 1; i >= 0; i--) {
       $el = this.$element.find('.' + toRender[i]);
       // Compile handlebars.js templates as needed
       // @see: PickerUI.templates.js
@@ -241,7 +276,7 @@ var _nlui = (function ($) {
         if (setDefaultState && that.opts.osisID && that.opts.osisIDParts[2]) {
           parts = that.opts.osisIDParts[2].split('-');
           firstVerse = parseInt(parts[0], 10);
-          lastVerse = parts.length == 2 ? parseInt(parts[1], 10) : firstVerse;
+          lastVerse = parts.length === 2 ? parseInt(parts[1], 10) : firstVerse;
         } else {
           setDefaultState = false;
         }
@@ -357,15 +392,16 @@ var _nlui = (function ($) {
   PickerUI.prototype.pickPassageAction = function (osisID, el) {
     var $el = $(el),
         $checkboxes = $('.form-item-passage', this.$element),
-        originI = $checkboxes.index(el);
+        originI = $checkboxes.index(el),
+        first, last, firstVerse, lastVerse;
 
     if ($el.attr('checked')) {
       // Determine the contiguous group el checkbox belongs to then remove
       // all other ticked boxes
-      var first = this.contiguous($checkboxes, originI, -1),
-          last = this.contiguous($checkboxes, originI,  1),
-          firstVerse = parseInt(first.split('.')[2], 10),
-          lastVerse = parseInt(last.split('.')[2], 10);
+      first = this.contiguous($checkboxes, originI, -1);
+      last = this.contiguous($checkboxes, originI,  1);
+      firstVerse = parseInt(first.split('.')[2], 10);
+      lastVerse = parseInt(last.split('.')[2], 10);
 
       $checkboxes.each(function () {
         var $this = $(this),
@@ -380,10 +416,10 @@ var _nlui = (function ($) {
       if (this.viewData.alternateWorks.length > 0) {
         this.showAlternateWorks();
       }
-    } else if ($checkboxes.filter('[checked]').length == 0) {
+    } else if ($checkboxes.filter('[checked]').length === 0) {
       this.hideAlternateWorks();
     }
-  }
+  };
 
   /**
    * Handles displaying the 'Add note' button.
@@ -444,7 +480,7 @@ var _nlui = (function ($) {
       title:             'Annotation on ' + passage.passage_title,
       verse:             passage.verse,
       position:          passage.text.split(' ').length, // Last word
-      length:            0,
+      length:            0
     }));
     this.initAnnotations($annotation);
     $annotations.append($annotation);
@@ -501,11 +537,12 @@ var _nlui = (function ($) {
     var that     = this,
         url      = Drupal.settings.nuraniLibrary.apiBasePath + 'annotation',
         // A new note has no ID yet
-        isNew    = $('input[name="id"]', $annotation).val() == '',
+        isNew    = $('input[name="id"]', $annotation).val() === '',
         $passage = $annotation.parents('td.annotations').siblings('td.passage'),
         i        = $passage.data('index'),
         j        = $annotation.data('index'),
         passage  = this.viewData.passages[i],
+        note,
         // FIXME: It's expensive to compile handlebars this often.
         template = Handlebars.compile('{{> annotation}}');
 
@@ -549,7 +586,7 @@ var _nlui = (function ($) {
   };
 
   PickerUI.prototype.annotationCancelAction = function ($annotation) {
-    var isNew = $('input[name="id"]', $annotation).val() == '';
+    var isNew = $('input[name="id"]', $annotation).val() === '';
 
     if (isNew) {
       $annotation.remove();
@@ -566,7 +603,7 @@ var _nlui = (function ($) {
    */
   PickerUI.prototype.unpackWorkData = function (data) {
     var i,  j,  k,
-        books, chapters,
+        books, chapters, chapter,
         range;
 
     for (i = data.length - 1; i >=0; i--) {
@@ -645,7 +682,7 @@ var _nlui = (function ($) {
         }
 
         for (j = objects.length - 1; j >= 0; j--) {
-          if (objects[j].name == defaultsMap[type]) {
+          if (objects[j].name === defaultsMap[type]) {
             this.viewData['selected' + util.capitalize(type)] = objects[j];
             this.viewData['selected' + util.capitalize(type)]._key = j;
           }
@@ -667,15 +704,16 @@ var _nlui = (function ($) {
       this.viewData.selectedChapter._key = 0;
     }
 
-    this.setAlternateWorks(this.viewData.selectedWork, this.viewData.selectedBook, this.viewData.selectedChapter, toDefault.indexOf('work') != -1);
-  }
+    this.setAlternateWorks(this.viewData.selectedWork, this.viewData.selectedBook, this.viewData.selectedChapter, toDefault.indexOf('work') !== -1);
+  };
 
   /**
    * Similar to setFilterOptions, this sets the state of the alternateWorks view.
    */
   PickerUI.prototype.setAlternateWorks = function (originWork, originBook, originChapter, setDefaults) {
     var i, j, k,
-        work, book, chapter;
+        work, book, chapter,
+        alternates, alternate;
 
     setDefaults = typeof setDefaults !== 'undefined' ? setDefaults : false;
 
@@ -684,7 +722,7 @@ var _nlui = (function ($) {
       work = this.viewData.works[i];
 
       // Don't also add the origin work as an alternate work
-      if (work.name == originWork.name) {
+      if (work.name === originWork.name) {
         continue;
       }
 
@@ -693,13 +731,13 @@ var _nlui = (function ($) {
 
         // This work contains the same book as the origin, next check if has
         // the same chapter too
-        if (book.name == originBook.name) {
+        if (book.name === originBook.name) {
           for (k = book.chapters.length - 1; k >= 0; k--) {
             chapter = book.chapters[k];
 
             // This work contains the same book and chapter as the origin
             // that means that almost certainly it is a valid alternate work
-            if (chapter.name == originChapter.name) {
+            if (chapter.name === originChapter.name) {
               // Need to make a deep copy here, else alternateWorks stae will be
               // bound to works!
               this.viewData.alternateWorks.push($.extend(true, {}, work));
@@ -711,17 +749,16 @@ var _nlui = (function ($) {
       }
     }
 
-    if (this.viewData.alternateWorks.length == 0) {
+    if (this.viewData.alternateWorks.length === 0) {
       this.hideAlternateWorks(false);
     } else {
       if (setDefaults && this.opts.osisIDWork && this.opts.osisIDWorkParts.length > 1) {
-        var alternate,
-            alternates = this.opts.osisIDWorkParts.slice(1);
+        alternates = this.opts.osisIDWorkParts.slice(1);
 
         for (i = this.viewData.alternateWorks.length - 1; i >= 0; i--) {
           alternate = this.viewData.alternateWorks[i];
 
-          if (alternates.indexOf(alternate.name) != -1) {
+          if (alternates.indexOf(alternate.name) !== -1) {
             this.viewData.alternateWorks[i].selected = true;
           }
         }
@@ -792,11 +829,11 @@ var _nlui = (function ($) {
 
     hideAfter = hideAfter || 3000;
 
-    for (var i = verses.length - 1; i >= 0; i--) {
+    for (i = verses.length - 1; i >= 0; i--) {
       $passageRow = $('.form-item-passage-row-' + verses[i], this.$element);
 
       // Scroll down to the first passage
-      if (i == 0) {
+      if (i === 0) {
         this.$element.animate({ scrollTop: this.$element.scrollTop() + $passageRow.position().top - this.$element.height()/2 });
       }
       // Fade the background colour into yellow
@@ -816,7 +853,7 @@ var _nlui = (function ($) {
           $(this).css('backgroundColor', null);
         });
       }, hideAfter);
-    };
+    }
   };
 
   /**
@@ -845,7 +882,7 @@ var _nlui = (function ($) {
       osisID.push(firstParts[0]);
       osisID.push(firstParts[1]);
 
-      if (firstParts[2] != lastParts[2]) {
+      if (firstParts[2] !== lastParts[2]) {
         osisID.push(firstParts[2] + '-' + lastParts[2]);
       } else {
         osisID.push(firstParts[2]);
@@ -856,12 +893,12 @@ var _nlui = (function ($) {
         if (this.checked) {
           osisIDWork.push($(this).val());
         }
-      })
+      });
 
       return {
         osisIDWork: osisIDWork.join(','),
         osisID: osisID.join('.')
-      }
+      };
     }
 
     this.setMessage(Drupal.t('A passage must be selected.'), 'error');
@@ -876,15 +913,15 @@ var _nlui = (function ($) {
     bound = $checkboxes[i].value;
 
     // Failsafe
-    if (dir != -1 && dir != 1) {
+    if (dir !== -1 && dir !== 1) {
       return '';
     }
 
     if (i + dir >= 0 && i + dir < $checkboxes.length && $checkboxes[i + dir].checked) {
       return this.contiguous($checkboxes, i + dir, dir, bound);
-    } else {
-      return bound;
     }
+
+    return bound;
   };
 
   /**
@@ -1007,7 +1044,7 @@ var _nlui = (function ($) {
             '</tr>',
           '{{/each}}',
         '</tbody>',
-      '</table>',
+      '</table>'
     ].join('')
   };
 
@@ -1063,14 +1100,15 @@ var _nlui = (function ($) {
         '<input type="hidden" name="type" value="{{type}}">',
         '<input type="hidden" name="position" value="{{position}}">',
         '<input type="hidden" name="length" value="{{length}}">',
-      '</form>',
+      '</form>'
     ].join('')
-  }
+  };
 
   $(function () {
+    var key;
 
     // Register all partials
-    for (var key in PickerUI.partials) {
+    for (key in PickerUI.partials) {
       if (PickerUI.partials.hasOwnProperty(key)) {
         Handlebars.registerPartial(key, PickerUI.partials[key]);
       }
@@ -1080,7 +1118,7 @@ var _nlui = (function ($) {
      * Handlebars.js helper, detects first chapter and verse condition
      */
     Handlebars.registerHelper('isBookBeginning', function (passage, options) {
-      if (passage.chapterName == 1) {
+      if (passage.chapterName === 1) {
         return options.fn(this);
       }
     });
@@ -1089,28 +1127,31 @@ var _nlui = (function ($) {
      * Handlebars.js helper, detects first chapter and verse condition
      */
     Handlebars.registerHelper('isChapterBeginning', function (passage, options) {
-      if (passage.verse == 1) {
+      if (passage.verse === 1) {
         return options.fn(this);
-      } else {
-        return options.inverse(this);
       }
+
+      return options.inverse(this);
     });
 
     /**
      * Extension of the 'each' helper which marks each item as selected or not.
      */
     Handlebars.registerHelper('eachOption', function(context, selected, options) {
-      var fn = options.fn, inverse = options.inverse;
-      var ret = "", data;
+      var fn = options.fn,
+          inverse = options.inverse,
+          ret = "",
+          data,
+          i, j;
 
       if (options.data) {
         data = Handlebars.createFrame(options.data);
       }
 
       if (context && context.length > 0) {
-        for (var i = 0, j = context.length; i < j; i++) {
+        for (i = 0, j = context.length; i < j; i++) {
           if (data) { data.index = i; }
-          ret = ret + fn($.extend({ selected: (context[i].name == selected.name) }, context[i]), { data: data });
+          ret = ret + fn($.extend({ selected: (context[i].name === selected.name) }, context[i]), { data: data });
         }
       } else {
         ret = inverse(this);
@@ -1137,7 +1178,7 @@ var _nlui = (function ($) {
         // TODO: More/less for truncated text
         string = [
           // '<span class="short">',
-            string.substr(0, length) + '&hellip;',
+            string.substr(0, length) + '&hellip;'
             // '<a href="" onclick="jQuery(this).parent(\'\').siblings(\'\')">[more]</a>',
           // '</span>'
         ].join('');
@@ -1149,7 +1190,7 @@ var _nlui = (function ($) {
      * Helps adding odd or even classes
      */
     Handlebars.registerHelper('oddOrEven', function (row) {
-      return new Handlebars.SafeString(row % 2 == 0 ? 'even' : 'odd');
+      return new Handlebars.SafeString(row % 2 === 0 ? 'even' : 'odd');
     });
 
     /**
@@ -1168,8 +1209,9 @@ var _nlui = (function ($) {
      * Generates classes for an annotation.
      */
     Handlebars.registerHelper('annotationClasses', function (annotation) {
-      classes = ['annotation'];
-      if (annotation.type != 'annotation') {
+      var classes = ['annotation'];
+
+      if (annotation.type !== 'annotation') {
         classes.push(annotation.type);
       }
       if (annotation.editing) {
@@ -1178,6 +1220,7 @@ var _nlui = (function ($) {
       if (annotation.editable) {
         classes.push('editable');
       }
+
       return new Handlebars.SafeString(classes.join(' '));
     });
 
@@ -1189,6 +1232,6 @@ var _nlui = (function ($) {
 
   return {PickerUI: PickerUI};
 
-})(jQuery);
+}(jQuery));
 
 NL.PickerUI   = _nlui.PickerUI;

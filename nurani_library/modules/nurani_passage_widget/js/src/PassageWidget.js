@@ -16,8 +16,8 @@ PassageWidget.JSONP = function (widget) {
  */
 PassageWidget.oEmbedURL = function (osisIDWork, osisID, hash, format, callback) {
   hash     = hash ? '#' + hash : '';
-  format   = format ? format : 'jsonp';
-  callback = callback ? callback : 'PassageWidget.JSONP';
+  format   = format || 'jsonp';
+  callback = callback || 'PassageWidget.JSONP';
 
   var nl    = Drupal.settings.nuraniLibrary,
       query = [
@@ -43,10 +43,10 @@ PassageWidget.prototype.init = function (widget) {
 
   if (this.$element) {
     if (widget.html) {
-      this.addWidget(widget.html)
+      this.addWidget(widget.html);
     }
     else if (widget.scalar) {
-      this.addWidget(widget.scalar)
+      this.addWidget(widget.scalar);
     }
     this.addWidgetTabBar();
     this.initAnnotations();
@@ -124,7 +124,7 @@ PassageWidget.prototype.tooltipDisplayAction = function ($el, $tooltip) {
   $tooltip.css({
     top:  pos.top - $tooltip.outerHeight() - 10,
     left: pos.left
-  })
+  });
 
   $tooltip.show();
 };

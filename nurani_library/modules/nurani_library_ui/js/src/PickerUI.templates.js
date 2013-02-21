@@ -102,7 +102,7 @@ PickerUI.templates = {
           '</tr>',
         '{{/each}}',
       '</tbody>',
-    '</table>',
+    '</table>'
   ].join('')
 };
 
@@ -158,14 +158,15 @@ PickerUI.partials = {
       '<input type="hidden" name="type" value="{{type}}">',
       '<input type="hidden" name="position" value="{{position}}">',
       '<input type="hidden" name="length" value="{{length}}">',
-    '</form>',
+    '</form>'
   ].join('')
-}
+};
 
 $(function () {
+  var key;
 
   // Register all partials
-  for (var key in PickerUI.partials) {
+  for (key in PickerUI.partials) {
     if (PickerUI.partials.hasOwnProperty(key)) {
       Handlebars.registerPartial(key, PickerUI.partials[key]);
     }
@@ -175,7 +176,7 @@ $(function () {
    * Handlebars.js helper, detects first chapter and verse condition
    */
   Handlebars.registerHelper('isBookBeginning', function (passage, options) {
-    if (passage.chapterName == 1) {
+    if (passage.chapterName === 1) {
       return options.fn(this);
     }
   });
@@ -184,28 +185,31 @@ $(function () {
    * Handlebars.js helper, detects first chapter and verse condition
    */
   Handlebars.registerHelper('isChapterBeginning', function (passage, options) {
-    if (passage.verse == 1) {
+    if (passage.verse === 1) {
       return options.fn(this);
-    } else {
-      return options.inverse(this);
     }
+
+    return options.inverse(this);
   });
 
   /**
    * Extension of the 'each' helper which marks each item as selected or not.
    */
   Handlebars.registerHelper('eachOption', function(context, selected, options) {
-    var fn = options.fn, inverse = options.inverse;
-    var ret = "", data;
+    var fn = options.fn,
+        inverse = options.inverse,
+        ret = "",
+        data,
+        i, j;
 
     if (options.data) {
       data = Handlebars.createFrame(options.data);
     }
 
     if (context && context.length > 0) {
-      for (var i = 0, j = context.length; i < j; i++) {
+      for (i = 0, j = context.length; i < j; i++) {
         if (data) { data.index = i; }
-        ret = ret + fn($.extend({ selected: (context[i].name == selected.name) }, context[i]), { data: data });
+        ret = ret + fn($.extend({ selected: (context[i].name === selected.name) }, context[i]), { data: data });
       }
     } else {
       ret = inverse(this);
@@ -232,7 +236,7 @@ $(function () {
       // TODO: More/less for truncated text
       string = [
         // '<span class="short">',
-          string.substr(0, length) + '&hellip;',
+          string.substr(0, length) + '&hellip;'
           // '<a href="" onclick="jQuery(this).parent(\'\').siblings(\'\')">[more]</a>',
         // '</span>'
       ].join('');
@@ -244,7 +248,7 @@ $(function () {
    * Helps adding odd or even classes
    */
   Handlebars.registerHelper('oddOrEven', function (row) {
-    return new Handlebars.SafeString(row % 2 == 0 ? 'even' : 'odd');
+    return new Handlebars.SafeString(row % 2 === 0 ? 'even' : 'odd');
   });
 
   /**
@@ -263,8 +267,9 @@ $(function () {
    * Generates classes for an annotation.
    */
   Handlebars.registerHelper('annotationClasses', function (annotation) {
-    classes = ['annotation'];
-    if (annotation.type != 'annotation') {
+    var classes = ['annotation'];
+
+    if (annotation.type !== 'annotation') {
       classes.push(annotation.type);
     }
     if (annotation.editing) {
@@ -273,6 +278,7 @@ $(function () {
     if (annotation.editable) {
       classes.push('editable');
     }
+
     return new Handlebars.SafeString(classes.join(' '));
   });
 

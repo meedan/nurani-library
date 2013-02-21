@@ -15,10 +15,12 @@ require 'fileutils'
 ]
 @out_file = "nurani_passage_widget.js"
 
-@prefix  = "if (!NL) { var NL = {}; }\n\n"
-@prefix += "var _npw = (function ($) {\n\n"
+@prefix  = "/*jslint nomen: true, plusplus: true, todo: true, white: true, browser: true, indent: 2 */\n"
+@prefix += "if (!NL) { var NL = {}; }\n\n"
+@prefix += "var _npw = (function ($) {\n"
+@prefix += "  \"use strict\";\n\n"
 @suffix  = "  return { PassageWidget: PassageWidget, PassageCitation: PassageCitation };\n\n"
-@suffix += "})(jQuery);\n\n"
+@suffix += "}(jQuery));\n\n"
 @suffix += "NL.PassageWidget   = _npw.PassageWidget;\n"
 @suffix += "NL.PassageCitation = _npw.PassageCitation;"
 
