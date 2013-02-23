@@ -4,3 +4,5 @@ core = 7.x
 version = 7.x-1.0
 package = Nurani
 dependencies[] = nurani_passage_widget
+dependencies[] = nurani_library_ui
+dependencies[] = wysiwyg

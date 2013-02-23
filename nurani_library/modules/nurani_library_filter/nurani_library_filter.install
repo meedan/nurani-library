@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function nurani_library_filter_install() {
+  db_query("UPDATE {system} SET weight = 1 WHERE name = :name", array(':name' => 'nurani_library_filter'));
+}
+
+/**
+ * Ensuring module weight is set correctly.
+ */
+function nurani_library_filter_update_7000() {
+  nurani_library_filter_install();
+}

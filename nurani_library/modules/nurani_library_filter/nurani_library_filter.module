@@ -60,3 +60,71 @@ function nurani_library_passages_filter_tips($filter, $format, $long = FALSE) {
        . '<p>' . t("Allowed works: @allowed_works", array('@allowed_works' => implode(', ', $filter->settings['allowed_works']))) . '</p>';
 }
 
+/**
+ * Register a directory containing Wysiwyg plugins.
+ *
+ * @param $type
+ *   The type of objects being collected: either 'plugins' or 'editors'.
+ * @return
+ *   A sub-directory of the implementing module that contains the corresponding
+ *   plugin files. This directory must only contain integration files for
+ *   Wysiwyg module.
+ */
+function nurani_library_filter_wysiwyg_include_directory($type) {
+  switch ($type) {
+    case 'plugins':
+      return $type;
+  }
+}
+
+/**
+ * Implements hook_wysiwyg_plugin()
+ */
+function nurani_library_filter_wysiwyg_plugin($editor, $version) {
+  switch ($editor) {
+    case 'ckeditor':
+      if ($version >= 4) {
+        drupal_add_library('system', 'ui.dialog');
+
+        return array(
+          'nurani_library_passages_filter' => array(
+            'path' => drupal_get_path('module', 'nurani_library_filter') . '/plugins/nurani_library_passages_filter',
+            'filename' => 'nurani_library_passages_filter.js',
+            'buttons' => array(
+              'nurani_library_passages_filter' => t('Nurani Library Passage Reference'),
+            ),
+            'load' => TRUE,
+          ),
+        );
+      }
+      break;
+  }
+}
+
+/**
+ * Implements hook_element_info_alter().
+ */
+function nurani_library_filter_element_info_alter(&$types) {
+  $types['text_format']['#pre_render'][] = 'nurani_library_filter_pre_render_text_format';
+}
+
+/**
+ * Process a text format widget to load and attach editors.
+ *
+ * The element's #id is used as reference to attach client-side editors.
+ */
+function nurani_library_filter_pre_render_text_format($element) {
+  // wysiwyg module attaches its settings to the format element.
+  // Let's follow along.
+  if (!isset($element['format'])) {
+    return $element;
+  }
+
+  $format_field = &$element['format'];
+
+  if (in_array('wysiwyg', $format_field['format']['#attributes']['class'])) {
+    $format_field['format']['#attached'] = array_merge(nurani_library_ui_attached(), $format_field['format']['#attached']);
+  }
+
+  return $element;
+}
