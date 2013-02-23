@@ -114,7 +114,7 @@ PickerUI.partials = {
         '<h5 class="title">{{passage_title}}</h5>',
 
         '<div class="contents clearfix">',
-          '<span class="value">{{truncate value 120}}</span>',
+          '<span class="value expandable" data-slice-point="120">{{value}}</span>',
           '{{#if author}}',
             '<span class="attribution">',
               '— <a href="{{author.url}}" title="View user profile." class="username" xml:lang="" about="{{author.url}}" typeof="sioc:UserAccount" property="foaf:name">{{author.name}}</a>',

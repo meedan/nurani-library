@@ -165,6 +165,8 @@ var _nlui = (function ($) {
     $('#edit-work-filter', $toolbar).change(function () {    that.chooseWorkAction($(this).val(), this); });
     $('#edit-book-filter', $toolbar).change(function () {    that.chooseBookAction($(this).val(), this); });
     $('#edit-chapter-filter', $toolbar).change(function () { that.chooseChapterAction($(this).val(), this); });
+
+    this.htmlUpdated($toolbar);
   };
 
   /**
@@ -180,6 +182,8 @@ var _nlui = (function ($) {
     $('tr.passage-row td.passage', $passages).mouseleave(function () { that.newAnnotationButtonHideAction($(this)); });
 
     this.initAnnotations($passages);
+
+    this.htmlUpdated($passages);
   };
 
   /**
@@ -192,6 +196,8 @@ var _nlui = (function ($) {
     $('.edit-annotation-action', $annotations).click(function () { that.annotationEditAction($(this).parents('.annotation')); return false; });
     $('.save-annotation-action', $annotations).click(function () { that.annotationSaveAction($(this).parents('.annotation')); return false; });
     $('.cancel-annotation-action', $annotations).click(function () { that.annotationCancelAction($(this).parents('.annotation')); return false; });
+
+    this.htmlUpdated($annotations);
   };
 
   /**
@@ -218,6 +224,15 @@ var _nlui = (function ($) {
       }
     }
   };
+
+  /**
+   * When running inside Drupal, inform Drupal of DOM updates.
+   */
+  PickerUI.prototype.htmlUpdated = function ($el) {
+    if (Drupal && Drupal.attachBehaviors) {
+      Drupal.attachBehaviors($el);
+    }
+  }
 
   /**
    * Fetches works from the Nurani Library using the JSON API. When fetched the
@@ -483,7 +498,7 @@ var _nlui = (function ($) {
       length:            0
     }));
     this.initAnnotations($annotation);
-    $annotations.append($annotation);
+    $annotations.prepend($annotation);
 
     this.annotationEditAction($annotation);
   };
@@ -1056,7 +1071,7 @@ var _nlui = (function ($) {
           '<h5 class="title">{{passage_title}}</h5>',
 
           '<div class="contents clearfix">',
-            '<span class="value">{{truncate value 120}}</span>',
+            '<span class="value expandable" data-slice-point="120">{{value}}</span>',
             '{{#if author}}',
               '<span class="attribution">',
                 '— <a href="{{author.url}}" title="View user profile." class="username" xml:lang="" about="{{author.url}}" typeof="sioc:UserAccount" property="foaf:name">{{author.name}}</a>',

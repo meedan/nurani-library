@@ -75,6 +75,8 @@ PickerUI.prototype.initToolbar = function ($toolbar) {
   $('#edit-work-filter', $toolbar).change(function () {    that.chooseWorkAction($(this).val(), this); });
   $('#edit-book-filter', $toolbar).change(function () {    that.chooseBookAction($(this).val(), this); });
   $('#edit-chapter-filter', $toolbar).change(function () { that.chooseChapterAction($(this).val(), this); });
+
+  this.htmlUpdated($toolbar);
 };
 
 /**
@@ -90,6 +92,8 @@ PickerUI.prototype.initPassages = function ($passages) {
   $('tr.passage-row td.passage', $passages).mouseleave(function () { that.newAnnotationButtonHideAction($(this)); });
 
   this.initAnnotations($passages);
+
+  this.htmlUpdated($passages);
 };
 
 /**
@@ -102,6 +106,8 @@ PickerUI.prototype.initAnnotations = function ($annotations) {
   $('.edit-annotation-action', $annotations).click(function () { that.annotationEditAction($(this).parents('.annotation')); return false; });
   $('.save-annotation-action', $annotations).click(function () { that.annotationSaveAction($(this).parents('.annotation')); return false; });
   $('.cancel-annotation-action', $annotations).click(function () { that.annotationCancelAction($(this).parents('.annotation')); return false; });
+
+  this.htmlUpdated($annotations);
 };
 
 /**
@@ -128,6 +134,15 @@ PickerUI.prototype.renderViews = function (toRender) {
     }
   }
 };
+
+/**
+ * When running inside Drupal, inform Drupal of DOM updates.
+ */
+PickerUI.prototype.htmlUpdated = function ($el) {
+  if (Drupal && Drupal.attachBehaviors) {
+    Drupal.attachBehaviors($el);
+  }
+}
 
 /**
  * Fetches works from the Nurani Library using the JSON API. When fetched the
@@ -393,7 +408,7 @@ PickerUI.prototype.newAnnotationFormShowAction = function ($passage) {
     length:            0
   }));
   this.initAnnotations($annotation);
-  $annotations.append($annotation);
+  $annotations.prepend($annotation);
 
   this.annotationEditAction($annotation);
 };
