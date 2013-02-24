@@ -1,56 +1,45 @@
-/* line 2, scss/nurani_passage_widget.scss */
 .passage-widget .he, .passage-widget .ar {
   direction: rtl;
   text-align: right;
 }
-/* line 6, scss/nurani_passage_widget.scss */
 .passage-widget .he .verse, .passage-widget .ar .verse {
   margin-right: 0;
   margin-left: 1em;
 }
-/* line 12, scss/nurani_passage_widget.scss */
 .passage-widget .verse {
   margin-right: 1em;
   display: inline-block;
   direction: ltr !important;
   text-align: left !important;
 }
-/* line 19, scss/nurani_passage_widget.scss */
 .passage-widget sup.note-marker {
   display: inline-block;
 }
-/* line 22, scss/nurani_passage_widget.scss */
 .passage-widget span.note {
   position: absolute;
   z-index: 1000;
   display: none;
 }
 
-/* line 28, scss/nurani_passage_widget.scss */
 .passage-citation-wrapper {
   display: inline-block;
 }
-/* line 31, scss/nurani_passage_widget.scss */
 .passage-citation-wrapper .citation-marker {
   display: inline-block;
 }
-/* line 34, scss/nurani_passage_widget.scss */
 .passage-citation-wrapper .passage-widget {
   position: absolute;
   z-index: 1000;
   display: none;
 }
 
-/* line 45, scss/nurani_passage_widget.scss */
 .passage-widget-wrapper .passages {
   max-height: 40em;
   overflow-y: auto;
 }
-/* line 49, scss/nurani_passage_widget.scss */
 .passage-widget-wrapper .tab-bar {
   clear: both;
 }
-/* line 52, scss/nurani_passage_widget.scss */
 .passage-widget-wrapper sup.note-marker {
   font-weight: bold;
   font-size: 110%;
@@ -58,7 +47,6 @@
   color: #005eae;
   cursor: help;
 }
-/* line 59, scss/nurani_passage_widget.scss */
 .passage-widget-wrapper span.note {
   width: 20em;
   background: #fff;
@@ -67,7 +55,6 @@
   padding: 1em;
 }
 
-/* line 68, scss/nurani_passage_widget.scss */
 .passage-citation-wrapper .passage-widget {
   width: 20em;
   background: #fff;
