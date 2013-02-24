@@ -42,7 +42,7 @@ function nurani_library_ui_picker_ui() {
   $content['container'] = array(
     '#type' => 'markup',
     // FIXME: Un-hardcode this.
-    '#markup' => '<div id="nurani-library" style="width: 100%; height: auto; position: absolute; z-index: 10002; overflow: hidden; padding: 0.2em;">'
+    '#markup' => '<div id="nurani-library" style="width: 100%; height: auto; position: relative; z-index: 100; overflow: hidden; padding: 0.2em;">'
                .    '<div class="titlebar" style="padding: .5em 1em .3em; position: relative; height: 24px; background: #e1e2dc; text-align: center;">(Filler space to compensate for missing titlebar)</div>'
                     // UI will be injected here.
                . '</div>',

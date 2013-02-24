@@ -86,6 +86,10 @@ PickerUI.prototype.initToolbar = function ($toolbar) {
   this.htmlUpdated($toolbar);
 };
 
+PickerUI.prototype.initAlternateWorks = function ($alternateWorks) {
+  this.didResize(); // Ensure alternateWorks has the correct height
+};
+
 /**
  * Initialize the elements in the passages list. This is called dynamically
  * when the passages view is loaded.
@@ -151,7 +155,7 @@ PickerUI.prototype.htmlUpdated = function ($el) {
   if (Drupal && Drupal.attachBehaviors) {
     Drupal.attachBehaviors($el);
   }
-}
+};
 
 /**
  * Fetches works from the Nurani Library using the JSON API. When fetched the
@@ -336,6 +340,11 @@ PickerUI.prototype.pickPassageAction = function (osisID, el) {
     last = this.contiguous($checkboxes, originI,  1);
     firstVerse = parseInt(first.split('.')[2], 10);
     lastVerse = parseInt(last.split('.')[2], 10);
+
+    if (this.opts.maxVerses > 0 && lastVerse > firstVerse + this.opts.maxVerses - 1) {
+      alert(Drupal.t('Sorry, you can select a maximum of @num verses with this tool.', {'@num': this.opts.maxVerses}));
+      lastVerse = firstVerse + this.opts.maxVerses - 1;
+    }
 
     $checkboxes.each(function () {
       var $this = $(this),
@@ -712,9 +721,8 @@ PickerUI.prototype.showAlternateWorks = function (animated) {
   var that = this,
       selector, css,
       ops  = {
-        // FIXME: This hardcoded height will break if too many alternate works are listed
-        '.alternateWorks': { height: 36 },
-        '.passages': { paddingTop: 70 + 2 + 36 - 6 }
+        '.alternateWorks': { height: this.alternateWorksHeight() },
+        '.passages': { height: this.passagesHeight(true) }
       };
 
   animated = typeof animated !== 'undefined' ? animated : true;
@@ -740,7 +748,7 @@ PickerUI.prototype.hideAlternateWorks = function (animated) {
       selector, css,
       ops  = {
         '.alternateWorks': { height: 0 },
-        '.passages': { paddingTop: 70 + 5 }
+        '.passages': { height: this.passagesHeight(false) }
       };
 
   animated = typeof animated !== 'undefined' ? animated : true;
@@ -866,7 +874,56 @@ PickerUI.prototype.contiguous = function ($checkboxes, i, dir, bound) {
  * the jQuery UI dialog is resized.
  */
 PickerUI.prototype.didResize = function () {
+  var alternateWorksDisplayed = this.viewData.alternateWorks && this.viewData.alternateWorks.length > 0;
+
   this.$element.find('.toolbar,.alternateWorks').css('width', this.$element.width());
+  this.$element.find('.alternateWorks').css('height', alternateWorksDisplayed ? this.alternateWorksHeight() : 0);
+  this.$element.find('.passages').css('height', this.passagesHeight(alternateWorksDisplayed));
+};
+
+/**
+ * The ideal height of the passages box.
+ */
+PickerUI.prototype.passagesHeight = function (alternateWorksDisplayed) {
+  var $toolbar = this.$element.find('.toolbar'),
+      $alternateWorks = this.$element.find('.alternateWorks'),
+      height = this.$element.height();
+
+  height -= $toolbar.height();
+
+  if (typeof(alternateWorksDisplayed) === 'undefined') {
+    height -= $alternateWorks.height();
+  }
+  else if (alternateWorksDisplayed) {
+    height -= this.alternateWorksHeight();
+  }
+  else {
+    // Do not subtract anything
+  }
+
+  return height;
+};
+
+/**
+ * The height of the alternate works box regardless if hidden.
+ */
+PickerUI.prototype.alternateWorksHeight = function () {
+  var $alternateWorks = this.$element.find('.alternateWorks'),
+      origHeight = 0,
+      height = 0;
+
+  origHeight = $alternateWorks.css('height');
+
+  $alternateWorks.css('height', 'auto');
+  height = $alternateWorks.outerHeight();
+  $alternateWorks.css('height', origHeight);
+
+  // Ensure the bottom border is fully displayed
+  if (height > 0) {
+    height += 1;
+  }
+
+  return height;
 };
 
 /**

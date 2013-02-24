@@ -1,19 +1,13 @@
 @import 'arrow_box';
 
-$toolbar_height: 70px;
-
-.ui-dialog .ui-dialog-content.passage-picker-ui,
-.passage-picker-ui {
-  position: static;
+.ui-dialog .ui-dialog-content.passage-picker-ui {
+  overflow: visible;
+  padding: 0.5em 1em 0 1em;
 }
+
 .passage-picker-ui {
   .toolbar,.alternateWorks {
-    position: absolute;
-    overflow: hidden;
-    top: 37px;
-    left: 16px;
     width: 100%;
-    height: $toolbar_height;
     // NOTE: The width of the toolbar is (unfortunately) set dynamically via Javascript
     //       @see: PickerUI.didResize()
     background: #fff;
@@ -31,7 +25,7 @@ $toolbar_height: 70px;
   }
 
   .alternateWorks {
-    top: 109px;
+    overflow: hidden;
     height: 0px; /* Initially hidden, displayed on demand via PickerUI */
     border-bottom: 0;
 
@@ -53,8 +47,9 @@ $toolbar_height: 70px;
   }
 
   .passages {
+    // NOTE: The height of the passages is (unfortunately) set dynamically via Javascript
+    //       @see: PickerUI.didResize()
     overflow-y: auto;
-    padding-top: $toolbar_height;
 
     & > table {
       width: 100%;

@@ -21,6 +21,8 @@ jQuery(function ($) {
             autoOpen: false,
             width: windowWidthPadded > idealWidth ? idealWidth : windowWidthPadded,
             height: windowHeightPadded > idealHeight ? idealHeight : windowHeightPadded,
+            minWidth: 1050,
+            minHeight: 300,
             modal: true,
             buttons: {
               Done: function() {

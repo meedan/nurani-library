@@ -1,15 +1,10 @@
-.ui-dialog .ui-dialog-content.passage-picker-ui,
-.passage-picker-ui {
-  position: static;
+.ui-dialog .ui-dialog-content.passage-picker-ui {
+  overflow: visible;
+  padding: 0.5em 1em 0 1em;
 }
 
 .passage-picker-ui .toolbar, .passage-picker-ui .alternateWorks {
-  position: absolute;
-  overflow: hidden;
-  top: 37px;
-  left: 16px;
   width: 100%;
-  height: 70px;
   background: #fff;
   border-bottom: 2px solid #444444;
 }
@@ -25,7 +20,7 @@
   float: right;
 }
 .passage-picker-ui .alternateWorks {
-  top: 109px;
+  overflow: hidden;
   height: 0px;
   /* Initially hidden, displayed on demand via PickerUI */
   border-bottom: 0;
@@ -45,7 +40,6 @@
 }
 .passage-picker-ui .passages {
   overflow-y: auto;
-  padding-top: 70px;
 }
 .passage-picker-ui .passages > table {
   width: 100%;
