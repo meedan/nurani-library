@@ -7,13 +7,20 @@ jQuery(function ($) {
     init: function(editor) {
       var nuraniLibraryPickerUI = new NL.PickerUI({
             osisIDWork: null,
-            osisID: null
+            osisID: null,
+            annotationsEnabled: false,
+            alternateWorksEnabled: false,
+            maxVerses: 5
           }),
           $window = $(window),
+          idealWidth = 1250,
+          idealHeight = 800,
+          windowWidthPadded = $window.width() * 0.88,
+          windowHeightPadded = $window.height() * 0.80,
           $dialog = nuraniLibraryPickerUI.$element.dialog({
             autoOpen: false,
-            width: $window.width() * 0.88,
-            height: $window.height() * 0.80,
+            width: windowWidthPadded > idealWidth ? idealWidth : windowWidthPadded,
+            height: windowHeightPadded > idealHeight ? idealHeight : windowHeightPadded,
             modal: true,
             buttons: {
               Done: function() {

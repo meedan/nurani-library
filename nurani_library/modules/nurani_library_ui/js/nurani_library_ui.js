@@ -58,7 +58,10 @@ var _nlui = (function ($) {
 
   Util.prototype.findByName = function (array, name) {
     var search, key;
-    search = $.grep(array, function (o, i) { return o.name === name; });
+    // The `o.name == name` match is important here, if `o.name === name` were
+    // used there are some cases where chapters may not be matched because of
+    // integer vs string mismatch.
+    search = $.grep(array, function (o, i) { return o.name == name; });
     return search.length > 0 ? $.extend({ _key: array.indexOf(search[0]) }, search[0]) : false;
   };
 
@@ -94,7 +97,14 @@ var _nlui = (function ($) {
   function PickerUI(opts) {
     this.defaults = {
       osisIDWork: '',
-      osisID:     ''
+      osisID:     '',
+
+      // Annotation support is enabled by default
+      annotationsEnabled: true,
+      // Alternate works selection is enabled by default
+      alternateWorksEnabled: true,
+      // By default, any number of verses may be selected
+      maxVerses: 0
     };
 
     this.opts  = $.extend(this.defaults, opts);
@@ -123,7 +133,7 @@ var _nlui = (function ($) {
 
     // Render the initial templates, empty
     this.templates = {};
-    this.viewData = { works: [], passages: [] };
+    this.viewData = $.extend({ works: [], passages: [] }, this.opts);
     this.renderViews();
 
     // Use the Bible-Passage-Reference-Parser, if available
@@ -177,11 +187,13 @@ var _nlui = (function ($) {
     var that = this;
     // Bind passage selection tickboxes to their action
     $('.form-item-passage', $passages).click(function () { that.pickPassageAction($(this).val(), this); });
-    // Bind passage hover action to display button for creating new annotation
-    $('tr.passage-row td.passage', $passages).mouseenter(function () { that.newAnnotationButtonShowAction($(this)); });
-    $('tr.passage-row td.passage', $passages).mouseleave(function () { that.newAnnotationButtonHideAction($(this)); });
 
-    this.initAnnotations($passages);
+    if (this.opts.annotationsEnabled) {
+      // Bind passage hover action to display button for creating new annotation
+      $('tr.passage-row td.passage', $passages).mouseenter(function () { that.newAnnotationButtonShowAction($(this)); });
+      $('tr.passage-row td.passage', $passages).mouseleave(function () { that.newAnnotationButtonHideAction($(this)); });
+      this.initAnnotations($passages);
+    }
 
     this.htmlUpdated($passages);
   };
@@ -622,10 +634,10 @@ var _nlui = (function ($) {
         range;
 
     for (i = data.length - 1; i >=0; i--) {
-      books = data[i].books;
+      books = data[i].books || [];
 
       for (j = books.length - 1; j >= 0; j--) {
-        chapters = data[i].books[j].chapters;
+        chapters = data[i].books[j].chapters || [];
 
         // Unpack the chapters: 'START-END' format
         if (typeof chapters === 'string') {
@@ -733,33 +745,36 @@ var _nlui = (function ($) {
     setDefaults = typeof setDefaults !== 'undefined' ? setDefaults : false;
 
     this.viewData.alternateWorks = [];
-    for (i = this.viewData.works.length - 1; i >=0; i--) {
-      work = this.viewData.works[i];
 
-      // Don't also add the origin work as an alternate work
-      if (work.name === originWork.name) {
-        continue;
-      }
+    if (this.opts.alternateWorksEnabled) {
+      for (i = this.viewData.works.length - 1; i >=0; i--) {
+        work = this.viewData.works[i];
 
-      for (j = work.books.length - 1; j >= 0; j--) {
-        book = work.books[j];
+        // Don't also add the origin work as an alternate work
+        if (work.name === originWork.name) {
+          continue;
+        }
 
-        // This work contains the same book as the origin, next check if has
-        // the same chapter too
-        if (book.name === originBook.name) {
-          for (k = book.chapters.length - 1; k >= 0; k--) {
-            chapter = book.chapters[k];
+        for (j = work.books.length - 1; j >= 0; j--) {
+          book = work.books[j];
 
-            // This work contains the same book and chapter as the origin
-            // that means that almost certainly it is a valid alternate work
-            if (chapter.name === originChapter.name) {
-              // Need to make a deep copy here, else alternateWorks stae will be
-              // bound to works!
-              this.viewData.alternateWorks.push($.extend(true, {}, work));
-              break; // Successful match found, quit searching chapters
+          // This work contains the same book as the origin, next check if has
+          // the same chapter too
+          if (book.name === originBook.name) {
+            for (k = book.chapters.length - 1; k >= 0; k--) {
+              chapter = book.chapters[k];
+
+              // This work contains the same book and chapter as the origin
+              // that means that almost certainly it is a valid alternate work
+              if (chapter.name === originChapter.name) {
+                // Need to make a deep copy here, else alternateWorks stae will be
+                // bound to works!
+                this.viewData.alternateWorks.push($.extend(true, {}, work));
+                break; // Successful match found, quit searching chapters
+              }
             }
+            break; // Matched book, quit searching books
           }
-          break; // Matched book, quit searching books
         }
       }
     }
@@ -1020,7 +1035,7 @@ var _nlui = (function ($) {
     ].join(''),
 
     passages: [
-      '<table>',
+      '<table class="{{#if annotationsEnabled}}has-annotations{{/if}}">',
         '<tbody>',
           '{{#each passages}}',
             '{{#isChapterBeginning this}}',
@@ -1028,14 +1043,16 @@ var _nlui = (function ($) {
                 '<td class="passage">',
                   '<h4>{{book_full_name}}, Chapter {{chapter_full_name}}</h4>',
                 '</td>',
-                '<td class="annotations">',
-                '<h4>Annotations</h4>',
-                '</td>',
+                '{{#if annotationsEnabled}}',
+                  '<td class="annotations">',
+                  '<h4>Annotations</h4>',
+                  '</td>',
+                '{{/if}}',
               '</tr>',
             '{{/isChapterBeginning}}',
             '<tr class="passage-row {{oddOrEven verse}}">',
               '<td class="passage" data-index="{{@index}}">',
-                '<div class="form-item form-type-checkbox form-item-passage-row form-item-passage-row-{{verse}} {{work_language}}">',
+                '<div class="form-item form-type-checkbox form-item-passage-row form-item-passage-row-{{verse}} {{work_language}} {{direction}}">',
                   // "Select passage" tickbox
                   '<input type="checkbox" id="{{cssId}}" name="passage[]" value="{{osisID}}" class="form-checkbox form-item-passage"{{selected this "checked"}}> ',
                   // The verse and its number link
@@ -1051,11 +1068,13 @@ var _nlui = (function ($) {
                   '</label>',
                 '</div>',
               '</td>',
-              '<td class="annotations">',
-                '{{#each notes}}',
-                  '{{> annotation this}}',
-                '{{/each}}',
-              '</td>',
+              '{{#if annotationsEnabled}}',
+                '<td class="annotations">',
+                  '{{#each notes}}',
+                    '{{> annotation this}}',
+                  '{{/each}}',
+                '</td>',
+              '{{/if}}',
             '</tr>',
           '{{/each}}',
         '</tbody>',

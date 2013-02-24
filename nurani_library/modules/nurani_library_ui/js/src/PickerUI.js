@@ -4,7 +4,14 @@
 function PickerUI(opts) {
   this.defaults = {
     osisIDWork: '',
-    osisID:     ''
+    osisID:     '',
+
+    // Annotation support is enabled by default
+    annotationsEnabled: true,
+    // Alternate works selection is enabled by default
+    alternateWorksEnabled: true,
+    // By default, any number of verses may be selected
+    maxVerses: 0
   };
 
   this.opts  = $.extend(this.defaults, opts);
@@ -33,7 +40,7 @@ PickerUI.prototype.init = function () {
 
   // Render the initial templates, empty
   this.templates = {};
-  this.viewData = { works: [], passages: [] };
+  this.viewData = $.extend({ works: [], passages: [] }, this.opts);
   this.renderViews();
 
   // Use the Bible-Passage-Reference-Parser, if available
@@ -87,11 +94,13 @@ PickerUI.prototype.initPassages = function ($passages) {
   var that = this;
   // Bind passage selection tickboxes to their action
   $('.form-item-passage', $passages).click(function () { that.pickPassageAction($(this).val(), this); });
-  // Bind passage hover action to display button for creating new annotation
-  $('tr.passage-row td.passage', $passages).mouseenter(function () { that.newAnnotationButtonShowAction($(this)); });
-  $('tr.passage-row td.passage', $passages).mouseleave(function () { that.newAnnotationButtonHideAction($(this)); });
 
-  this.initAnnotations($passages);
+  if (this.opts.annotationsEnabled) {
+    // Bind passage hover action to display button for creating new annotation
+    $('tr.passage-row td.passage', $passages).mouseenter(function () { that.newAnnotationButtonShowAction($(this)); });
+    $('tr.passage-row td.passage', $passages).mouseleave(function () { that.newAnnotationButtonHideAction($(this)); });
+    this.initAnnotations($passages);
+  }
 
   this.htmlUpdated($passages);
 };
@@ -532,10 +541,10 @@ PickerUI.prototype.unpackWorkData = function (data) {
       range;
 
   for (i = data.length - 1; i >=0; i--) {
-    books = data[i].books;
+    books = data[i].books || [];
 
     for (j = books.length - 1; j >= 0; j--) {
-      chapters = data[i].books[j].chapters;
+      chapters = data[i].books[j].chapters || [];
 
       // Unpack the chapters: 'START-END' format
       if (typeof chapters === 'string') {
@@ -643,33 +652,36 @@ PickerUI.prototype.setAlternateWorks = function (originWork, originBook, originC
   setDefaults = typeof setDefaults !== 'undefined' ? setDefaults : false;
 
   this.viewData.alternateWorks = [];
-  for (i = this.viewData.works.length - 1; i >=0; i--) {
-    work = this.viewData.works[i];
 
-    // Don't also add the origin work as an alternate work
-    if (work.name === originWork.name) {
-      continue;
-    }
+  if (this.opts.alternateWorksEnabled) {
+    for (i = this.viewData.works.length - 1; i >=0; i--) {
+      work = this.viewData.works[i];
 
-    for (j = work.books.length - 1; j >= 0; j--) {
-      book = work.books[j];
+      // Don't also add the origin work as an alternate work
+      if (work.name === originWork.name) {
+        continue;
+      }
 
-      // This work contains the same book as the origin, next check if has
-      // the same chapter too
-      if (book.name === originBook.name) {
-        for (k = book.chapters.length - 1; k >= 0; k--) {
-          chapter = book.chapters[k];
+      for (j = work.books.length - 1; j >= 0; j--) {
+        book = work.books[j];
 
-          // This work contains the same book and chapter as the origin
-          // that means that almost certainly it is a valid alternate work
-          if (chapter.name === originChapter.name) {
-            // Need to make a deep copy here, else alternateWorks stae will be
-            // bound to works!
-            this.viewData.alternateWorks.push($.extend(true, {}, work));
-            break; // Successful match found, quit searching chapters
+        // This work contains the same book as the origin, next check if has
+        // the same chapter too
+        if (book.name === originBook.name) {
+          for (k = book.chapters.length - 1; k >= 0; k--) {
+            chapter = book.chapters[k];
+
+            // This work contains the same book and chapter as the origin
+            // that means that almost certainly it is a valid alternate work
+            if (chapter.name === originChapter.name) {
+              // Need to make a deep copy here, else alternateWorks stae will be
+              // bound to works!
+              this.viewData.alternateWorks.push($.extend(true, {}, work));
+              break; // Successful match found, quit searching chapters
+            }
           }
+          break; // Matched book, quit searching books
         }
-        break; // Matched book, quit searching books
       }
     }
   }

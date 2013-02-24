@@ -17,7 +17,10 @@ Util.prototype.capitalize = function (string) {
 
 Util.prototype.findByName = function (array, name) {
   var search, key;
-  search = $.grep(array, function (o, i) { return o.name === name; });
+  // The `o.name == name` match is important here, if `o.name === name` were
+  // used there are some cases where chapters may not be matched because of
+  // integer vs string mismatch.
+  search = $.grep(array, function (o, i) { return o.name == name; });
   return search.length > 0 ? $.extend({ _key: array.indexOf(search[0]) }, search[0]) : false;
 };
 

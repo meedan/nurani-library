@@ -74,6 +74,7 @@ class NuraniDrupalModel extends NuraniModel {
     $search = count($result) ? array() : FALSE;
     foreach ($result as $row) {
       $row->passage_title = NuraniLibrary::passageTitle($row);
+      $row->direction = $this->textDirection($row->work_language);
 
       $notes = $this->getAnnotations($row->id, $authorUUID, NULL, $page, $pagesize);
       if (!empty($notes)) {
@@ -249,6 +250,7 @@ class NuraniDrupalModel extends NuraniModel {
           'name'         => $row->name,
           'full_name'    => $row->full_name,
           'language'     => $row->language,
+          'direction'    => $this->textDirection($row->language),
           'books'        => array(),
           'num_passages' => db_query("SELECT COUNT(*) FROM {nurani_library} WHERE work_id = :work_id", array(':work_id' => $row->id))->fetchField(),
         );
@@ -487,6 +489,11 @@ class NuraniDrupalModel extends NuraniModel {
     }
 
     return (int) $key;
+  }
+
+  // TODO: Replace this with proper Drupal language support in the future
+  private function textDirection($language) {
+    return in_array($language, array('ar', 'he')) ? 'rtl' : 'ltr';
   }
 
 }

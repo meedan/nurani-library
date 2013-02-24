@@ -57,11 +57,16 @@ $toolbar_height: 70px;
     padding-top: $toolbar_height;
 
     & > table {
+      width: 100%;
       border: none;
       margin: 0;
 
       tr {
         border: none;
+      }
+
+      &.has-annotations .form-item-passage-row {
+        padding-right: 16em;
       }
     }
 
@@ -78,7 +83,6 @@ $toolbar_height: 70px;
       margin: 0;
       white-space: normal;
       min-height: 32px;
-      padding-right: 16em;
 
       .form-checkbox {
         display: block;
@@ -88,6 +92,15 @@ $toolbar_height: 70px;
       label {
         display: block;
         margin-left: 2em;
+      }
+
+      &.rtl {
+        text-align: right;
+        direction: rtl;
+
+        .form-checkbox {
+          float: right;
+        }
       }
     }
 
