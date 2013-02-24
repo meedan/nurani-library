@@ -47,7 +47,7 @@ function nurani_library_ui_libraries_info() {
     'version arguments' => array(
       'file' => 'handlebars.js',
       'pattern' => '/Handlebars.VERSION = "([^"]+)";/',
-      'lines' => 15,
+      'lines' => 40,
     ),
     'files' => array(
       'js' => array('handlebars.js'),
