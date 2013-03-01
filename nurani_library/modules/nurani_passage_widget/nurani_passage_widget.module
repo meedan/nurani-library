@@ -100,7 +100,7 @@ function nurani_passage_embedded_citation($osisIDWork, $osisID) {
     if ($oembed && $oembed['html']) {
       $output .= '<span class="passage-citation-wrapper" id="' . $id . '">' . $oembed['html'] . '</span>';
       $url = nurani_passage_widget_oembed_url($osisIDWork, $osisID, $id, 'jsonp', 'NL.PassageCitation.JSONP');
-      $output .= '<script>jQuery(function () { new PassageCitation({original_url: "' . url($_GET['q'], array('fragment' => $id)) . '", html: false}) });</script>';
+      $output .= '<script>jQuery(function () { new NL.PassageCitation({original_url: "' . url($_GET['q'], array('fragment' => $id)) . '", html: false}) });</script>';
     }
   }
   else {
