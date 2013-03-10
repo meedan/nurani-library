@@ -1,19 +1,24 @@
+$from-direction: left !default;
+
 .passage-widget {
-  .he,.ar {
-    direction: rtl;
-    text-align: right;
+  .passages {
+    direction: ltr;
+    text-align: left;
 
     .verse {
-      margin-right: 0;
-      margin-left: 1em;
+      margin-#{opposite-position($from-direction)}: 1em;
+      display: inline-block;
     }
-  }
 
-  .verse {
-    margin-right: 1em;
-    display: inline-block;
-    direction: ltr !important;
-    text-align: left !important;
+    &.he, &.ar {
+      direction: rtl;
+      text-align: right;
+
+      .verse {
+        margin-right: 0;
+        margin-left: 1em;
+      }
+    }
   }
 
   sup.note-marker {
@@ -52,7 +57,7 @@
   sup.note-marker {
     font-weight: bold;
     font-size: 110%;
-    margin-left: 0.1em;
+    margin-#{$from-direction}: 0.1em;
     color: #005eae;
     cursor: help;
   }

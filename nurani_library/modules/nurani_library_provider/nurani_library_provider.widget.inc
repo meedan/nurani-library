@@ -14,7 +14,7 @@ function theme_nurani_library_provider_passage_widget(&$variables) {
   foreach ($passages as $passage) {
     $passage_osisID = "$passage->book_name.$passage->chapter_name.$passage->verse";
 
-    $passage_output .= '<p class="' . $passage->work_language . '">';
+    $passage_output .= '<p>';
     // $passage_output .=   '<span class="verse">' . nurani_library_l($passage->verse, "passages/$osisIDWork/$passage_osisID") . '</span>';
     $passage_output .=   '<span class="verse"><strong>' . $passage->verse . '</strong></span>';
     $passage_output .=   theme('nurani_library_provider_passage_text', array('passage' => $passage));
@@ -26,7 +26,7 @@ function theme_nurani_library_provider_passage_widget(&$variables) {
   if ($passage_output) {
     $output .= '<h3>' . nurani_library_format_passage_string_from_passages($passages) . '</h3>';
     $output .= '<h4>' . $first->work_full_name . '</h4>';
-    $output .= '<div class="passages">';
+    $output .= '<div class="passages ' . $passage->work_language . '">';
     $output .=   $passage_output;
     $output .= '</div>';
   }

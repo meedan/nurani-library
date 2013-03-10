@@ -130,3 +130,16 @@ function nurani_passage_widget_oembed_url($osisIDWork, $osisID, $hash = NULL, $f
     )
   )));
 }
+
+
+/**
+ * Implements hook_css_alter()
+ *
+ * Hack to only use RTL CSS when in RTL mode.
+ */
+function nurani_passage_widget_css_alter(&$css) {
+  global $language;
+  if ($language->direction == LANGUAGE_RTL) {
+    unset($css[drupal_get_path('module', 'nurani_passage_widget') . '/css/nurani_passage_widget.css']);
+  }
+}
