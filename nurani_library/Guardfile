@@ -1,0 +1,28 @@
+# A sample Guardfile
+# More info at https://github.com/guard/guard#readme
+
+guard 'process', :name => 'build', :dir => 'modules/nurani_library_ui/js', :command => 'ruby ./build.rb', :stop_signal => "KILL" do
+  watch(%r{^modules/nurani_library_ui/js/src/(.+)\.js$})
+end
+
+guard 'process', :name => 'build', :dir => 'modules/nurani_passage_widget/js', :command => 'ruby ./build.rb', :stop_signal => "KILL" do
+  watch(%r{^modules/nurani_passage_widget/js/src/(.+)\.js$})
+end
+
+## Compass is broken currently
+# guard 'compass' do
+#   watch(%r{^modules/nurani_library_ui/css/(.*)\.s[ac]ss})
+# end
+
+guard 'process', :name => 'compass compile', :dir => 'modules/nurani_library_ui/css', :command => 'compass compile', :stop_signal => "KILL" do
+  watch(%r{^modules/nurani_library_ui/css/(.*)\.s[ac]ss})
+end
+
+## Compass is broken currently
+# guard 'compass' do
+#   watch(%r{^modules/nurani_passage_widget/css/(.*)\.s[ac]ss})
+# end
+
+guard 'process', :name => 'compass compile', :dir => 'modules/nurani_passage_widget/css', :command => 'compass compile', :stop_signal => "KILL" do
+  watch(%r{^modules/nurani_passage_widget/css/(.*)\.s[ac]ss})
+end

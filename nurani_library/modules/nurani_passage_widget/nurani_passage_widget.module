@@ -1,14 +1,32 @@
 <?php
 
 /**
+ * Implements hook_library().
+ */
+function nurani_passage_widget_library() {
+  $libraries = array();
+  $path = drupal_get_path('module', 'nurani_passage_widget');
+  $libraries['nurani.passage-widget'] = array(
+    'title' => 'Nurani Passage Widget',
+    'version' => VERSION,
+    'js' => array(
+      $path . '/js/nurani_passage_widget.js' => array(),
+    ),
+    'css' => array(
+      $path . '/css/nurani_passage_widget.css' => array(),
+    ),
+  );
+  return $libraries;
+}
+
+/**
  * Returns a Nurani Library Passage Widget.
  */
 function nurani_passage_widget($osisIDWork, $osisID) {
   $backend = nurani_library_backend();
   $output = '';
 
-  drupal_add_js(drupal_get_path('module', 'nurani_passage_widget') . '/js/nurani_passage_widget.js');
-  drupal_add_css(drupal_get_path('module', 'nurani_passage_widget') . '/css/nurani_passage_widget.css');
+  drupal_add_library('nurani_passage_widget', 'nurani.passage-widget');
 
   $id  = 'passage-widget-' . substr(md5($osisIDWork . '/' . $osisID), 0, 8);
 
@@ -22,7 +40,7 @@ function nurani_passage_widget($osisIDWork, $osisID) {
     // This script will initiate a sequence of events:
     // (1) The script will load
     // (2) The script contents will be JSONP
-    // (3) This will invoke the PassageWidget.JSONP function
+    // (3) This will invoke the NL.PassageWidget.JSONP function
     // (4) That will create a new PassageWidget object for the widget
     // (5) The JSON data for the widget contains information about the CSS ID
     //     of the passage-widget <div>, that's how the div receives its contents
@@ -41,10 +59,52 @@ function nurani_passage_widget($osisIDWork, $osisID) {
 
     if ($oembed && $oembed['html']) {
       $output .= '<div class="passage-widget-wrapper" id="' . $id . '">' . $oembed['html'] . '</div>';
+      $url = nurani_passage_widget_oembed_url($osisIDWork, $osisID, $id, 'jsonp');
+      $output .= '<script>jQuery(function () { new PassageWidget({original_url: "' . url($_GET['q'], array('fragment' => $id)) . '", html: false}) });</script>';
     }
   }
   else {
     watchdog('nurani_passage_widget', "Could not generate passage widget, no Nurani Library backend to connect to.", array(), WATCHDOG_ERROR);
+    return NULL;
+  }
+
+  return $output;
+}
+
+/**
+ * Returns an passage embedded as a citation.
+ */
+function nurani_passage_embedded_citation($osisIDWork, $osisID) {
+  $backend = nurani_library_backend();
+  $output = '';
+
+  drupal_add_library('nurani_passage_widget', 'nurani.passage-widget');
+
+  $id = 'passage-citation-' . substr(md5(mt_rand()), 0, 8);
+
+  if ($backend == 'REST') {
+    $url = nurani_passage_widget_oembed_url($osisIDWork, $osisID, $id, 'jsonp', 'NL.PassageCitation.JSONP');
+    $output .= '<span class="passage-citation-wrapper" id="' . $id . '"></span>';
+    $output .= '<script src="' . $url . '"></script>';
+  }
+  else if (module_exists('nurani_library_provider')) {
+    $provider = array(
+      'callback' => 'nurani_library_provider_passages_provider'
+    );
+    $passages_path = $osisIDWork . '/' . $osisID;
+    $url = url('passages/' . $passages_path, array('absolute' => TRUE));
+
+    module_load_include('inc', 'oembedprovider');
+    $oembed = nurani_library_provider_passages_provider($provider, $url, array($url, $passages_path));
+
+    if ($oembed && $oembed['html']) {
+      $output .= '<span class="passage-citation-wrapper" id="' . $id . '">' . $oembed['html'] . '</span>';
+      $url = nurani_passage_widget_oembed_url($osisIDWork, $osisID, $id, 'jsonp', 'NL.PassageCitation.JSONP');
+      $output .= '<script>jQuery(function () { new NL.PassageCitation({original_url: "' . url($_GET['q'], array('fragment' => $id)) . '", html: false}) });</script>';
+    }
+  }
+  else {
+    watchdog('nurani_passage_widget', "Could not generate passage citation, no Nurani Library backend to connect to.", array(), WATCHDOG_ERROR);
     return NULL;
   }
 
@@ -59,14 +119,27 @@ function nurani_passage_widget($osisIDWork, $osisID) {
  * @param $hash
  * @param $format
  */
-function nurani_passage_widget_oembed_url($osisIDWork, $osisID, $hash = NULL, $format = 'jsonp') {
+function nurani_passage_widget_oembed_url($osisIDWork, $osisID, $hash = NULL, $format = 'jsonp', $callback = 'NL.PassageWidget.JSONP') {
   $hash = $hash ? '#' . $hash : '';
 
-  return url(nurani_library_base_url() . '/oembed/endpoint', array(
+  return str_replace('&', '&amp;', url(nurani_library_base_url() . '/oembed/endpoint', array(
     'query' => array(
       'url'      => nurani_library_base_url(TRUE) . '/passages/' . $osisIDWork . '/' . $osisID . $hash,
       'format'   => $format,
-      'callback' => 'PassageWidget.JSONP'
+      'callback' => $callback
     )
-  ));
+  )));
+}
+
+
+/**
+ * Implements hook_css_alter()
+ *
+ * Hack to only use RTL CSS when in RTL mode.
+ */
+function nurani_passage_widget_css_alter(&$css) {
+  global $language;
+  if ($language->direction == LANGUAGE_RTL) {
+    unset($css[drupal_get_path('module', 'nurani_passage_widget') . '/css/nurani_passage_widget.css']);
+  }
 }

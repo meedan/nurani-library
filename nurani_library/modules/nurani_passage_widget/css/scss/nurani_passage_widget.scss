@@ -1,19 +1,45 @@
+$from-direction: left !default;
+
 .passage-widget {
-  .he,.ar {
-    direction: rtl;
-    text-align: right;
+  .passages {
+    direction: ltr;
+    text-align: left;
 
     .verse {
-      margin-right: 0;
-      margin-left: 1em;
+      margin-#{opposite-position($from-direction)}: 1em;
+      display: inline-block;
+    }
+
+    &.he, &.ar {
+      direction: rtl;
+      text-align: right;
+
+      .verse {
+        margin-right: 0;
+        margin-left: 1em;
+      }
     }
   }
 
-  .verse {
-    margin-right: 1em;
+  sup.note-marker {
     display: inline-block;
-    direction: ltr !important;
-    text-align: left !important;
+  }
+  span.note {
+    position: absolute;
+    z-index: 1000;
+    display: none;
+  }
+}
+.passage-citation-wrapper {
+  display: inline-block;
+
+  .citation-marker {
+    display: inline-block;
+  }
+  .passage-widget {
+    position: absolute;
+    z-index: 1000;
+    display: none;
   }
 }
 
@@ -21,6 +47,34 @@
 // Colours and visual styles, separated for easy removal
 //
 .passage-widget-wrapper {
-  max-height: 40em;
-  overflow-y: auto;
+  .passages{
+    max-height: 40em;
+    overflow-y: auto;
+  }
+  .tab-bar {
+    clear: both;
+  }
+  sup.note-marker {
+    font-weight: bold;
+    font-size: 110%;
+    margin-#{$from-direction}: 0.1em;
+    color: #005eae;
+    cursor: help;
+  }
+  span.note {
+    width: 20em;
+    background: #fff;
+    border-radius: 0.5em;
+    box-shadow: 0 0.2em 1em rgba(0, 0, 0, 0.5);
+    padding: 1em;
+  }
+}
+.passage-citation-wrapper {
+  .passage-widget {
+    width: 20em;
+    background: #fff;
+    border-radius: 0.5em;
+    box-shadow: 0 0.2em 1em rgba(0, 0, 0, 0.5);
+    padding: 1em;
+  }
 }

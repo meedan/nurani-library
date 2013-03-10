@@ -20,9 +20,6 @@ function nurani_library_provider_permission() {
     'validate passages' =>  array(
       'title' => t('Validate Nurani Library passages'),
     ),
-    'access nurani library' =>  array(
-      'title' => t('Access the Nurani Library'),
-    ),
   );
 }
 
@@ -41,6 +38,10 @@ function nurani_library_provider_theme($existing, $type, $theme, $path) {
     ),
     'nurani_library_provider_passage_widget' => array(
       'variables' => array('osisIDWork' => NULL, 'osisID' => NULL, 'passages' => NULL),
+      'file' => 'nurani_library_provider.widget.inc',
+    ),
+    'nurani_library_provider_passage_text' => array(
+      'variables' => array('passage' => NULL),
       'file' => 'nurani_library_provider.widget.inc',
     ),
   );
@@ -99,14 +100,6 @@ function nurani_library_provider_views_api() {
 }
 
 /**
- * Implements hook_services_resources().
- */
-function nurani_library_provider_services_resources() {
-  module_load_include('inc', 'nurani_library_provider', 'nurani_library_provider.resource');
-  return _nurani_library_provider_services_resources();
-}
-
-/**
  * Implements hook_nurani_library_backend().
  */
 function nurani_library_provider_nurani_library_backend() {
@@ -139,16 +132,40 @@ function nurani_library_provider_passages_provider($provider, $url, $matches) {
   $result = FALSE;
 
   $scrubbed_url = preg_replace('/#.*$/', '', $matches[1]);
-  list($osisIDWork, $osisID) = explode('/', $scrubbed_url);
+  list($osisIDWorks, $osisID) = explode('/', $scrubbed_url);
 
-  $info = nurani_library_get_passages_info($osisIDWork, $osisID);
+  $output = '';
+  foreach (explode(',', $osisIDWorks) as $osisIDWork) {
+    $info = nurani_library_get_passages_info($osisIDWork, $osisID);
 
-  if ($info === FALSE) {
-    return FALSE;
+    if ($info !== FALSE) {
+      $output .= theme('nurani_library_provider_passage_widget', array('osisIDWork' => $osisIDWork, 'osisID' => $osisID, 'passages' => $info['passages']));
+    }
+  }
+
+  if (!$output) {
+    if (!$osisIDWorks) {
+      $error = t('Error, no <em>work</em> defined for this passage.');
+    }
+    else if (!$osisID) {
+      $error = t('Error, no <em>passage</em> defined.');
+    }
+    else {
+      $passage_title = "$osisIDWork:$osisID";
+      $error = t('%passage was not found in the Nurani Library.', array('%passage' => $passage_title));
+    }
+    return '<div class="error">'
+         .   '<div class="message">'
+         .     $error
+         .   '</div>'
+         .   '<div class="info">'
+         .     t('Please contact the @site team', array('@site' => variable_get('site_name', 'Nurani Library')))
+         .   '</div>'
+         . '</div>';
   }
 
   $result = _oembedprovider_result('rich', array(
-    'html' => theme('nurani_library_provider_passage_widget', array('osisIDWork' => $osisIDWork, 'osisID' => $osisID, 'passages' => $info['passages'])),
+    'html' => $output,
     'title' => $info['passage_human'],
     'author_name' => variable_get('site_name', 'Nurani Library'),
     'author_url' => url('', array('absolute' => TRUE)),

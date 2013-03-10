@@ -55,11 +55,22 @@ function nurani_library_tests() {
     'class' => array(is_null($error) ? 'test-pass' : 'test-fail'),
   );
 
-  $result = $nl->search('wlc_he', 'Gen', 1, '1-5');
+  $result = $nl->search('wlc_he', 'Gen', 1, '10-15');
   $error  = $nl->model->getError();
   $rows[] = array(
     'data' => array(
-      t('Test fetching passages wlc_he:Gen.1.1-5'),
+      t('Test fetching passages wlc_he:Gen.1.10-15'),
+      '<pre>' . var_export($result, 1) . '</pre>',
+      is_null($error) ? t('Pass') : '<pre>' . var_export($error, 1) . '</pre>',
+    ),
+    'class' => array(is_null($error) ? 'test-pass' : 'test-fail'),
+  );
+
+  $result = $nl->getAnnotations(NULL, NULL, NULL, 0, 5);
+  $error  = $nl->model->getError();
+  $rows[] = array(
+    'data' => array(
+      t('Test fetching notes 0-5'),
       '<pre>' . var_export($result, 1) . '</pre>',
       is_null($error) ? t('Pass') : '<pre>' . var_export($error, 1) . '</pre>',
     ),
@@ -178,6 +189,7 @@ function nurani_library_create_api_account_form($form, &$form_state) {
  * Submission callback for Nurani Library API account creation confirm form.
  */
 function nurani_library_create_api_account_form_submit($form, &$form_state) {
+  module_load_install('nurani_library');
   nurani_library_create_API_account();
   $form_state['redirect'] = 'admin/structure/nurani-library';
 }

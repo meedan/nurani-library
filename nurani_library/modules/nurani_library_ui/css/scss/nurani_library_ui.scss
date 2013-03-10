@@ -1,0 +1,238 @@
+$from-direction: left !default;
+
+@import 'arrow_box';
+
+.ui-dialog .ui-dialog-content.passage-picker-ui {
+  overflow: visible;
+  padding: 0.5em 1em 0;
+}
+
+.passage-picker-ui {
+  .toolbar,.alternateWorks {
+    width: 100%;
+    // NOTE: The width of the toolbar is (unfortunately) set dynamically via Javascript
+    //       @see: PickerUI.didResize()
+    background: #fff;
+    border-bottom: 2px solid #444;
+
+    .form-item {
+      display: inline-block;
+      margin: 0 0 1em 0;
+      margin-#{opposite-position($from-direction)}: 1em;
+    }
+    .form-item-work-filter,
+    .form-item-book-filter,
+    .form-item-chapter-filter {
+      float: opposite-position($from-direction);
+    }
+  }
+
+  .alternateWorks {
+    overflow: hidden;
+    height: 0px; /* Initially hidden, displayed on demand via PickerUI */
+    border-bottom: 0;
+
+    .inner {
+      padding: 0.5em 1em;
+      background: #BDF;
+      border-bottom: 2px solid #444;
+
+      & > label {
+        float: $from-direction;
+        width: 30%;
+      }
+    }
+
+    div.form-item-alternate-works {
+      float: opposite-position($from-direction);
+      margin-bottom: 0;
+    }
+  }
+
+  .passages {
+    // NOTE: The height of the passages is (unfortunately) set dynamically via Javascript
+    //       @see: PickerUI.didResize()
+    overflow-y: auto;
+
+    & > table {
+      width: 100%;
+      border: none;
+      margin: 0;
+
+      tr {
+        border: none;
+      }
+
+      &.has-annotations .form-item-passage-row {
+        padding-#{opposite-position($from-direction)}: 16em;
+      }
+    }
+
+    .passage {
+      vertical-align: top;
+      width: 75%;
+      padding: 0;
+    }
+    .passage-row .passage:hover {
+      background: #ffffb3;
+    }
+
+    .form-item-passage-row {
+      margin: 0;
+      white-space: normal;
+      min-height: 32px;
+
+      .form-checkbox {
+        display: block;
+        float: $from-direction;
+        margin-top: 0.3em;
+      }
+      label {
+        display: block;
+        margin-#{$from-direction}: 2em;
+      }
+
+      &.rtl {
+        text-align: opposite-position($from-direction);
+        direction: rtl;
+
+        .form-checkbox {
+          float: opposite-position($from-direction);
+        }
+      }
+    }
+
+    .new-annotation-button {
+      float: opposite-position($from-direction);
+      padding: 0.25em;
+
+      .form-submit {
+        margin: 0;
+      }
+    }
+  }
+
+  .annotations {
+    width: 22%;
+    background: #aaa;
+    box-shadow: inset 1em 0px 1em -1em rgba(0, 0, 0, 0.5); // FIXME: RTL
+
+    .annotation {
+      display: block;
+      margin: 0.75em 0;
+      padding-#{$from-direction}: 10px;
+
+      .inner {
+        @include arrow-box(#fff);
+
+        padding: 1em;
+
+        box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+        -webkit-filter: drop-shadow(0 1px 4px rgba(0,0,0,0.3));
+        filter: drop-shadow(0 1px 4px rgba(0,0,0,0.3));
+        border-radius: 0.5em;
+      }
+      &.note {
+        .inner {
+          background: #bdf;
+
+          &:after {
+            border-#{opposite-position($from-direction)}-color: #bdf;
+          }
+        }
+      }
+
+      // .inner {
+      //   border-radius: 0.5em;
+      //   box-shadow: 0 0.2em 1em rgba(0, 0, 0, 0.5); // FIXME: RTL
+      //   background: #fff;
+      //   padding: 1em;
+      // }
+      // .arrow {
+      //   margin: 0 0 -25px 0;
+      //   margin-#{$from-direction}: -12px;
+      //   height: 20px;
+      //   width: 10px;
+      //   font-size: 16px;
+      //   // FIXME: Having difficulty displaying the shadow beneath the box-shadow
+      //   //        on .inner.  Attempting to avoid the shadow being visible
+      //   //        on the right side by sliding it left.
+      //   text-shadow: -5px 0px 0.5em rgba(0, 0, 0, 0.5); // FIXME: RTL
+      //   color: #fff;
+      // }
+
+      .title {
+        display: none;
+      }
+
+      /* Annotation types and modes */
+      &.editing {
+        .title {
+          display: block;
+        }
+      }
+      &.editable {
+        .inner {
+          border-top: 5px solid #005eae;
+        }
+      }
+      // &.note {
+      //   .arrow {
+      //     color: #bdf;
+      //   }
+      //   .inner {
+      //     background: #bdf;
+      //   }
+      // }
+
+      /* Limited space, all action buttons lose their margin */
+      .form-submit {
+        float: opposite-position($from-direction);
+        margin: 0;
+      }
+
+      &:not(.editing):hover {
+        .contents .actions {
+          display: block;
+        }
+      }
+
+      .contents {
+        .attribution {
+          display: block;
+          float: opposite-position($from-direction);
+        }
+
+        .actions {
+          display: none; // Actions are displayed on hover
+          clear: both;
+          float: $from-direction;
+          width: 100%;
+
+          margin-top: 1em;
+          .delete-annotation-action {
+            float: $from-direction;
+          }
+        }
+      }
+
+      // The annotation form
+      .annotation-form {
+        display: none; // Form is displayed when .edit-annotation-action clicked
+
+        .form-type-textarea {
+          margin-bottom: 1.0em;
+        }
+        textarea {
+          width: 100%;
+        }
+        .actions {
+          .cancel {
+            float: $from-direction;
+          }
+        }
+      }
+
+    }
+  }
+}

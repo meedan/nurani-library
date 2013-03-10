@@ -1,0 +1,7 @@
+name = Nurani Library Services
+description = Services integration for Nurani Library objects.
+core = 7.x
+version = 7.x-1.0
+package = Nurani
+dependencies[] = nurani_library
+dependencies[] = services

@@ -1,0 +1,127 @@
+<?php
+
+/**
+ * Loads requires CSS / JS for Nurani Library UI
+ */
+function nurani_library_ui_attached() {
+  return array(
+    'library' => array(
+      array('nurani_library_ui', 'nurani_library.ui'),
+    ),
+    'libraries_load' => array(
+      array('handlebars'),
+      array('jquery.color'),
+      array('openbibleinfo.bible-passage-reference-parser'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_library().
+ */
+function nurani_library_ui_library() {
+  $libraries = array();
+  $path = drupal_get_path('module', 'nurani_library_ui');
+  $libraries['nurani_library.ui'] = array(
+    'title' => 'Nurani Library UI',
+    'version' => VERSION,
+    'js' => array(
+      $path . '/js/nurani_library_ui.js' => array(),
+    ),
+    'css' => array(
+      $path . '/css/nurani_library_ui.css' => array(),
+    ),
+  );
+  return $libraries;
+}
+
+/**
+ * Implements hook_libraries_info()
+ */
+function nurani_library_ui_libraries_info() {
+  $libraries = array();
+  $libraries['handlebars'] = array(
+    'name' => 'Handlebars',
+    'vendor url' => 'http://handlebarsjs.com/',
+    'download url' => 'https://raw.github.com/wycats/handlebars.js/1.0.rc.2/dist/handlebars.js',
+    'version arguments' => array(
+      'file' => 'handlebars.js',
+      'pattern' => '/Handlebars.VERSION = "([^"]+)";/',
+      'lines' => 40,
+    ),
+    'files' => array(
+      'js' => array('handlebars.js'),
+    ),
+  );
+  $libraries['jquery.color'] = array(
+    'name' => 'jQuery Color',
+    'vendor url' => 'https://github.com/jquery/jquery-color',
+    'download url' => 'http://code.jquery.com/color/jquery.color-2.1.1.min.js',
+    'version arguments' => array(
+      'file' => 'jquery.color-2.1.1.min.js',
+      'pattern' => '/ v[@]?([0-9\.]+)/',
+      'lines' => 5,
+    ),
+    'files' => array(
+      'js' => array('jquery.color-2.1.1.min.js'),
+    ),
+  );
+  $libraries['openbibleinfo.bible-passage-reference-parser'] = array(
+    'name' => 'Bible Passage Reference Parser',
+    'vendor url' => 'https://github.com/openbibleinfo/Bible-Passage-Reference-Parser',
+    'download url' => 'https://raw.github.com/openbibleinfo/Bible-Passage-Reference-Parser/master/js/en_bcv_parser.min.js',
+    'path' => 'js',
+    'version callback' => 'nurani_library_ui_bprp_version',
+    'files' => array(
+      'js' => array('en_bcv_parser.min.js'),
+    ),
+  );
+  return $libraries;
+}
+
+function nurani_library_ui_bprp_version() {
+  return 'master';
+}
+
+/**
+ * Implements hook_menu().
+ */
+function nurani_library_ui_menu() {
+  $items = array();
+  $items['nurani-library'] = array(
+    'title' => 'Nurani Library',
+    'page callback' => 'nurani_library_ui',
+    'access arguments' => array('access nurani library ui'),
+    'file' => 'nurani_library_ui.pages.inc',
+  );
+  $items['nurani-library/picker-ui'] = array(
+    'title' => 'Nurani Library Picker UI',
+    'page callback' => 'nurani_library_ui_picker_ui',
+    'access arguments' => array('access nurani library ui'),
+    'file' => 'nurani_library_ui.pages.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function nurani_library_ui_permission() {
+  return array(
+    'access nurani library ui' =>  array(
+      'title' => t('Access the Nurani Library Interface'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_css_alter()
+ *
+ * Hack to only use RTL CSS when in RTL mode.
+ */
+function nurani_library_ui_css_alter(&$css) {
+  global $language;
+  if ($language->direction == LANGUAGE_RTL) {
+    unset($css[drupal_get_path('module', 'nurani_library_ui') . '/css/nurani_library_ui.css']);
+  }
+}

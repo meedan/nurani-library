@@ -1,0 +1,9 @@
+<?php
+
+/**
+ * Implements hook_services_resources().
+ */
+function nurani_library_services_services_resources() {
+  module_load_include('inc', 'nurani_library_services', 'nurani_library_services.resource');
+  return _nurani_library_services_services_resources();
+}

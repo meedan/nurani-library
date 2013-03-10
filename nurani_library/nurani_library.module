@@ -13,6 +13,16 @@ function nurani_library_help($path, $arg) {
 }
 
 /**
+ * Implements hook_init().
+ */
+function nurani_library_init() {
+  drupal_add_js(array('nuraniLibrary' => array(
+    'baseUrl' => nurani_library_base_url(TRUE, FALSE, TRUE),
+    'apiBasePath' => url('api') . '/',
+  )), 'setting');
+}
+
+/**
  * Implements hook_menu().
  */
 function nurani_library_menu() {
@@ -89,3 +99,30 @@ function nurani_library_nurani_library_backend() {
     )
   );
 }
+
+/**
+ * Implements hook_permission().
+ */
+function nurani_library_permission() {
+  return array(
+    'access nurani library' =>  array(
+      'title' => t('Access the Nurani Library'),
+    ),
+    'view all nurani library annotations' =>  array(
+      'title' => t('Can View All Nurani Library Annotations'),
+    ),
+    'edit all nurani library annotations' =>  array(
+      'title' => t('Can Edit All Nurani Library Annotations'),
+    ),
+    'create nurani library annotations' =>  array(
+      'title' => t('Create Nurani Library Annotations'),
+    ),
+    'update nurani library annotations' =>  array(
+      'title' => t('Update Nurani Library Annotations'),
+    ),
+    'delete nurani library annotations' =>  array(
+      'title' => t('Delete Nurani Library Annotations'),
+    ),
+  );
+}
+

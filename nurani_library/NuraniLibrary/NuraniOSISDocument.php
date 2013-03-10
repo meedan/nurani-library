@@ -79,7 +79,7 @@ class NuraniOSISDocument extends NuraniDocument {
 
   /**
    * Turns an OSIS <verse></verse> SimpleXML object into a PHP object.
-   * 
+   *
    * NOTE: Currently only the verse text is extracted.
    */
   public function createVerse($verseXML) {
@@ -88,20 +88,33 @@ class NuraniOSISDocument extends NuraniDocument {
       // Room for future expansion, interpretation
     );
 
-    if (isset($verseXML->w) || isset($verseXML->seg)) {
-      $words = array();
-      foreach ($verseXML->xpath('w|seg') as $part) {
-        $words[] = trim((string) $part);
-      }
-      $verse->text = implode(' ', $words);
-    }
-    else {
-      $verse->text = (string) $verseXML;
+    // Remove all unparsables
+    $verse->text = strip_tags($verseXML->asXML(), '<note>');
+    // Clean up white space issues
+    $verse->text = trim(preg_replace('/[\pZ\pC]+/mu', ' ', $verse->text));
+    // Removes notes from the text and stores them in a separate array
+    $matches = array();
+    $notes = preg_match_all('@<note([^>]*)>([^<]*)</note>@U', $verse->text, $matches, PREG_OFFSET_CAPTURE);
+
+    $newText = '';
+    $splitIndex = 0;
+
+    foreach ($matches[0] as $i => $match) {
+      $newText .= substr($verse->text, $splitIndex, $match[1] - $splitIndex);
+      $splitIndex = $match[1] + strlen($match[0]);
+
+      $words = NuraniLibrary::passageTextWords($newText);
+
+      $verse->notes[] = (object) array(
+        'position' => count($words),
+        'length' => 0,
+        'value' => $matches[2][$i][0],
+      );
     }
 
-    if ($this->conf['stripMarkup']) {
-      $verse->text = strip_tags($verse->text);
-    }
+    $newText .= substr($verse->text, $splitIndex, strlen($verse->text) - $splitIndex);
+    $verse->text = $newText;
+
     if ($this->conf['stripChars']) {
       $verse->text = str_replace($this->conf['stripChars'], '', $verse->text);
     }
@@ -111,10 +124,13 @@ class NuraniOSISDocument extends NuraniDocument {
 
 
   public function bookOrder($book) {
-    if (!array_key_exists($book, $this->bibleBooksKeys)) {
+    $order = array_search($book, $this->bibleBooksKeys);
+    if ($order === FALSE) {
       return 0;
     }
-    return array_search($book, $this->bibleBooksKeys) + 1;
+    else {
+      return $order + 1;
+    }
   }
 
 
@@ -157,18 +173,18 @@ class NuraniOSISDocument extends NuraniDocument {
       '3John'  => '3 John',          'Jude'   => 'Jude',            'Rev'    => 'Revelation',
     );
 
-    // TODO: Verify if the list of Apocrypha is correct
+    // Apocrypha
     if (isset($this->conf['includeApocrypha']) && $this->conf['includeApocrypha']) {
       $this->bibleBooks = array_merge($this->bibleBooks, array(
         'Tob'     => 'Tobit',                      'Jdt'     => 'Judith',
-        'GkEsth'  => 'Greek Esther',               'Wis'     => 'Wisdom of Solomon',
+        'AddEsth' => 'Additions to Esther',        'Wis'     => 'Wisdom of Solomon',
         'Sir'     => 'Sirach',                     'Bar'     => 'Baruch',
-        'PrAzar'  => 'The Prayer of Azarias',      'Sus'     => 'Susanna',
-        'Bel'     => 'Bel and the Dragon',         'SgThree' => 'Song of the Three Children',
-        'EpJer'   => 'Epistle of Jeremy',          '1Macc'   => '1 Maccabees',
-        '2Macc'   => '2 Maccabees',                '3Macc'   => '3 Maccabees',
-        '4Macc'   => '4 Maccabees',                '1Esd'    => '1 Esdras',
-        '2Esd'    => '2 Esdras',                   'PrMan'   => 'Prayer of Manasses',
+        'EpJer'   => 'Letter of Jeremiah',         'PrAzar'  => 'Prayer of Azariah',
+        'PrAzar'  => 'Prayer of Azariah',          'Sus'     => 'Susanna',
+        'Bel'     => 'Bel and the Dragon',         '1Macc'   => '1 Maccabees',
+        '2Macc'   => '2 Maccabees',                '1Esd'    => '1 Esdras',
+        'PrMan'   => 'Prayer of Manasses',         '3Macc'   => '3 Maccabees',
+        '2Esd'    => '2 Esdras',                   '4Macc'   => '4 Maccabees',
       ));
     }
 

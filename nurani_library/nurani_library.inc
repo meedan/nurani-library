@@ -60,7 +60,7 @@ function nurani_library_get_passages($osisIDWork, $osisID) {
 function nurani_library_get_passages_info($osisIDWork, $osisID) {
   $passages = nurani_library_get_passages($osisIDWork, $osisID);
 
-  if ($passages === FALSE) {
+  if ($passages === FALSE || count($passages) <= 0) {
     return FALSE;
   }
 
@@ -127,7 +127,7 @@ function nurani_library_l() {
   return call_user_func_array('l', $args);
 }
 
-function nurani_library_base_url($no_authentication = FALSE) {
+function nurani_library_base_url($no_authentication = FALSE, $add_path = FALSE, $force_absolute = FALSE) {
   $backend = nurani_library_backend();
 
   if ($backend == 'REST') {
@@ -141,7 +141,11 @@ function nurani_library_base_url($no_authentication = FALSE) {
     $url .= $settings['port'] != 80 ? ':' . $settings['port'] : '';
   }
   else {
-    $url = preg_replace('@[/]*$@', '', url(''));
+    $url = preg_replace('@[/]*$@', '', url('', array('absolute' => $force_absolute)));
+  }
+
+  if ($add_path) {
+    $url .= '/' . (isset($settings) ? $settings['path'] : 'api');
   }
 
   return $url;
@@ -165,45 +169,4 @@ function nurani_library_format_passage_string_from_passages($passages) {
   }
 
   return $title;
-}
-
-/**
- * Creates an account named 'API' for use with REST Services.
- */
-function nurani_library_create_API_account() {
-  // Create the API account with a random password, store the password in the
-  // database temporarily.  It is up to the administrator to remove the
-  // nurani_library_api_user_pass variable for security.
-  $pass = user_password();
-  $api_role = user_role_load_by_name('API');
-
-  // The API role is stored in a feature, but when the site is installing the
-  // order the features are installed can cause this to not exist yet.  Creating
-  // it here causes no issues.
-  if (!$api_role || $api_role->rid <= 0) {
-    // Create a default role for site administrators, with all available permissions assigned.
-    $api_role = new stdClass();
-    $api_role->name = 'API';
-    $api_role->weight = 3;
-    user_role_save($api_role);
-  }
-
-  $new_user = array(
-    'name' => 'API',
-    'pass' => $pass,
-    'mail' => 'api-no-reply@' . $_SERVER['SERVER_NAME'],
-    'init' => 'api-no-reply@' . $_SERVER['SERVER_NAME'],
-    'status' => 1,
-    'access' => time(),
-    'roles' => array(
-      DRUPAL_AUTHENTICATED_RID => 'authenticated user',
-      $api_role->rid => $api_role->name,
-    ),
-  );
-
-  $account = user_save(null, $new_user);
-  if ($account && $account->uid > 0) {
-    variable_set('nurani_library_api_user_pass', $pass);
-    drupal_set_message(t('Nurani Library API account created successfully. Write down the account password <strong>!pass</strong> in a safe place then delete the <em>nurani_library_api_user_pass</em> variable.', array('!pass' => $pass)), 'warning');
-  }
 }

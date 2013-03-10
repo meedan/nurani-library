@@ -17,12 +17,12 @@ class NuraniRESTModel extends NuraniModel {
   /**
    * Performs a search against a remote Nurani Library Provider instance.
    */
-  public function search($work_name, $book = NULL, $chapter = NULL, $verse = NULL, $page = 0, $pagesize = 100) {
+  public function search($work_name, $book = NULL, $chapter = NULL, $verse = NULL, $authorUUID = NULL, $page = 0, $pagesize = 100) {
     $this->resetErrorState();
 
-    $query = array();
+    $query = array('work_name' => $work_name);
 
-    foreach (array('work_name', 'book', 'chapter', 'verse', 'page', 'pagesize') as $variable) {
+    foreach (array('book', 'chapter', 'verse', 'authorUUID', 'page', 'pagesize') as $variable) {
       // Beware the $$ notation..
       if (!is_null($$variable)) {
         $query[$variable] = $$variable;
@@ -33,6 +33,10 @@ class NuraniRESTModel extends NuraniModel {
     if (is_array($passages)) {
       foreach ($passages as &$passage) {
         $passage = (object) $passage;
+
+        if (isset($passage->notes)) {
+          $this->addNoteAuthors($passage->notes);
+        }
       }
     }
 
@@ -47,6 +51,66 @@ class NuraniRESTModel extends NuraniModel {
   public function import($work, $document) {
     $this->resetErrorState();
     return $this->error("Importing into remote Nurani Library Provider instances is not allowed at this time.", 0);
+  }
+
+
+  /**
+   * Retrieves a list of annotations for a passage from remote Nurani Library
+   * Provider instance.
+   */
+  public function getAnnotations($passage_id, $authorUUID = NULL, $type = NULL, $page = 0, $pagesize = 100) {
+    $this->resetErrorState();
+    $query = array('authorUUID' => $authorUUID, 'type' => $type, 'page' => $page, 'pagesize' => $pagesize);
+    $path = 'annotation';
+    if (is_numeric($passage_id) && $passage_id > 0) {
+      $path .= '/' . $passage_id;
+    }
+    $annotations = $this->restRequest('GET', $path . $this->queryString($query));
+    $this->addNoteAuthors($annotations);
+    return $annotations;
+  }
+
+
+  /**
+   * Retrieves an annotation from remote Nurani Library Provider instance.
+   */
+  public function getAnnotation($id) {
+    $this->resetErrorState();
+    $annotation = $this->restRequest('GET', 'annotation/' . (int) $id);
+    $this->addNoteAuthor($annotation);
+    return $annotation;
+  }
+
+
+  /**
+   * Create an annotation on a Nurani Library Provider instance.
+   */
+  public function createAnnotation($annotation) {
+    $this->resetErrorState();
+    $annotation = $this->restRequest('POST', 'annotation', (array) $annotation);
+    $this->addNoteAuthor($annotation);
+    return $annotation;
+  }
+
+
+  /**
+   * Updates an annotation on a Nurani Library Provider instance.
+   */
+  public function updateAnnotation($id, $annotation) {
+    $this->resetErrorState();
+    $annotation = $this->restRequest('PUT', 'annotation/' . $id, (array) $annotation);
+    $this->addNoteAuthor($annotation);
+    return $annotation;
+  }
+
+
+  /**
+   * Deletes an annotation from a Nurani Library Provider instance.
+   */
+  public function deleteAnnotation($id) {
+    $this->resetErrorState();
+    $result = $this->restRequest('DELETE', 'annotation/' . $id);
+    return $result;
   }
 
 
@@ -88,6 +152,47 @@ class NuraniRESTModel extends NuraniModel {
   }
 
 
+  // TODO: Maybe this should be moved into nurani_library_services? It's highly Drupal'y
+  protected function addNoteAuthors(&$notes) {
+    global $user;
+
+    foreach ($notes as $i => $note) {
+      $note = (array) $note;
+
+      if (!$note['author_uuid']) {
+        continue;
+      }
+
+      $author = db_select('users', 'u')
+                  ->fields('u', array('uid', 'name'))
+                  ->condition('u.uuid', $note['author_uuid'])
+                  ->execute()
+                  ->fetchAssoc();
+
+      if (!$author) {
+        continue;
+      }
+
+      $notes[$i]['author'] = array(
+        'uid' => $author['uid'],
+        'name' => $author['name'],
+        'url' => url('user/' . $author['uid'], array('absolute' => TRUE)),
+      );
+
+      if ($note['author_uuid'] == $user->uuid || user_access('edit all nurani library annotations')) {
+        $notes[$i]['editable'] = TRUE;
+      }
+    }
+  }
+
+
+  protected function addNoteAuthor(&$note) {
+    $notes = array($note);
+    $this->addNoteAuthors($notes);
+    $note = $notes[0];
+  }
+
+
   /**
    * Sends a REST request using information provided in $this->connection.
    * 
@@ -104,7 +209,7 @@ class NuraniRESTModel extends NuraniModel {
    * @param (float) $timeout
    *  Optional, passed to drupal_http_request() as $timeout param
    */
-  private function restRequest($method, $resource, $form_data = NULL, $headers = array(), $max_redirects = 3, $timeout = 30.0) {
+  private function restRequest($method, $resource, $form_data = NULL, $headers = array(), $max_redirects = 3, $timeout = 30.0, $max_retries = 1) {;
     $path = $this->connection['path'] ? $this->connection['path'] . '/' : '';
 
     $url  = $this->connection['scheme'] . '://';
@@ -148,8 +253,23 @@ class NuraniRESTModel extends NuraniModel {
     }
 
     if ($response->code != 200) {
-      $message = "Error: " . $response->status_message;
-      if ($response->data) {
+      if ($max_retries > 0 && !$this->testConnection()) {
+        $this->destroyConnection();
+
+        if ($this->establishConnection(0)) {
+          $this->resetErrorState();
+          return $this->restRequest($method, $resource, $form_data, $headers, $max_redirects, $timeout, $max_retries - 1);
+        }
+      }
+
+      $message = "Error: ";
+      if (isset($response->status_message)) {
+        $message .= $response->status_message;
+      }
+      else if (isset($response->error)) {
+        $message .= $response->error;
+      }
+      if (isset($response->data)) {
         $message .= "; Data: " . $response->data;
       }
       return $this->error($message, $response->code);
@@ -178,7 +298,7 @@ class NuraniRESTModel extends NuraniModel {
   /**
    * Makes a connection with the 
    */
-  private function establishConnection() {
+  private function establishConnection($max_retries = 3) {
     // Attempt to bind to the existing session
     if (isset($_SESSION['nurani_rest_session']) && isset($_SESSION['nurani_rest_session']['id']) && isset($_SESSION['nurani_rest_session']['name'])) {
       $this->session = $_SESSION['nurani_rest_session'];
@@ -189,7 +309,7 @@ class NuraniRESTModel extends NuraniModel {
     // cleaned up first.
     $this->destroyConnection();
 
-    $login = $this->restRequest('POST', 'user/login', array('username' => $this->connection['user'], 'password' => $this->connection['pass']));
+    $login = $this->restRequest('POST', 'user/login', array('username' => $this->connection['user'], 'password' => $this->connection['pass']), array(), 3, 30.0, $max_retries);
     if ($this->getError() || !$login['sessid'] || !$login['session_name']) {
       $this->destroyConnection();
       return FALSE;
@@ -203,6 +323,22 @@ class NuraniRESTModel extends NuraniModel {
     $_SESSION['nurani_rest_session'] = $this->session;
 
     return TRUE;
+  }
+
+
+  /**
+   * Checks the status of the connection by ensuring the session is valid.
+   */
+  private function testConnection() {
+    $this->resetErrorState();
+
+    // Connection request is only sent once, never retried to avoid getting
+    // stuck in a loop.
+    $response = $this->restRequest('POST', 'system/connect', NULL, array(), 3, 30.0, 0);
+    if (is_array($response) && is_array($response['user'])) {
+      return $response['user']['uid'] > 0;
+    }
+    return FALSE;
   }
 
 

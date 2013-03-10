@@ -1,0 +1,177 @@
+.ui-dialog .ui-dialog-content.passage-picker-ui {
+  overflow: visible;
+  padding: 0.5em 1em 0;
+}
+
+.passage-picker-ui .toolbar, .passage-picker-ui .alternateWorks {
+  width: 100%;
+  background: #fff;
+  border-bottom: 2px solid #444444;
+}
+.passage-picker-ui .toolbar .form-item, .passage-picker-ui .alternateWorks .form-item {
+  display: inline-block;
+  margin: 0 0 1em 0;
+  margin-left: 1em;
+}
+.passage-picker-ui .toolbar .form-item-work-filter,
+.passage-picker-ui .toolbar .form-item-book-filter,
+.passage-picker-ui .toolbar .form-item-chapter-filter, .passage-picker-ui .alternateWorks .form-item-work-filter,
+.passage-picker-ui .alternateWorks .form-item-book-filter,
+.passage-picker-ui .alternateWorks .form-item-chapter-filter {
+  float: left;
+}
+.passage-picker-ui .alternateWorks {
+  overflow: hidden;
+  height: 0px;
+  /* Initially hidden, displayed on demand via PickerUI */
+  border-bottom: 0;
+}
+.passage-picker-ui .alternateWorks .inner {
+  padding: 0.5em 1em;
+  background: #BDF;
+  border-bottom: 2px solid #444444;
+}
+.passage-picker-ui .alternateWorks .inner > label {
+  float: right;
+  width: 30%;
+}
+.passage-picker-ui .alternateWorks div.form-item-alternate-works {
+  float: left;
+  margin-bottom: 0;
+}
+.passage-picker-ui .passages {
+  overflow-y: auto;
+}
+.passage-picker-ui .passages > table {
+  width: 100%;
+  border: none;
+  margin: 0;
+}
+.passage-picker-ui .passages > table tr {
+  border: none;
+}
+.passage-picker-ui .passages > table.has-annotations .form-item-passage-row {
+  padding-left: 16em;
+}
+.passage-picker-ui .passages .passage {
+  vertical-align: top;
+  width: 75%;
+  padding: 0;
+}
+.passage-picker-ui .passages .passage-row .passage:hover {
+  background: #ffffb3;
+}
+.passage-picker-ui .passages .form-item-passage-row {
+  margin: 0;
+  white-space: normal;
+  min-height: 32px;
+}
+.passage-picker-ui .passages .form-item-passage-row .form-checkbox {
+  display: block;
+  float: right;
+  margin-top: 0.3em;
+}
+.passage-picker-ui .passages .form-item-passage-row label {
+  display: block;
+  margin-right: 2em;
+}
+.passage-picker-ui .passages .form-item-passage-row.rtl {
+  text-align: left;
+  direction: rtl;
+}
+.passage-picker-ui .passages .form-item-passage-row.rtl .form-checkbox {
+  float: left;
+}
+.passage-picker-ui .passages .new-annotation-button {
+  float: left;
+  padding: 0.25em;
+}
+.passage-picker-ui .passages .new-annotation-button .form-submit {
+  margin: 0;
+}
+.passage-picker-ui .annotations {
+  width: 22%;
+  background: #aaa;
+  box-shadow: inset 1em 0px 1em -1em rgba(0, 0, 0, 0.5);
+}
+.passage-picker-ui .annotations .annotation {
+  display: block;
+  margin: 0.75em 0;
+  padding-right: 10px;
+  /* Annotation types and modes */
+  /* Limited space, all action buttons lose their margin */
+}
+.passage-picker-ui .annotations .annotation .inner {
+  position: relative;
+  background: white;
+  direction: ltr;
+  padding: 1em;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  -webkit-filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.3));
+  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.3));
+  border-radius: 0.5em;
+}
+.passage-picker-ui .annotations .annotation .inner:after {
+  left: 100%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+}
+.passage-picker-ui .annotations .annotation .inner:after {
+  border-color: rgba(238, 238, 238, 0);
+  border-left-color: white;
+  border-width: 8px;
+  top: 50%;
+  margin-top: -8px;
+}
+.passage-picker-ui .annotations .annotation.note .inner {
+  background: #bdf;
+}
+.passage-picker-ui .annotations .annotation.note .inner:after {
+  border-left-color: #bdf;
+}
+.passage-picker-ui .annotations .annotation .title {
+  display: none;
+}
+.passage-picker-ui .annotations .annotation.editing .title {
+  display: block;
+}
+.passage-picker-ui .annotations .annotation.editable .inner {
+  border-top: 5px solid #005eae;
+}
+.passage-picker-ui .annotations .annotation .form-submit {
+  float: left;
+  margin: 0;
+}
+.passage-picker-ui .annotations .annotation:not(.editing):hover .contents .actions {
+  display: block;
+}
+.passage-picker-ui .annotations .annotation .contents .attribution {
+  display: block;
+  float: left;
+}
+.passage-picker-ui .annotations .annotation .contents .actions {
+  display: none;
+  clear: both;
+  float: right;
+  width: 100%;
+  margin-top: 1em;
+}
+.passage-picker-ui .annotations .annotation .contents .actions .delete-annotation-action {
+  float: right;
+}
+.passage-picker-ui .annotations .annotation .annotation-form {
+  display: none;
+}
+.passage-picker-ui .annotations .annotation .annotation-form .form-type-textarea {
+  margin-bottom: 1.0em;
+}
+.passage-picker-ui .annotations .annotation .annotation-form textarea {
+  width: 100%;
+}
+.passage-picker-ui .annotations .annotation .annotation-form .actions .cancel {
+  float: right;
+}

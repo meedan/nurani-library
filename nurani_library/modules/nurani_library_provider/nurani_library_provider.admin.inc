@@ -27,7 +27,6 @@ function nurani_library_provider_admin_form($form, &$form_state) {
  * Nurani Library administrative form for managing works.
  */
 function nurani_library_provider_works_form($form, &$form_state) {
-  $nw = new NuraniWork();
   $nl = nurani_library();
 
   $form['works'] = array(
@@ -43,7 +42,13 @@ function nurani_library_provider_works_form($form, &$form_state) {
 
   $select_col_options = array(
     // TODO: The list of languages should not be hard-coded.
-    'language' => $nw->workLanguageOptions,
+    'language' => array(
+      'ar' => t("Arabic (ar)"),
+      'en' => t("English (en)"),
+      'el' => t("Greek (el)"),
+      'fr' => t("French (fr)"),
+      'he' => t("Hebrew (he)"),
+    ),
   );
   $descriptions = array(
     'name'      => t('A unique machine-readable name. Can only contain lowercase letters, numbers, and underscores.'),
@@ -70,6 +75,10 @@ function nurani_library_provider_works_form($form, &$form_state) {
             '#type' => 'value',
             '#value' => $value,
           );
+          break;
+
+        // Skip the books column
+        case 'books':
           break;
 
         case 'num_passages':
@@ -162,7 +171,7 @@ function theme_nurani_library_provider_works_form_table(&$variables) {
 
   foreach (element_children($element) as $row) {
     foreach (element_children($element[$row]) as $col) {
-      if ($col == 'id') {
+      if ($col == 'id' || $col == 'books') {
         continue;
       }
       if ($first_row) {
@@ -256,6 +265,7 @@ function _nurani_library_provider_new_work($form_state) {
     'name'         => '',
     'full_name'    => '',
     'language'     => 'en',
+    'books'        => array(),
     'num_passages' => 0
   );
   return (object) array_merge($work, $edit);
@@ -288,7 +298,7 @@ function _nurani_library_provider_validate_work($work, $element, $validate_empty
 function _nurani_library_provider_save_work($work) {
   $record = (object) $work;
   $is_new = ($record->id === 'new');
-  unset($record->actions, $record->num_passages);
+  unset($record->actions, $record->num_passages, $record->books);
 
   if ($is_new) {
     unset($record->id);
@@ -442,15 +452,13 @@ function nurani_library_provider_import_form_submit($form, &$form_state) {
   $format = $form_state['storage']['format'];
 
   $import[$work->name] = array(
-    'path'          => nurani_library_provider_works_path(),
-    'format'        => $format,
-    'language'      => $work->language,
-    // TODO: textDirection should not be hard-coded.
-    'textDirection' => in_array($work->language, array('he', 'ar')) ? 'rtl' : 'ltr',
-    'stripMarkup'   => TRUE,
+    'path'             => nurani_library_provider_works_path(),
+    'format'           => $format,
+    'language'         => $work->language,
     // NOTE: Character stripping should not be hard-coded.
-    'stripChars'    => $work->language == 'he' ? '/' : '',
-    'files' => array(),
+    'stripChars'       => $work->language == 'he' ? '/' : '',
+    'files'            => array(),
+    'includeApocrypha' => TRUE,
   );
 
   foreach ($files as $file) {
