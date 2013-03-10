@@ -918,11 +918,6 @@ PickerUI.prototype.alternateWorksHeight = function () {
   height = $alternateWorks.outerHeight();
   $alternateWorks.css('height', origHeight);
 
-  // Ensure the bottom border is fully displayed
-  if (height > 0) {
-    height += 1;
-  }
-
   return height;
 };
 

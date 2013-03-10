@@ -113,3 +113,15 @@ function nurani_library_ui_permission() {
     ),
   );
 }
+
+/**
+ * Implements hook_css_alter()
+ *
+ * Hack to only use RTL CSS when in RTL mode.
+ */
+function nurani_library_ui_css_alter(&$css) {
+  global $language;
+  if ($language->direction == LANGUAGE_RTL) {
+    unset($css[drupal_get_path('module', 'nurani_library_ui') . '/css/nurani_library_ui.css']);
+  }
+}

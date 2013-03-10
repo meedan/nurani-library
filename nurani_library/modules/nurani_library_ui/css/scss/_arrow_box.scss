@@ -1,10 +1,13 @@
-@mixin arrow-box($color: #eee, $size: 24px) {
-  & {
-    position: relative;
-    background: $color;
-  }
+// See: http://cssarrowplease.com/
+@mixin arrow-box($color: #eee, $size: 8px) {
+  position: relative;
+  background: $color;
+
+  // FIXME: This breaks bidi inside of arrow-boxes, but the arrows rely on it for positioning
+  direction: ltr;
+
   &:after {
-    right: 100%;
+    #{opposite-position($from-direction)}: 100%;
     border: solid transparent;
     content: " ";
     height: 0;
@@ -14,7 +17,7 @@
   }
   &:after {
     border-color: rgba(238, 238, 238, 0);
-    border-right-color: $color;
+    border-#{opposite-position($from-direction)}-color: $color;
     border-width: $size;
     top: 50%;
     margin-top: -$size;

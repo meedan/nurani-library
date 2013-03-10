@@ -1011,11 +1011,6 @@ var _nlui = (function ($) {
     height = $alternateWorks.outerHeight();
     $alternateWorks.css('height', origHeight);
 
-    // Ensure the bottom border is fully displayed
-    if (height > 0) {
-      height += 1;
-    }
-
     return height;
   };
 
@@ -1142,7 +1137,6 @@ var _nlui = (function ($) {
   PickerUI.partials = {
     annotation: [
       '<div class="annotation {{annotationClasses this}} clearfix" data-index="{{@index}}">',
-        '<div class="arrow">◀</div>',
         '<div class="inner">',
           '<h5 class="title">{{passage_title}}</h5>',
 

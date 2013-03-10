@@ -1,8 +1,10 @@
+$from-direction: left !default;
+
 @import 'arrow_box';
 
 .ui-dialog .ui-dialog-content.passage-picker-ui {
   overflow: visible;
-  padding: 0.5em 1em 0 1em;
+  padding: 0.5em 1em 0;
 }
 
 .passage-picker-ui {
@@ -15,12 +17,13 @@
 
     .form-item {
       display: inline-block;
-      margin: 0 1em 1em 0;
+      margin: 0 0 1em 0;
+      margin-#{opposite-position($from-direction)}: 1em;
     }
     .form-item-work-filter,
     .form-item-book-filter,
     .form-item-chapter-filter {
-      float: right;
+      float: opposite-position($from-direction);
     }
   }
 
@@ -35,13 +38,13 @@
       border-bottom: 2px solid #444;
 
       & > label {
-        float: left;
+        float: $from-direction;
         width: 30%;
       }
     }
 
     div.form-item-alternate-works {
-      float: right;
+      float: opposite-position($from-direction);
       margin-bottom: 0;
     }
   }
@@ -61,7 +64,7 @@
       }
 
       &.has-annotations .form-item-passage-row {
-        padding-right: 16em;
+        padding-#{opposite-position($from-direction)}: 16em;
       }
     }
 
@@ -81,26 +84,26 @@
 
       .form-checkbox {
         display: block;
-        float: left;
+        float: $from-direction;
         margin-top: 0.3em;
       }
       label {
         display: block;
-        margin-left: 2em;
+        margin-#{$from-direction}: 2em;
       }
 
       &.rtl {
-        text-align: right;
+        text-align: opposite-position($from-direction);
         direction: rtl;
 
         .form-checkbox {
-          float: right;
+          float: opposite-position($from-direction);
         }
       }
     }
 
     .new-annotation-button {
-      float: right;
+      float: opposite-position($from-direction);
       padding: 0.25em;
 
       .form-submit {
@@ -112,30 +115,51 @@
   .annotations {
     width: 22%;
     background: #aaa;
-    box-shadow: inset 1em 0px 1em -1em rgba(0, 0, 0, 0.5);
+    box-shadow: inset 1em 0px 1em -1em rgba(0, 0, 0, 0.5); // FIXME: RTL
 
     .annotation {
       display: block;
       margin: 0.75em 0;
-      padding-left: 10px;
+      padding-#{$from-direction}: 10px;
 
       .inner {
-        border-radius: 0.5em;
-        box-shadow: 0 0.2em 1em rgba(0, 0, 0, 0.5);
-        background: #fff;
+        @include arrow-box(#fff);
+
         padding: 1em;
+
+        box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+        -webkit-filter: drop-shadow(0 1px 4px rgba(0,0,0,0.3));
+        filter: drop-shadow(0 1px 4px rgba(0,0,0,0.3));
+        border-radius: 0.5em;
       }
-      .arrow {
-        margin: 0 0 -25px -12px;
-        height: 20px;
-        width: 10px;
-        font-size: 16px;
-        // FIXME: Having difficulty displaying the shadow beneath the box-shadow
-        //        on .inner.  Attempting to avoid the shadow being visible
-        //        on the right side by sliding it left.
-        text-shadow: -5px 0px 0.5em rgba(0, 0, 0, 0.5);
-        color: #fff;
+      &.note {
+        .inner {
+          background: #bdf;
+
+          &:after {
+            border-#{opposite-position($from-direction)}-color: #bdf;
+          }
+        }
       }
+
+      // .inner {
+      //   border-radius: 0.5em;
+      //   box-shadow: 0 0.2em 1em rgba(0, 0, 0, 0.5); // FIXME: RTL
+      //   background: #fff;
+      //   padding: 1em;
+      // }
+      // .arrow {
+      //   margin: 0 0 -25px 0;
+      //   margin-#{$from-direction}: -12px;
+      //   height: 20px;
+      //   width: 10px;
+      //   font-size: 16px;
+      //   // FIXME: Having difficulty displaying the shadow beneath the box-shadow
+      //   //        on .inner.  Attempting to avoid the shadow being visible
+      //   //        on the right side by sliding it left.
+      //   text-shadow: -5px 0px 0.5em rgba(0, 0, 0, 0.5); // FIXME: RTL
+      //   color: #fff;
+      // }
 
       .title {
         display: none;
@@ -152,18 +176,18 @@
           border-top: 5px solid #005eae;
         }
       }
-      &.note {
-        .arrow {
-          color: #bdf;
-        }
-        .inner {
-          background: #bdf;
-        }
-      }
+      // &.note {
+      //   .arrow {
+      //     color: #bdf;
+      //   }
+      //   .inner {
+      //     background: #bdf;
+      //   }
+      // }
 
       /* Limited space, all action buttons lose their margin */
       .form-submit {
-        float: right;
+        float: opposite-position($from-direction);
         margin: 0;
       }
 
@@ -176,18 +200,18 @@
       .contents {
         .attribution {
           display: block;
-          float: right;
+          float: opposite-position($from-direction);
         }
 
         .actions {
           display: none; // Actions are displayed on hover
           clear: both;
-          float: left;
+          float: $from-direction;
           width: 100%;
 
           margin-top: 1em;
           .delete-annotation-action {
-            float: left;
+            float: $from-direction;
           }
         }
       }
@@ -204,7 +228,7 @@
         }
         .actions {
           .cancel {
-            float: left;
+            float: $from-direction;
           }
         }
       }
