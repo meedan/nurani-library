@@ -60,7 +60,7 @@ function nurani_passage_widget($osisIDWork, $osisID) {
     if ($oembed && $oembed['html']) {
       $output .= '<div class="passage-widget-wrapper" id="' . $id . '">' . $oembed['html'] . '</div>';
       $url = nurani_passage_widget_oembed_url($osisIDWork, $osisID, $id, 'jsonp');
-      $output .= '<script>jQuery(function () { new PassageWidget({original_url: "' . url($_GET['q'], array('fragment' => $id)) . '", html: false}) });</script>';
+      $output .= '<script>jQuery(function () { new NL.PassageWidget({original_url: "' . url($_GET['q'], array('fragment' => $id)) . '", html: false}) });</script>';
     }
   }
   else {
